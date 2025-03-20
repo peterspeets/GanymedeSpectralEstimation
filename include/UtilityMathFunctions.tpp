@@ -43,6 +43,167 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const kiss_fft_cpx
     outFile.close();
 }
 
+template <typename floatingPointType>
+pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<floatingPointType>::fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt) {
+    int i, j;
+    floatingPointType* Eta = new floatingPointType[q_i+1];
+    floatingPointType eta = 0.0;
+    floatingPointType af;
+    for(i = 0; i < N; i++) {
+        eta += abs(x[i]*x[i]);
+    }
+    eta /= N;
+
+
+    Eta[0] = eta;
+    kiss_fft_cpx diaaf[K];
+    complex<floatingPointType>* diaaf_complex = new complex<floatingPointType>[K];
+    kiss_fft_cpx temp[K];
+    kiss_fft_cpx temp2[K];
+    kiss_fft_cpx q[K];
+    kiss_fft_cpx Fa1[K];
+
+    complex<floatingPointType> c[N];
+    kiss_fft_cpx diaa_num[K];
+    complex<floatingPointType> diaa_den[K];
+    floatingPointType diag_a[K];
+    complex<floatingPointType>* A;
+    complex<floatingPointType>* y;
+    complex<floatingPointType>* fa1;
+
+
+
+    kiss_fft_cfg cfg = kiss_fft_alloc(K, 0, NULL, NULL);
+    kiss_fft_cfg icfg = kiss_fft_alloc(K, 0, NULL, NULL);
+
+
+    for(i = 0; i<N; i++) {
+        temp[i].r = x[i];
+        temp[i].i = 0.0;
+    }
+    for(i = N; i<K; i++) {
+        temp[i].r = 0.0;
+        temp[i].i = 0.0;
+    }
+
+    kiss_fft( cfg, temp, diaaf);
+    for(i = 0; i<K; i++) {
+        diaaf[i].r = (diaaf[i].r *diaaf[i].r  + diaaf[i].i *diaaf[i].i)/(N*N);
+        diaaf[i].i=0;
+    }
+
+
+
+
+    for(int k = 0; k < q_i; k++) {
+        kiss_fft(icfg,diaaf,q);
+
+
+
+        for(i = 0; i<N; i++) {
+            c[i] = complex<floatingPointType>(q[i].r, q[i].i);
+        }
+        c[0] += vt*eta;
+
+
+        cout << "Levinson" << endl;
+
+
+        tuple<complex<floatingPointType>*, double,complex<floatingPointType>*> levinsonOut = levinson(c,N);
+
+        cout << "done Levinson" << endl;
+
+        delete[] get<2>(levinsonOut);
+        A = get<0>(levinsonOut);
+        af = sqrt(get<1>(levinsonOut));
+
+        for(i = 0; i < N; i++) {
+            A[i] / sqrt(af);
+        }
+
+        cout << "tvec" << endl;
+
+        y = tvec_gs_i(A,x,N);
+        cout << "done tvec" << endl;
+
+        kiss_fft_cpx aaa[N];
+        for(i = 0; i<N;i++){
+            //cout << i << " " << y[i]  << endl;
+            aaa[i].r = y[i].real();
+            aaa[i].i = y[i].imag();
+        }
+        cout << "saving file" << endl;
+        saveArrayToFile(x,N,"D:\\data\\verwijdermij.txt");
+        cout << "saved file." << endl;
+
+        cout << af << endl;
+
+        for(i = 0; i<N; i++) {
+            temp[i].r = y->real();
+            temp[i].i = y->imag();
+        }
+        for(i =  N; i<K; i++) {
+            temp[i].r = 0;
+            temp[i].i = 0;
+        }
+        kiss_fft(cfg,temp,diaa_num);
+        fa1 = polynomialEstimation(A,N);//fa1 has size K-1
+        for(i = 0; i < K-1; i++) {
+            temp[i].r = fa1[i].real();
+            temp[i].i = fa1[i].imag();
+        }
+        temp[K-1].r = 0.0;
+        temp[K-1].i = 0.0;
+        kiss_fft(cfg,temp,Fa1);
+        diaa_den[0] = complex<floatingPointType>(Fa1[0].r, Fa1[0].i);
+        for(i = 1; i<K; i++) {
+            diaa_den[i] = complex<floatingPointType>(Fa1[ K- i -1].r, Fa1[K - i - 1 ].i);
+        }
+
+        for(i = 1; i<K; i++) {
+            diaaf[i].r  = abs( (diaa_num[i].r*diaa_num[i].r + diaa_num[i].i*diaa_num[i].i  )  /(diaa_den[i]*diaa_den[i]) );
+
+        }
+
+
+
+        for(i = 1; i < K; i++) {
+            temp[i].r = A[K-i-2].real();
+            temp[i].i = -A[K-i-2].imag();
+        }
+        temp[0].r = 0.0;
+        temp[0].i = 0.0;
+
+        diag_a[0] = A[0].real()*A[0].real() + A[0].imag()*A[0].imag()  -(temp[0].r * temp[0].r +  temp[0].i*temp[0].i);
+
+        for(i = 1; i < K; i++) {
+            diag_a[i] = diag_a[i-1] +  A[i].real()*A[i].real() + A[i].imag()*A[i].imag()  -(temp[i].r * temp[i].r +  temp[i].i*temp[i].i);
+        }
+
+        eta = 0.0;
+        for(i = 1; i < K; i++) {
+            eta +=  abs(y[i]*y[i] / (diag_a[i]*diag_a[i])) ;
+        }
+        eta /= K;
+        Eta[k] = eta;
+    }
+
+
+    kiss_fft_free(cfg);
+    kiss_fft_free(icfg);
+    delete[] A;
+    delete[] y;
+    delete[] fa1;
+    pair<complex<floatingPointType>*, floatingPointType*> result;
+
+    for(i = 0; i < K; i++) {
+        diaaf_complex[i] =  complex<floatingPointType>(diaaf[i].r,diaaf[i].i);
+    }
+
+    result.first = diaaf_complex;
+    result.second = Eta;
+    return result;
+}
 
 
 
@@ -56,25 +217,35 @@ UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolatio
 
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const floatingPointType* a,const floatingPointType* x,const size_t N){
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const floatingPointType* a,const floatingPointType* x,const size_t N) {
     complex<floatingPointType> aComplex[N];
     complex<floatingPointType> xComplex[N];
-    for(int i = 0; i < N; i++){
+    for(int i = 0; i < N; i++) {
         aComplex[i] = a[i];
         xComplex[i] = x[i];
     }
 
     return UtilityMathFunctions<floatingPointType>::tvec_gs_i(aComplex,xComplex,N);
-
 }
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,const complex<floatingPointType>* x,const size_t N){
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,const floatingPointType* x,const size_t N) {
+    complex<floatingPointType> xComplex[N];
+    for(int i = 0; i < N; i++) {
+        xComplex[i] = x[i];
+    }
+
+    return UtilityMathFunctions<floatingPointType>::tvec_gs_i(a,xComplex,N);
+}
+
+
+template <typename floatingPointType>
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,const complex<floatingPointType>* x,const size_t N) {
     int i, j;
+
 
     kiss_fft_cpx t1t[2*N];
     kiss_fft_cpx t1[2*N];
-    //kiss_fft_cpx t[2*N];
     kiss_fft_cpx w[2*N];
 
     kiss_fft_cpx T1t[2*N];
@@ -88,15 +259,13 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     kiss_fft_cpx ftmp[2*N];
 
 
-    complex<floatingPointType> y[N];
+    complex<floatingPointType>* y = new complex<floatingPointType>[N];
     complex<floatingPointType> z[N];
-    //complex<floatingPointType> = t1t[2*N];
-    //complex<floatingPointType> = w[2*N];
 
     kiss_fft_cfg cfg = kiss_fft_alloc(2*N, 0, NULL, NULL);
     kiss_fft_cfg icfg = kiss_fft_alloc(2*N, 1, NULL, NULL);
 
-    for(i = 0; i < N; i++){
+    for(i = 0; i < N; i++) {
         t1[i].r = a[i].real();
         t1[i].i = a[i].imag();
         w[i].r = x[i].real();
@@ -106,7 +275,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     t1[N].i = a[0].imag();
     w[N].r = 0.0;
     w[N].i = 0.0;
-    for(i = N+1; i < 2*N; i++){
+    for(i = N+1; i < 2*N; i++) {
         t1[i].r = 0.0;
         t1[i].i = 0.0;
         w[i].r = 0.0;
@@ -115,13 +284,13 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 
     t1t[0].r = a[0].real();
     t1t[0].i = -a[0].imag();
-    for(i = 1; i < N; i++){
+    for(i = 1; i < N; i++) {
         t1t[i].r = 0.0;
         t1t[i].i = 0.0;
     }
     t1t[N].r = a[0].real();
     t1t[N].i = -a[0].imag();
-    for(i = N+1; i < 2*N; i++){
+    for(i = N+1; i < 2*N; i++) {
         t1t[i].r = a[ 2*N-i ].real();
         t1t[i].i = a[ 2*N-i ].imag();
     }
@@ -129,45 +298,47 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 
 
 
-    kiss_fft( cfg , t1 , T1);
-    kiss_fft( cfg , t1t , T1t);
-    kiss_fft( cfg , w , W);
+    kiss_fft( cfg, t1, T1);
+    kiss_fft( cfg, t1t, T1t);
+    kiss_fft( cfg, w, W);
 
+    saveArrayToFile(t1, 2*N,"D:\\data\\testt1.txt");
+    saveArrayToFile(t1t, 2*N,"D:\\data\\testt1t.txt");
+    saveArrayToFile(w, 2*N,"D:\\data\\testw.txt");
 
-
-    for(i = 0; i < 2*N; i++){
+    for(i = 0; i < 2*N; i++) {
         ftmp[i].r = T1t[i].r*W[i].r - T1t[i].i*W[i].i  ;
         ftmp[i].i = T1t[i].r*W[i].i + T1t[i].i*W[i].r  ;
     }
 
 
-    kiss_fft( icfg , ftmp , w);
+    kiss_fft( icfg, ftmp, w);
 
 
 
-    for(i = N; i < 2*N; i++){
+    for(i = N; i < 2*N; i++) {
         w[i].r = 0.0;
         w[i].i = 0.0;
     }
 
-    kiss_fft( cfg , w , W);
-    for(i = 0; i < 2*N; i++){
+    kiss_fft( cfg, w, W);
+    for(i = 0; i < 2*N; i++) {
         ftmp[i].r = T1[i].r*W[i].r - T1[i].i*W[i].i  ;
         ftmp[i].i = T1[i].r*W[i].i + T1[i].i*W[i].r  ;
     }
 
-    kiss_fft( icfg , ftmp, tmp1);
+    kiss_fft( icfg, ftmp, tmp1);
 
 
 
 
     z[0] = 0.0;
-    for(i = 1; i < N;i++){
+    for(i = 1; i < N; i++) {
         z[i] = a[N-i];
     }
 
 
-    for(i = 0; i < N; i++){
+    for(i = 0; i < N; i++) {
         t1[i].r = z[i].real();
         t1[i].i = z[i].imag();
         w[i].r = x[i].real();
@@ -177,7 +348,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     t1[N].i = z[0].imag();
     w[N].r = 0.0;
     w[N].i = 0.0;
-    for(i = N+1; i < 2*N; i++){
+    for(i = N+1; i < 2*N; i++) {
         t1[i].r = 0.0;
         t1[i].i = 0.0;
         w[i].r = 0.0;
@@ -186,52 +357,56 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 
     t1t[0].r = z[0].real();
     t1t[0].i = -z[0].imag();
-    for(i = 1; i < N; i++){
+    for(i = 1; i < N; i++) {
         t1t[i].r = 0.0;
         t1t[i].i = 0.0;
     }
     t1t[N].r = z[0].real();
     t1t[N].i = -z[0].imag();
-    for(i = N+1; i < 2*N; i++){
+    for(i = N+1; i < 2*N; i++) {
         t1t[i].r = z[ 2*N-i ].real();
         t1t[i].i = z[ 2*N-i ].imag();
     }
 
 
 
-    kiss_fft( cfg , t1 , T1);
-    kiss_fft( cfg , t1t , T1t);
-    kiss_fft( cfg , w , W);
+    kiss_fft( cfg, t1, T1);
+    kiss_fft( cfg, t1t, T1t);
+    kiss_fft( cfg, w, W);
 
 
 
-    for(i = 0; i < 2*N; i++){
+    for(i = 0; i < 2*N; i++) {
         ftmp[i].r = T1t[i].r*W[i].r - T1t[i].i*W[i].i  ;
         ftmp[i].i = T1t[i].r*W[i].i + T1t[i].i*W[i].r  ;
     }
 
-    kiss_fft( icfg , ftmp , w);
-    for(i = N; i < 2*N; i++){
+    kiss_fft( icfg, ftmp, w);
+    for(i = N; i < 2*N; i++) {
         w[i].r = 0.0;
         w[i].i = 0.0;
     }
 
 
 
-    kiss_fft( cfg , w , W);
+    kiss_fft( cfg, w, W);
 
-    for(i = 0; i < 2*N; i++){
+    for(i = 0; i < 2*N; i++) {
         ftmp[i].r = T1[i].r*W[i].r - T1[i].i*W[i].i  ;
         ftmp[i].i = T1[i].r*W[i].i + T1[i].i*W[i].r  ;
     }
 
+    cout << x[10].real() << " " << x[10].imag()  << endl;
+    cout << a[10].real() << " " << a[10].imag()  << endl;
+    cout << tmp1[10].r << " " << tmp1[10].i  << endl;
+    cout << tmp2[10].r << " " << tmp2[10].i  << endl;
 
 
-    kiss_fft( icfg , ftmp, tmp2);
+    kiss_fft( icfg, ftmp, tmp2);
     kiss_fft_free(cfg);
     kiss_fft_free(icfg);
 
-    for(i = 0; i < N; i++){
+    for(i = 0; i < N; i++) {
         y[i] =complex<floatingPointType>(tmp1[i].r/(4*N*N) - tmp2[i].r/(4*N*N), tmp1[i].i/(4*N*N) - tmp2[i].i/(4*N*N));
     }
 
@@ -249,7 +424,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialEstimation(const complex<floatingPointType>* inputVector, size_t N){
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialEstimation(const complex<floatingPointType>* inputVector, size_t N) {
     //Algorithm from: Fast and accurate spectral-estimation axial super-resolution optical coherence tomography, J. de Wit et al. (2021)
     //Matlab code at https://zenodo.org/records/5482794 (J. de Wit)
     floatingPointType M[N];
@@ -266,7 +441,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
     kiss_fft_cfg cfg = kiss_fft_alloc(2*N, 0, NULL, NULL);
 
-    for(int i = 0; i < N; i++){
+    for(int i = 0; i < N; i++) {
         M[i] = i+1;
         t1[i] = inputVector[i];
     }
@@ -274,18 +449,18 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
 
 
-    for(int i = 1; i < N; i++){
+    for(int i = 1; i < N; i++) {
         t2[i] = conj(inputVector[N - i]);
     }
 
 
-    for(int i = 0; i < N; i++){
+    for(int i = 0; i < N; i++) {
         s1[i] = conj(t1[N-i-1])*M[i];
         s2[i] = conj(t2[N-i-1])*M[i];
     }
 
 
-    for(int i = 0; i < N; i++){
+    for(int i = 0; i < N; i++) {
         w1[i].r = s1[i].real();
         w1[i].i = s1[i].imag();
         w2[i].r = s2[i].real();
@@ -295,7 +470,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
         t2x[i].r = t2[i].real();
         t2x[i].i = t2[i].imag();
     }
-    for(int i = N; i < 2*N; i++){
+    for(int i = N; i < 2*N; i++) {
         w1[i].r = 0.0;
         w2[i].r = 0.0;
         t1x[i].r = 0.0;
@@ -333,7 +508,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
     complex<floatingPointType> f[N];
 
-    for(int i = 0; i < 2*N; i++){
+    for(int i = 0; i < 2*N; i++) {
         fft1[i].r = T1X[i].r * W1[i].r - T1X[i].i * W1[i].i;
         fft1[i].i = T1X[i].r * W1[i].i + T1X[i].i * W1[i].r;
         fft2[i].r = T2X[i].r * W2[i].r - T2X[i].i * W2[i].i;
@@ -348,11 +523,11 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
     kiss_fft_free(cfg);
 
-    for(int i = 0; i < N; i++){
+    for(int i = 0; i < N; i++) {
         //phi[i] = (tmp1[i].r, -tmp1[i].i) - (tmp2[i].r, -tmp2[i].i);
         phi[i] = complex<floatingPointType>(tmp1[i].r - tmp2[i].r, -tmp1[i].i + tmp2[i].i);
     }
-    for(int i = 0; i < N-2; i++){
+    for(int i = 0; i < N-2; i++) {
         phi[N+i] = conj( phi[N-i-2 ] );
     }
 
@@ -362,20 +537,20 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
 
 template <typename floatingPointType>
-tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>*> UtilityMathFunctions<floatingPointType>::levinson(const complex<floatingPointType>* inputVector, size_t N){
+tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>*> UtilityMathFunctions<floatingPointType>::levinson(const complex<floatingPointType>* inputVector, size_t N) {
 
     //Taken from https://github.com/cokelaer/spectrum/blob/master/src/spectrum/levinson.py
 
     int i, j,k,kj;
     int khalf;
     complex<floatingPointType> r[N];
-    for(i = 0; i<N;i++){
+    for(i = 0; i<N; i++) {
         r[i] = inputVector[i];
     }
-    double T0 = r[0].real();
+    floatingPointType T0 = r[0].real();
 
     complex<floatingPointType> T[N-1];
-    for(i = 0; i< N-1;i++){
+    for(i = 0; i< N-1; i++) {
         T[i] = r[i+1];
     }
     int M = N - 1;
@@ -385,39 +560,39 @@ tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>
     //fill(begin(A),end(A),0.0);
     //fill(begin(refer),end(refer),0.0);
 
-    for(i = 0; i < M; i++){
+    for(i = 0; i < M; i++) {
         A[i] = 0;
         refer[i] = 0;
     }
 
-    double P = T0;
+    floatingPointType P = T0;
     complex<floatingPointType> save;
     complex<floatingPointType> temp;
-    for(k = 0; k < M;k++){
+    for(k = 0; k < M; k++) {
         save = T[k];
-        if(k == 0){
+        if(k == 0) {
             temp = -save/P;
-        }else{
-            for(j = 0; j < k;j++){
+        } else {
+            for(j = 0; j < k; j++) {
                 save = save + A[j]*T[k-j-1];
             }
             temp = -save/P;
         }
         P = P*(1.0 - (temp.real()*temp.real() + temp.imag()*temp.imag() ));
-        if(P < 0){
+        if(P < 0) {
             cout << "Singular matrix" << endl;
         }
         A[k] = temp;
         refer[k] = temp;
-        if(k == 0){
+        if(k == 0) {
             continue;
         }
         khalf = (k+1)/2;
-        for(j = 0; j < khalf;j++){
+        for(j = 0; j < khalf; j++) {
             kj = k - j - 1;
             save = A[j];
             A[j] = save + temp*A[kj];
-            if(j != kj){
+            if(j != kj) {
                 A[kj] += temp*save;
             }
         }
@@ -507,7 +682,7 @@ typename UtilityMathFunctions<floatingPointType>::SplineInterpolation* UtilityMa
 
 
     for(i = 0; i<n; i++) {
-        splines[i] = new Spline<floatingPointType>{a[i],b[i],c[i],d[i],x[i]};
+        splines[i] = new Spline<floatingPointType> {a[i],b[i],c[i],d[i],x[i]};
     }
 
 

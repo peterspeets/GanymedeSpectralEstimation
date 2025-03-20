@@ -193,28 +193,26 @@ int main() {
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
     settings = make_shared<Settings>();
 
-    double* a;
-    double* x;
+
 
 
 
     cout << "load test data."<< endl;
-    pair<double*,int> apair = IO<double>::loadArrayFromFile("D:\\data\\a.txt");
-    pair<double*,int> xpair = IO<double>::loadArrayFromFile("D:\\data\\x.txt");
-    a = apair.first;
-    x = xpair.first;
-    int N = apair.second;
-    cout << "loaded test data."<< endl;
-
-    complex<double>* cc;
-    cc = UtilityMathFunctions<double>::tvec_gs_i(a,x,N);
+    pair<float*,int> xpair = IO<float>::loadArrayFromFile("D:\\data\\spectrum.txt");
+    float* x = xpair.first;
+    int N = xpair.second;
+    int q_i = 1;
+    int K = 2*N;
+    double vt = 1.0;
 
 
+    pair<complex<float>*, float*> riaa_res;
+    riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
 
-    return 0;
+
     /*
 
-    //UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(x,y,N);
+
 
     float* offset = nullptr;
     float* chirp = nullptr;
@@ -224,7 +222,7 @@ int main() {
 
     if(filePath.substr(filePath.length() - 4) == ".oct"){
         IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
-        settings = fileLoader.settings;
+        settings = fileLoader. loadSettings() ;
         offset = fileLoader.loadCalibrationSpectrum(settings->pathOffset);
         chirp = fileLoader.loadCalibrationSpectrum(settings->pathChirp);
         referenceSpectrum = fileLoader.loadCalibrationSpectrum(settings->pathApodization);

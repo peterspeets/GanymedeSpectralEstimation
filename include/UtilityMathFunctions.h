@@ -31,9 +31,12 @@ private:
 
 public:
     static complex<floatingPointType>* tvec_gs_i(const floatingPointType* a,const floatingPointType* x,const size_t N);
+    static complex<floatingPointType>* tvec_gs_i(const complex<floatingPointType>* a,const floatingPointType* x,const size_t N);
     static complex<floatingPointType>* tvec_gs_i(const complex<floatingPointType>* a,const complex<floatingPointType>* x,const size_t N);
     static tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>*> levinson(const complex<floatingPointType>*, size_t N);
     static complex<floatingPointType>* polynomialEstimation(const complex<floatingPointType>*, size_t N);
+    static pair<complex<floatingPointType>*, floatingPointType*> fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt);
+
 
     class SplineInterpolation {
     public:
