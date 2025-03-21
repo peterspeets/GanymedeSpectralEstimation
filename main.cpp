@@ -208,9 +208,9 @@ int main() {
 
     pair<complex<float>*, float*> riaa_res;
     riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
+    IO<float>::saveArrayToFile(riaa_res.first, N, "D:\\data\\verwijdermij.txt");
 
 
-    /*
 
 
 
@@ -337,5 +337,5 @@ int main() {
     cout << "end" << endl;
     return 0;
 
-    */
+
 }

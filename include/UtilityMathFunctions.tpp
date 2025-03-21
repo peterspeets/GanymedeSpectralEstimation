@@ -66,7 +66,7 @@ pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<float
     complex<floatingPointType> c[N];
     kiss_fft_cpx diaa_num[K];
     complex<floatingPointType> diaa_den[K];
-    floatingPointType diag_a[K];
+    floatingPointType diag_a[N];
     complex<floatingPointType>* A;
     complex<floatingPointType>* y;
     complex<floatingPointType>* fa1;
@@ -106,48 +106,39 @@ pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<float
         c[0] += vt*eta;
 
 
-        cout << "Levinson" << endl;
+
 
 
         tuple<complex<floatingPointType>*, double,complex<floatingPointType>*> levinsonOut = levinson(c,N);
 
-        cout << "done Levinson" << endl;
+        ;
 
         delete[] get<2>(levinsonOut);
         A = get<0>(levinsonOut);
         af = sqrt(get<1>(levinsonOut));
 
         for(i = 0; i < N; i++) {
-            A[i] / sqrt(af);
+            A[i] /= af;
         }
-
-        cout << "tvec" << endl;
 
         y = tvec_gs_i(A,x,N);
-        cout << "done tvec" << endl;
-
-        kiss_fft_cpx aaa[N];
-        for(i = 0; i<N;i++){
-            //cout << i << " " << y[i]  << endl;
-            aaa[i].r = y[i].real();
-            aaa[i].i = y[i].imag();
-        }
-        cout << "saving file" << endl;
-        saveArrayToFile(x,N,"D:\\data\\verwijdermij.txt");
-        cout << "saved file." << endl;
-
-        cout << af << endl;
 
         for(i = 0; i<N; i++) {
-            temp[i].r = y->real();
-            temp[i].i = y->imag();
+            temp[i].r = y[i].real();
+            temp[i].i = y[i].imag();
         }
         for(i =  N; i<K; i++) {
             temp[i].r = 0;
             temp[i].i = 0;
         }
         kiss_fft(cfg,temp,diaa_num);
+
+
+
         fa1 = polynomialEstimation(A,N);//fa1 has size K-1
+
+
+
         for(i = 0; i < K-1; i++) {
             temp[i].r = fa1[i].real();
             temp[i].i = fa1[i].imag();
@@ -155,33 +146,51 @@ pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<float
         temp[K-1].r = 0.0;
         temp[K-1].i = 0.0;
         kiss_fft(cfg,temp,Fa1);
+
+
         diaa_den[0] = complex<floatingPointType>(Fa1[0].r, Fa1[0].i);
-        for(i = 1; i<K; i++) {
-            diaa_den[i] = complex<floatingPointType>(Fa1[ K- i -1].r, Fa1[K - i - 1 ].i);
-        }
 
         for(i = 1; i<K; i++) {
-            diaaf[i].r  = abs( (diaa_num[i].r*diaa_num[i].r + diaa_num[i].i*diaa_num[i].i  )  /(diaa_den[i]*diaa_den[i]) );
+            diaa_den[i] = complex<floatingPointType>(Fa1[ K - i ].r, Fa1[K - i  ].i);
+        }
 
+        /*
+
+        Complex num/den for debugging.
+
+        kiss_fft_cpx dff[K];
+        for(i = 0; i<K; i++) {
+            float A1 = sqrt(diaa_num[i].r*diaa_num[i].r  + diaa_num[i].i*diaa_num[i].i );
+            float A2 = sqrt(diaa_den[i].real()*diaa_den[i].real()  + diaa_den[i].imag()*diaa_den[i].imag() );
+            float phi1 = atan2(diaa_num[i].r , diaa_num[i].i);
+            float phi2 = atan2(diaa_den[i].real(), diaa_den[i].imag());
+            float newr = (A1/A2)*cos(phi1 - phi2);
+            float newi = (A1/A2)*sin(phi1 - phi2);
+            dff[i].r = newr;
+            dff[i].i = newi;
+        }
+        */
+
+        for(i = 0; i<K; i++) {
+            diaaf[i].r  = abs( (diaa_num[i].r*diaa_num[i].r + diaa_num[i].i*diaa_num[i].i  )  /(diaa_den[i]*conj(diaa_den[i])) );
         }
 
 
-
-        for(i = 1; i < K; i++) {
-            temp[i].r = A[K-i-2].real();
-            temp[i].i = -A[K-i-2].imag();
+        for(i = 1; i < N; i++) {
+            temp[i].r = A[N-i].real();
+            temp[i].i = -A[N-i].imag();
         }
         temp[0].r = 0.0;
         temp[0].i = 0.0;
 
         diag_a[0] = A[0].real()*A[0].real() + A[0].imag()*A[0].imag()  -(temp[0].r * temp[0].r +  temp[0].i*temp[0].i);
 
-        for(i = 1; i < K; i++) {
+        for(i = 1; i < N; i++) {
             diag_a[i] = diag_a[i-1] +  A[i].real()*A[i].real() + A[i].imag()*A[i].imag()  -(temp[i].r * temp[i].r +  temp[i].i*temp[i].i);
         }
 
         eta = 0.0;
-        for(i = 1; i < K; i++) {
+        for(i = 1; i < N; i++) {
             eta +=  abs(y[i]*y[i] / (diag_a[i]*diag_a[i])) ;
         }
         eta /= K;
@@ -295,22 +304,18 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     }
 
 
-
-
     kiss_fft( cfg, t1, T1);
     kiss_fft( cfg, t1t, T1t);
     kiss_fft( cfg, w, W);
 
-    saveArrayToFile(t1, 2*N,"D:\\data\\testt1.txt");
-    saveArrayToFile(t1t, 2*N,"D:\\data\\testt1t.txt");
-    saveArrayToFile(w, 2*N,"D:\\data\\testw.txt");
+    //saveArrayToFile(t1, 2*N,"D:\\data\\testt1.txt");
+    //saveArrayToFile(t1t, 2*N,"D:\\data\\testt1t.txt");
+    //saveArrayToFile(w, 2*N,"D:\\data\\testw.txt");
 
     for(i = 0; i < 2*N; i++) {
         ftmp[i].r = T1t[i].r*W[i].r - T1t[i].i*W[i].i  ;
         ftmp[i].i = T1t[i].r*W[i].i + T1t[i].i*W[i].r  ;
     }
-
-
     kiss_fft( icfg, ftmp, w);
 
 
@@ -394,11 +399,6 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
         ftmp[i].r = T1[i].r*W[i].r - T1[i].i*W[i].i  ;
         ftmp[i].i = T1[i].r*W[i].i + T1[i].i*W[i].r  ;
     }
-
-    cout << x[10].real() << " " << x[10].imag()  << endl;
-    cout << a[10].real() << " " << a[10].imag()  << endl;
-    cout << tmp1[10].r << " " << tmp1[10].i  << endl;
-    cout << tmp2[10].r << " " << tmp2[10].i  << endl;
 
 
     kiss_fft( icfg, ftmp, tmp2);
@@ -523,8 +523,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
     kiss_fft_free(cfg);
 
     for(int i = 0; i < N; i++) {
-        //phi[i] = (tmp1[i].r, -tmp1[i].i) - (tmp2[i].r, -tmp2[i].i);
-        phi[i] = complex<floatingPointType>(tmp1[i].r - tmp2[i].r, -tmp1[i].i + tmp2[i].i);
+        phi[i] = complex<floatingPointType>( (tmp1[i].r - tmp2[i].r)/(2*N), ( -tmp1[i].i + tmp2[i].i)/(2*N)    );
     }
     for(int i = 0; i < N-2; i++) {
         phi[N+i] = conj( phi[N-i-2 ] );

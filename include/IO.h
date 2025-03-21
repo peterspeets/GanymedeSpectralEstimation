@@ -34,7 +34,15 @@ class IO
         virtual ~IO();
         template <typename T>
         static void saveArrayToFile(const T* array, const int N, const string& filename);
+
+        template <typename T>
+        static void saveArrayToFile(const complex<T>* cpx, const int N, const string& filename);
+
+        template <typename T>
+        static void test(T);
+
         static void saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename);
+
 
         template <typename T>
         static void save2DArrayToFile(T** array, const int M, const int N, const std::string& filename, char separator = ',');

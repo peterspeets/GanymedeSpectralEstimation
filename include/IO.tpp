@@ -459,6 +459,33 @@ void IO<T>::saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& 
     outFile.close();
 }
 
+template <typename floatingPointType>
+template <typename T>
+void IO<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, const string& filename){
+    ofstream outFile(filename);
+
+    if (!outFile) {
+        cout << "Cannot open: " << filename << endl;
+        return;
+    }
+
+    for (int i = 0; i < N; ++i) {
+        outFile << cpx[i].real() ;
+        if(i < N-1) {
+            outFile << ",";
+        }
+    }
+    outFile << endl;
+    for (int i = 0; i < N; ++i) {
+        outFile << cpx[i].imag() ;
+        if(i < N-1) {
+            outFile << ",";
+        }
+    }
+    outFile.close();
+
+}
+
 
 template<typename floatingPointType>
 template <typename T>
