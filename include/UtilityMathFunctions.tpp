@@ -234,7 +234,6 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     for(int i = 0; i < N; i++) {
         xComplex[i] = x[i];
     }
-
     return UtilityMathFunctions<floatingPointType>::tvec_gs_i(a,xComplex,N);
 }
 
@@ -555,13 +554,13 @@ tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>
     }
     int M = N - 1;
 
-    complex<floatingPointType>* A = new complex<floatingPointType>[M];
+    complex<floatingPointType>* A = new complex<floatingPointType>[N];
     complex<floatingPointType>* refer = new complex<floatingPointType>[M];
     //fill(begin(A),end(A),0.0);
     //fill(begin(refer),end(refer),0.0);
-
+    A[0] = 1.0;
     for(i = 0; i < M; i++) {
-        A[i] = 0;
+        A[i+1] = 0;
         refer[i] = 0;
     }
 
@@ -574,7 +573,7 @@ tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>
             temp = -save/P;
         } else {
             for(j = 0; j < k; j++) {
-                save = save + A[j]*T[k-j-1];
+                save = save + A[j+1]*T[k-j-1];
             }
             temp = -save/P;
         }
@@ -582,7 +581,7 @@ tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>
         if(P < 0) {
             cout << "Singular matrix" << endl;
         }
-        A[k] = temp;
+        A[k+1] = temp;
         refer[k] = temp;
         if(k == 0) {
             continue;
@@ -590,10 +589,10 @@ tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>
         khalf = (k+1)/2;
         for(j = 0; j < khalf; j++) {
             kj = k - j - 1;
-            save = A[j];
-            A[j] = save + temp*A[kj];
+            save = A[j+1];
+            A[j+1] = save + temp*A[kj+1];
             if(j != kj) {
-                A[kj] += temp*save;
+                A[kj+1] += temp*save;
             }
         }
     }
