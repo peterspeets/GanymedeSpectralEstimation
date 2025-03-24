@@ -43,8 +43,34 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const kiss_fft_cpx
     outFile.close();
 }
 
+
+
+
 template <typename floatingPointType>
-pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<floatingPointType>::fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt) {
+floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K, int q_i, double vt){
+    int i, j;
+    floatingPointType** processedImage = new floatingPointType*[M];
+    cout << "Performing FIAA: " << endl;
+
+    pair<floatingPointType*, floatingPointType*> fiaa_output;
+    for(i = 0; i < M; i++){
+        fiaa_output = fiaa_oct(spectra[i],N,K,q_i,vt);
+        cout << i << endl;
+        processedImage[i] = fiaa_output.first;
+
+    }
+
+    return processedImage;
+
+}
+
+
+
+
+
+
+template <typename floatingPointType>
+pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointType>::fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt) {
     int i, j;
     floatingPointType* Eta = new floatingPointType[q_i+1];
     floatingPointType eta = 0.0;
@@ -57,7 +83,7 @@ pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<float
 
     Eta[0] = eta;
     kiss_fft_cpx diaaf[K];
-    complex<floatingPointType>* diaaf_complex = new complex<floatingPointType>[K];
+    floatingPointType* diaaf_floatingPoint = new floatingPointType[K];
     kiss_fft_cpx temp[K];
     kiss_fft_cpx temp2[K];
     kiss_fft_cpx q[K];
@@ -74,7 +100,7 @@ pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<float
 
 
     kiss_fft_cfg cfg = kiss_fft_alloc(K, 0, NULL, NULL);
-    kiss_fft_cfg icfg = kiss_fft_alloc(K, 0, NULL, NULL);
+    kiss_fft_cfg icfg = kiss_fft_alloc(K, 1, NULL, NULL);
 
 
     for(i = 0; i<N; i++) {
@@ -101,17 +127,12 @@ pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<float
 
 
         for(i = 0; i<N; i++) {
-            c[i] = complex<floatingPointType>(q[i].r, q[i].i);
+            c[i] = complex<floatingPointType>(q[i].r/K, q[i].i);
         }
         c[0] += vt*eta;
 
-
-
-
-
         tuple<complex<floatingPointType>*, double,complex<floatingPointType>*> levinsonOut = levinson(c,N);
 
-        ;
 
         delete[] get<2>(levinsonOut);
         A = get<0>(levinsonOut);
@@ -154,23 +175,6 @@ pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<float
             diaa_den[i] = complex<floatingPointType>(Fa1[ K - i ].r, Fa1[K - i  ].i);
         }
 
-        /*
-
-        Complex num/den for debugging.
-
-        kiss_fft_cpx dff[K];
-        for(i = 0; i<K; i++) {
-            float A1 = sqrt(diaa_num[i].r*diaa_num[i].r  + diaa_num[i].i*diaa_num[i].i );
-            float A2 = sqrt(diaa_den[i].real()*diaa_den[i].real()  + diaa_den[i].imag()*diaa_den[i].imag() );
-            float phi1 = atan2(diaa_num[i].r , diaa_num[i].i);
-            float phi2 = atan2(diaa_den[i].real(), diaa_den[i].imag());
-            float newr = (A1/A2)*cos(phi1 - phi2);
-            float newi = (A1/A2)*sin(phi1 - phi2);
-            dff[i].r = newr;
-            dff[i].i = newi;
-        }
-        */
-
         for(i = 0; i<K; i++) {
             diaaf[i].r  = abs( (diaa_num[i].r*diaa_num[i].r + diaa_num[i].i*diaa_num[i].i  )  /(diaa_den[i]*conj(diaa_den[i])) );
         }
@@ -203,13 +207,13 @@ pair<complex<floatingPointType>*, floatingPointType*> UtilityMathFunctions<float
     delete[] A;
     delete[] y;
     delete[] fa1;
-    pair<complex<floatingPointType>*, floatingPointType*> result;
+    pair<floatingPointType*, floatingPointType*> result;
 
     for(i = 0; i < K; i++) {
-        diaaf_complex[i] =  complex<floatingPointType>(diaaf[i].r,diaaf[i].i);
+        diaaf_floatingPoint[i] = diaaf[i].r;
     }
 
-    result.first = diaaf_complex;
+    result.first = diaaf_floatingPoint;
     result.second = Eta;
     return result;
 }
@@ -566,6 +570,9 @@ tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>
     floatingPointType P = T0;
     complex<floatingPointType> save;
     complex<floatingPointType> temp;
+
+    bool warnedSingularMatrix = false;
+
     for(k = 0; k < M; k++) {
         save = T[k];
         if(k == 0) {
@@ -577,8 +584,10 @@ tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>
             temp = -save/P;
         }
         P = P*(1.0 - (temp.real()*temp.real() + temp.imag()*temp.imag() ));
-        if(P < 0) {
-            cout << "Singular matrix" << endl;
+        if(P < 0 && !warnedSingularMatrix) {
+            warnedSingularMatrix = true;
+            cout << "Singular matrix " << endl;
+
         }
         A[k+1] = temp;
         refer[k] = temp;

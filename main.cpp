@@ -194,9 +194,6 @@ int main() {
     settings = make_shared<Settings>();
 
 
-
-
-
     cout << "load test data."<< endl;
     pair<float*,int> xpair = IO<float>::loadArrayFromFile("D:\\data\\spectrum.txt");
     float* x = xpair.first;
@@ -206,7 +203,7 @@ int main() {
     double vt = 1.0;
 
 
-    pair<complex<float>*, float*> riaa_res;
+    pair<float*, float*> riaa_res;
     riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
     IO<float>::saveArrayToFile(riaa_res.first, N, "D:\\data\\verwijdermij.txt");
 
@@ -219,6 +216,7 @@ int main() {
     float* referenceSpectrum = nullptr;
     float* intensity = nullptr;
     float** spectra = nullptr;
+    float** processedBscan = nullptr;
 
     if(filePath.substr(filePath.length() - 4) == ".oct"){
         IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
@@ -238,9 +236,6 @@ int main() {
     }
 
 
-
-    IO<float>::savePng("D:\\data\\rawSpectra.png", settings->sizeXSpectrum,  settings->sizeZSpectrum,  spectra);
-
     cout << "Spectrum size: " << settings->sizeXSpectrum << "x" << settings->sizeZSpectrum  <<endl;
 
 
@@ -249,31 +244,15 @@ int main() {
     SignalProcessing::preprocessSpectrumInPlace(spectra,offset, chirp,referenceSpectrum);
     cout << " done" << endl;
 
+    float** image_fft = new float*[settings->sizeXSpectrum];
+    for (int i = 0; i < settings->sizeXSpectrum; i++) {
+        image_fft[i] = new float[settings->sizeZSpectrum];
+    }
 
-
-    kiss_fft_cfg cfg = kiss_fft_alloc(settings->sizeZSpectrum, 1, NULL, NULL);
+    kiss_fft_cfg icfg = kiss_fft_alloc(settings->sizeZSpectrum, 1, NULL, NULL);
 
     kiss_fft_cpx in[settings->sizeZSpectrum];
     kiss_fft_cpx out[settings->sizeZSpectrum];
-
-
-    // Fill the input array with your data
-
-
-    for (int i = 0; i < settings->sizeZSpectrum; ++i) {
-        in[i].r = spectra[300][i];
-        in[i].i = 0.0;
-    }
-    kiss_fft(cfg, in, out);
-    IO<float>::saveArrayToFile(out, settings->sizeZSpectrum, "D:\\data\\fft300.txt");
-
-
-
-    float** image = new float*[settings->sizeXSpectrum];
-    for (int i = 0; i < settings->sizeXSpectrum; i++) {
-        image[i] = new float[settings->sizeZSpectrum];
-    }
-
 
     for (int j = 0; j < settings->sizeZSpectrum; j++) {
         in[j].i = 0.0;
@@ -284,11 +263,17 @@ int main() {
         for (int j = 0; j < settings->sizeZSpectrum; j++) {
             in[j].r = spectra[i][j];
         }
-        kiss_fft(cfg, in, out);
+        kiss_fft(icfg, in, out);
         for (int j = 1; j < settings->sizeZSpectrum+1; j++) {
-            image[i][j-1] = out[j].r*out[j].r + out[j].i*out[j].i;
+            image_fft[i][j-1] = out[j].r*out[j].r + out[j].i*out[j].i;
         }
     }
+
+
+    kiss_fft_free(icfg);
+    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  2*settings->sizeZSpectrum, 3, 1.0);
+
+    float** image = processedBscan ;
 
     //IO<float>::savePng("D:\\data\\spectra.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum,  spectra);
     //IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2,  image,false );
@@ -306,13 +291,15 @@ int main() {
         double newXShape_dbl = (settings->sizeXSpectrum - 0)*(x_res/z_res);
         int newXShape = static_cast<int>(round(newXShape_dbl));
         cout << "saving image (keeping z shape)" << newXShape << "x" <<  settings->sizeZSpectrum/2 <<  endl;
-        IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, newXShape,  settings->sizeZSpectrum/2,  image,true );
+        IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, 2*newXShape,  2*settings->sizeZSpectrum/2,  image_fft,true );
+        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum, 2*newXShape,  2*settings->sizeZSpectrum/2,  image,true );
     } else {
         //z_res poorer,reshape to keep x_res
         double newZShape_dbl = (settings->sizeZSpectrum/2)*(z_res/x_res);
         int newZShape = static_cast<int>(round(newZShape_dbl));
         cout << "saving image (keeping x shape) " << (settings->sizeXSpectrum - 0) << "x" <<  newZShape<<  endl;
-        IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum/2,  settings->sizeXSpectrum-0, newZShape,  image,true );
+        IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image_fft,true );
+        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum,  2*settings->sizeXSpectrum-0, 2*newZShape,  image,true );
     }
 
 
@@ -328,7 +315,7 @@ int main() {
     }
     delete[] image;
 
-    kiss_fft_free(cfg);
+
 
 
 
