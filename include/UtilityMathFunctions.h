@@ -4,6 +4,10 @@
 #include <cmath>
 #include <algorithm>
 #include <complex>
+#include <iomanip>
+
+#include <sstream>
+
 #include <kiss_fft.h>
 #include <kiss_fftr.h>
 
@@ -15,6 +19,9 @@ private:
     template <typename T>
     static void saveArrayToFile(const T* array, const int N, const string& filename);
     static void saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename);
+    template <typename T>
+    static void saveArrayToFile(const complex<T>* cpx, const int N, const string& filename);
+
     template <typename T>
     struct Spline {
         T a;

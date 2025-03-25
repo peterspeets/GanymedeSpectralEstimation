@@ -198,16 +198,14 @@ int main() {
     pair<float*,int> xpair = IO<float>::loadArrayFromFile("D:\\data\\spectrum.txt");
     float* x = xpair.first;
     int N = xpair.second;
-    int q_i = 1;
+    int q_i = 15;
     int K = 2*N;
     double vt = 1.0;
 
 
     pair<float*, float*> riaa_res;
     riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
-    IO<float>::saveArrayToFile(riaa_res.first, N, "D:\\data\\verwijdermij.txt");
-
-
+    IO<float>::saveArrayToFile(riaa_res.first, K, "D:\\data\\riaa.txt");
 
 
 
@@ -271,7 +269,7 @@ int main() {
 
 
     kiss_fft_free(icfg);
-    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  2*settings->sizeZSpectrum, 3, 1.0);
+    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  2*settings->sizeZSpectrum, 15, 1.0);
 
     float** image = processedBscan ;
 

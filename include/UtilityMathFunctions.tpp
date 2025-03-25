@@ -44,6 +44,33 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const kiss_fft_cpx
 }
 
 
+template <typename floatingPointType>
+template <typename T>
+void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, const string& filename){
+    ofstream outFile(filename);
+
+    if (!outFile) {
+        cout << "Cannot open: " << filename << endl;
+        return;
+    }
+
+    for (int i = 0; i < N; ++i) {
+        outFile << cpx[i].real() ;
+        if(i < N-1) {
+            outFile << ",";
+        }
+    }
+    outFile << endl;
+    for (int i = 0; i < N; ++i) {
+        outFile << cpx[i].imag() ;
+        if(i < N-1) {
+            outFile << ",";
+        }
+    }
+    outFile.close();
+
+}
+
 
 
 template <typename floatingPointType>
@@ -72,6 +99,9 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 template <typename floatingPointType>
 pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointType>::fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt) {
     int i, j;
+
+    ostringstream  filename;
+
     floatingPointType* Eta = new floatingPointType[q_i+1];
     floatingPointType eta = 0.0;
     floatingPointType af;
@@ -124,12 +154,17 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
     for(int k = 0; k < q_i; k++) {
         kiss_fft(icfg,diaaf,q);
 
-
+        //filename.str("");
+        //filename << "D:\\data\\q" << k << ".txt";
+        //saveArrayToFile(q, K, filename.str());
 
         for(i = 0; i<N; i++) {
-            c[i] = complex<floatingPointType>(q[i].r/K, q[i].i);
+            c[i] = complex<floatingPointType>(q[i].r, 0.0*q[i].i);
         }
         c[0] += vt*eta;
+
+        //cout << "eta: "<< eta << endl;
+
 
         tuple<complex<floatingPointType>*, double,complex<floatingPointType>*> levinsonOut = levinson(c,N);
 
@@ -177,6 +212,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
         for(i = 0; i<K; i++) {
             diaaf[i].r  = abs( (diaa_num[i].r*diaa_num[i].r + diaa_num[i].i*diaa_num[i].i  )  /(diaa_den[i]*conj(diaa_den[i])) );
+            diaaf[i].i = 0.0;
         }
 
 
@@ -187,17 +223,20 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         temp[0].r = 0.0;
         temp[0].i = 0.0;
 
+
+
         diag_a[0] = A[0].real()*A[0].real() + A[0].imag()*A[0].imag()  -(temp[0].r * temp[0].r +  temp[0].i*temp[0].i);
 
         for(i = 1; i < N; i++) {
             diag_a[i] = diag_a[i-1] +  A[i].real()*A[i].real() + A[i].imag()*A[i].imag()  -(temp[i].r * temp[i].r +  temp[i].i*temp[i].i);
         }
 
+
         eta = 0.0;
-        for(i = 1; i < N; i++) {
+        for(i = 0; i < N; i++) {
             eta +=  abs(y[i]*y[i] / (diag_a[i]*diag_a[i])) ;
         }
-        eta /= K;
+        eta /= N;
         Eta[k] = eta;
     }
 
@@ -587,6 +626,9 @@ tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>
         if(P < 0 && !warnedSingularMatrix) {
             warnedSingularMatrix = true;
             cout << "Singular matrix " << endl;
+
+            saveArrayToFile(inputVector, N, "D:/data/OffendingVector.txt");
+
 
         }
         A[k+1] = temp;
