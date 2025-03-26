@@ -46,7 +46,7 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const kiss_fft_cpx
 
 template <typename floatingPointType>
 template <typename T>
-void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, const string& filename){
+void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, const string& filename) {
     ofstream outFile(filename);
 
     if (!outFile) {
@@ -74,13 +74,13 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* 
 
 
 template <typename floatingPointType>
-floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K, int q_i, double vt){
+floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K, int q_i, double vt) {
     int i, j;
     floatingPointType** processedImage = new floatingPointType*[M];
     cout << "Performing FIAA: " << endl;
 
     pair<floatingPointType*, floatingPointType*> fiaa_output;
-    for(i = 0; i < M; i++){
+    for(i = 0; i < M; i++) {
         fiaa_output = fiaa_oct(spectra[i],N,K,q_i,vt);
         cout << i << endl;
         processedImage[i] = fiaa_output.first;
@@ -657,16 +657,29 @@ floatingPointType UtilityMathFunctions<floatingPointType>::SplineInterpolation::
     } else if(x >= splines_[N-1]->x0) {
         return splines_[N-1]->evaluate(x);
     }
-    int i;
+
     floatingPointType dx;
+    int initialIndex = static_cast<int>(N*x/(splines_[N-1]->x0-splines_[0]->x0));
+    if(splines_[initialIndex]->x0 > x) {
+        //loop left
+        for(int i = initialIndex; i>0; i--) {
+            dx = fabs(splines_[i]->x0 - splines_[i-1]->x0);
+            if( fabs(splines_[i]->x0 - x ) <= dx  ) {
+                return splines_[i]->evaluate(x);
+            }
+        }
 
-    for(i = 0; i<N-1; i++) {
-        dx = fabs(splines_[i]->x0 - splines_[i+1]->x0);
-
-        if( fabs(splines_[i]->x0 - x ) <= dx  ) {
-            return splines_[i]->evaluate(x);
+    } else {
+        //loop right
+        for(int i = initialIndex; i<N-1; i++) {
+            dx = fabs(splines_[i]->x0 - splines_[i+1]->x0);
+            if( fabs(splines_[i]->x0 - x ) <= dx  ) {
+                return splines_[i]->evaluate(x);
+            }
         }
     }
+
+
     cout << "Unexpected x value in interpolation." << endl;
     return -999;
 }

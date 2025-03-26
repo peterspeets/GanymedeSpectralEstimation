@@ -269,7 +269,7 @@ int main() {
 
 
     kiss_fft_free(icfg);
-    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  2*settings->sizeZSpectrum, 15, 1.0);
+    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  2*settings->sizeZSpectrum, 2, 1.0);
 
     float** image = processedBscan ;
 
