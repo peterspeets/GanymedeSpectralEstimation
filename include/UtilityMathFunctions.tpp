@@ -1,6 +1,10 @@
 
 #include "UtilityMathFunctions.h"
-
+template <typename floatingPointType>
+uint64_t UtilityMathFunctions<floatingPointType>::getTime() {
+  using namespace std::chrono;
+  return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+}
 
 template <typename floatingPointType>
 template <typename T>
@@ -79,9 +83,17 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
     floatingPointType** processedImage = new floatingPointType*[M];
     cout << "Performing FIAA: " << endl;
 
+    uint64_t time0;
+    uint64_t time1;
+
     pair<floatingPointType*, floatingPointType*> fiaa_output;
     for(i = 0; i < M; i++) {
+
+        time0 = getTime();
         fiaa_output = fiaa_oct(spectra[i],N,K,q_i,vt);
+        time1  = getTime();
+        cout << "fiaa time: " << (time1 -time0)/q_i << endl;
+
         cout << i << endl;
         processedImage[i] = fiaa_output.first;
 
@@ -90,10 +102,6 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
     return processedImage;
 
 }
-
-
-
-
 
 
 template <typename floatingPointType>
@@ -127,6 +135,10 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
     complex<floatingPointType>* y;
     complex<floatingPointType>* fa1;
 
+    uint64_t time0;
+    uint64_t time1;
+    uint64_t time3;
+    uint64_t time4;
 
 
     kiss_fft_cfg cfg = kiss_fft_alloc(K, 0, NULL, NULL);
@@ -165,19 +177,24 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
         //cout << "eta: "<< eta << endl;
 
+        time0 = getTime();
 
-        tuple<complex<floatingPointType>*, double,complex<floatingPointType>*> levinsonOut = levinson(c,N);
+        tuple<complex<floatingPointType>*, floatingPointType> levinsonOut = levinsonUnsafe(c,N);
+        time1  = getTime();
+        cout << "levinson time: " << (time1 -time0) << endl;
 
 
-        delete[] get<2>(levinsonOut);
+        //delete[] get<2>(levinsonOut);
         A = get<0>(levinsonOut);
         af = sqrt(get<1>(levinsonOut));
 
         for(i = 0; i < N; i++) {
             A[i] /= af;
         }
-
+        time0  = getTime();
         y = tvec_gs_i(A,x,N);
+        time1  = getTime();
+        cout << "tvec time: " << (time1 -time0) << endl;
 
         for(i = 0; i<N; i++) {
             temp[i].r = y[i].real();
@@ -190,9 +207,10 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         kiss_fft(cfg,temp,diaa_num);
 
 
-
+        time0 = getTime();
         fa1 = polynomialEstimation(A,N);//fa1 has size K-1
-
+        time1  = getTime();
+        cout << "poly time: " << (time1 -time0) << endl;
 
 
         for(i = 0; i < K-1; i++) {
@@ -255,6 +273,66 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
     result.first = diaaf_floatingPoint;
     result.second = Eta;
     return result;
+}
+
+
+template <typename floatingPointType>
+tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<floatingPointType>::levinsonUnsafe(const complex<floatingPointType>* inputVector, size_t N){
+    int i, j,k,kj;
+    int khalf;
+    complex<floatingPointType> r[N];
+
+    floatingPointType T0 = inputVector[0].real();
+
+    int M = N - 1;
+
+    complex<floatingPointType>* A = new complex<floatingPointType>[N];
+
+    A[0] = 1.0;
+    for(i = 0; i < M; i++) {
+        A[i+1] = 0;
+    }
+
+    floatingPointType P = T0;
+    complex<floatingPointType> save;
+    complex<floatingPointType> temp;
+
+    bool warnedSingularMatrix = false;
+
+    for(k = 0; k < M; k++) {
+        save = inputVector[k+1];
+        if(k == 0) {
+            temp = -save/P;
+        } else {
+            for(j = 0; j < k; j++) {
+                save = save + A[j+1]*inputVector[k-j];
+            }
+            temp = -save/P;
+        }
+        P = P*(1.0 - (temp.real()*temp.real() + temp.imag()*temp.imag() ));
+        if(P < 0 && !warnedSingularMatrix) {
+            warnedSingularMatrix = true;
+            cout << "Singular matrix " << endl;
+
+            saveArrayToFile(inputVector, N, "D:/data/OffendingVector.txt");
+
+
+        }
+        A[k+1] = temp;
+        if(k == 0) {
+            continue;
+        }
+        khalf = (k+1)/2;
+        for(j = 0; j < khalf; j++) {
+            kj = k - j - 1;
+            save = A[j+1];
+            A[j+1] = save + temp*A[kj+1];
+            if(j != kj) {
+                A[kj+1] += temp*save;
+            }
+        }
+    }
+    return  make_tuple(A,P);
 }
 
 

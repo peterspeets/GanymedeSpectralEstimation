@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <complex>
 #include <iomanip>
+#include <ctime>
+#include <chrono>
 
 #include <sstream>
 
@@ -16,6 +18,11 @@ template <typename floatingPointType>
 class UtilityMathFunctions {
 
 private:
+
+
+    static uint64_t getTime();
+
+
     template <typename T>
     static void saveArrayToFile(const T* array, const int N, const string& filename);
     static void saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename);
@@ -43,6 +50,8 @@ public:
     static floatingPointType** processBScan(floatingPointType** spectra, size_t M,const size_t N, int K, int q_i, double vt);
 
     static tuple<complex<floatingPointType>*, floatingPointType, complex<floatingPointType>*> levinson(const complex<floatingPointType>*, size_t N);
+    static tuple<complex<floatingPointType>*, floatingPointType> levinsonUnsafe(const complex<floatingPointType>*, size_t N);
+
     static complex<floatingPointType>* polynomialEstimation(const complex<floatingPointType>*, size_t N);
     static pair<floatingPointType*, floatingPointType*> fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt);
 
