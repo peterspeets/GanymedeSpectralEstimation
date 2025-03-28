@@ -739,16 +739,16 @@ floatingPointType UtilityMathFunctions<floatingPointType>::SplineInterpolation::
     floatingPointType dx;
     int initialIndex = static_cast<int>(N*x/(splines_[N-1]->x0-splines_[0]->x0));
     if(splines_[initialIndex]->x0 > x) {
-        //loop left
+        //go left
         for(int i = initialIndex; i>0; i--) {
             dx = fabs(splines_[i]->x0 - splines_[i-1]->x0);
             if( fabs(splines_[i]->x0 - x ) <= dx  ) {
-                return splines_[i]->evaluate(x);
+                return splines_[i-1]->evaluate(x);
             }
         }
 
     } else {
-        //loop right
+        //go right
         for(int i = initialIndex; i<N-1; i++) {
             dx = fabs(splines_[i]->x0 - splines_[i+1]->x0);
             if( fabs(splines_[i]->x0 - x ) <= dx  ) {

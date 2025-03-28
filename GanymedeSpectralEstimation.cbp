@@ -35,15 +35,24 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="../../cpp/miniz/build/libminiz.a" />
+					<Add library="../../cpp/lpng1645/build/liblpng1645.a" />
+					<Add library="../../cpp/kissfft-master/build/libkissfft-float.a" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
+			<Add directory="include" />
+			<Add directory="../miniz" />
+			<Add directory="../miniz/build" />
 		</Compiler>
 		<Linker>
 			<Add library="C:/cpp/kissfft-master/build/libkissfft-float.a" />
+			<Add library="../../cpp/lpng1645/build/liblpng1645.a" />
+			<Add library="../../cpp/miniz/build/libminiz.a" />
+			<Add library="../lpng1645/build/zlib-1.3.1/libzlibstatic.a" />
 		</Linker>
 		<Unit filename="include/IO.h" />
 		<Unit filename="include/IO.tpp" />

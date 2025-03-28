@@ -269,12 +269,16 @@ int main() {
 
 
     kiss_fft_free(icfg);
+
+
+    IO<float>::savePng("D:\\data\\spectra.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum,  spectra);
+    IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2,  image_fft,true );
+
+    return 0;
+
     processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  2*settings->sizeZSpectrum, 2, 1.0);
 
     float** image = processedBscan ;
-
-    //IO<float>::savePng("D:\\data\\spectra.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum,  spectra);
-    //IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2,  image,false );
 
     //IO<float>::savePng("D:\\data\\testImage3.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, settings->sizeXSpectrum-0,  789,  image,true );
     //IO<float>::savePng("D:\\data\\testImage4.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, 789,  settings->sizeZSpectrum/2,  image,true );
