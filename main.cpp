@@ -187,7 +187,8 @@ int main() {
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MicSlideTest\\MicSlideTest_0004_Mode2D.oct";
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0028_Mode2D.oct";
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0001_ModeDoppler.oct";
-    string filePath = "C:\\cpp\\onionBscan\\";
+    //string filePath = "C:\\cpp\\onionBscan\\";
+    string filePath = "C:\\cpp\\wedgeBscan\\";
 
 
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
@@ -198,14 +199,14 @@ int main() {
     pair<float*,int> xpair = IO<float>::loadArrayFromFile("D:\\data\\spectrum.txt");
     float* x = xpair.first;
     int N = xpair.second;
-    int q_i = 15;
-    int K = 2*N;
+    int q_i = 10;
+    int K = 16*N;
     double vt = 1.0;
 
 
     pair<float*, float*> riaa_res;
-    riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
-    IO<float>::saveArrayToFile(riaa_res.first, K, "D:\\data\\riaa.txt");
+    //riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
+    //IO<float>::saveArrayToFile(riaa_res.first, K, "D:\\data\\riaa.txt");
 
 
 
@@ -271,13 +272,11 @@ int main() {
     kiss_fft_free(icfg);
 
 
-    IO<float>::savePng("D:\\data\\spectra.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum,  spectra);
-    IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2,  image_fft,true );
+    //IO<float>::savePng("D:\\data\\spectra.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum,  spectra);
+    //IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2,  image_fft,true );
 
-    return 0;
 
-    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  2*settings->sizeZSpectrum, 2, 1.0);
-
+    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_i, 1.0);
     float** image = processedBscan ;
 
     //IO<float>::savePng("D:\\data\\testImage3.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, settings->sizeXSpectrum-0,  789,  image,true );
@@ -294,14 +293,14 @@ int main() {
         int newXShape = static_cast<int>(round(newXShape_dbl));
         cout << "saving image (keeping z shape)" << newXShape << "x" <<  settings->sizeZSpectrum/2 <<  endl;
         IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, 2*newXShape,  2*settings->sizeZSpectrum/2,  image_fft,true );
-        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum, 2*newXShape,  2*settings->sizeZSpectrum/2,  image,true );
+        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-0,  K/2, 2*newXShape,  2*settings->sizeZSpectrum/2,  image,true );
     } else {
         //z_res poorer,reshape to keep x_res
         double newZShape_dbl = (settings->sizeZSpectrum/2)*(z_res/x_res);
         int newZShape = static_cast<int>(round(newZShape_dbl));
         cout << "saving image (keeping x shape) " << (settings->sizeXSpectrum - 0) << "x" <<  newZShape<<  endl;
         IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image_fft,true );
-        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum,  2*settings->sizeXSpectrum-0, 2*newZShape,  image,true );
+        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-0, K/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image,true );
     }
 
 

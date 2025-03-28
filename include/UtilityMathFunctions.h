@@ -53,6 +53,7 @@ public:
     static tuple<complex<floatingPointType>*, floatingPointType> levinsonUnsafe(const complex<floatingPointType>*, size_t N);
 
     static complex<floatingPointType>* polynomialEstimation(const complex<floatingPointType>*, size_t N);
+    static complex<floatingPointType>* polynomialEstimationLowMem(const complex<floatingPointType>*, size_t N);
     static pair<floatingPointType*, floatingPointType*> fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt);
 
 

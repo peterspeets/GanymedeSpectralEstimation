@@ -207,16 +207,21 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         kiss_fft(cfg,temp,diaa_num);
 
 
+
+
         time0 = getTime();
-        fa1 = polynomialEstimation(A,N);//fa1 has size K-1
+        fa1 = polynomialEstimationLowMem(A,N);//fa1 has size 2*N-1
         time1  = getTime();
         cout << "poly time: " << (time1 -time0) << endl;
 
 
-        for(i = 0; i < K-1; i++) {
+        for(i = 0; i < 2*N-1; i++) {
             temp[i].r = fa1[i].real();
             temp[i].i = fa1[i].imag();
         }
+
+
+
         temp[K-1].r = 0.0;
         temp[K-1].i = 0.0;
         kiss_fft(cfg,temp,Fa1);
@@ -547,6 +552,9 @@ template <typename floatingPointType>
 complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialEstimation(const complex<floatingPointType>* inputVector, size_t N) {
     //Algorithm from: Fast and accurate spectral-estimation axial super-resolution optical coherence tomography, J. de Wit et al. (2021)
     //Matlab code at https://zenodo.org/records/5482794 (J. de Wit)
+
+
+
     floatingPointType M[N];
     complex<floatingPointType>* phi = new complex<floatingPointType>[2*N-1];
     complex<floatingPointType> t1[N];
@@ -590,6 +598,8 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
         t2x[i].r = t2[i].real();
         t2x[i].i = t2[i].imag();
     }
+
+
     for(int i = N; i < 2*N; i++) {
         w1[i].r = 0.0;
         w2[i].r = 0.0;
@@ -600,6 +610,8 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
         t1x[i].i = 0.0;
         t2x[i].i = 0.0;
     }
+
+
     t1x[N].r = t1[0].real();
     t1x[N].i = t1[0].imag();
     t2x[N].r = t2[0].real();
@@ -612,10 +624,8 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
     kiss_fft_cpx W2[2*N];
     kiss_fft_cpx tmp1[2*N];
     kiss_fft_cpx tmp2[2*N];
-
     kiss_fft_cpx fft1[2*N];
     kiss_fft_cpx fft2[2*N];
-
     kiss_fft(cfg, t1x, T1X);
     kiss_fft(cfg, t2x, T2X);
     kiss_fft(cfg, w1, W1);
@@ -643,6 +653,133 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
     kiss_fft_free(cfg);
 
+    for(int i = 0; i < N; i++) {
+        phi[i] = complex<floatingPointType>( (tmp1[i].r - tmp2[i].r)/(2*N), ( -tmp1[i].i + tmp2[i].i)/(2*N)    );
+    }
+    for(int i = 0; i < N-2; i++) {
+        phi[N+i] = conj( phi[N-i-2 ] );
+    }
+
+    return phi;
+}
+
+
+
+
+
+
+template <typename floatingPointType>
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialEstimationLowMem(const complex<floatingPointType>* inputVector, size_t N) {
+    //Algorithm from: Fast and accurate spectral-estimation axial super-resolution optical coherence tomography, J. de Wit et al. (2021)
+    //Matlab code at https://zenodo.org/records/5482794 (J. de Wit)
+
+    complex<floatingPointType> t[N];
+    complex<floatingPointType> s[N];
+
+
+    kiss_fft_cpx w[2*N];
+    kiss_fft_cpx tx[2*N];
+
+    kiss_fft_cfg cfg = kiss_fft_alloc(2*N, 0, NULL, NULL);
+
+    for(int i = 0; i < N; i++) {
+        t[i] = inputVector[i];
+    }
+
+
+    for(int i = 0; i < N; i++) {
+        s[i] = conj(t[N-i-1])*static_cast<floatingPointType>(i+1);
+    }
+
+
+    for(int i = 0; i < N; i++) {
+        w[i].r = s[i].real();
+        w[i].i = s[i].imag();
+        tx[i].r = t[i].real();
+        tx[i].i = t[i].imag();
+    }
+
+
+    for(int i = N; i < 2*N; i++) {
+        w[i].r = 0.0;
+        tx[i].r = 0.0;
+        w[i].i = 0.0;
+        tx[i].i = 0.0;
+    }
+
+
+    tx[N].r = t[0].real();
+    tx[N].i = t[0].imag();
+
+
+
+
+    kiss_fft_cpx TX[2*N];
+    kiss_fft_cpx W[2*N];
+
+    kiss_fft_cpx fft1[2*N];
+    kiss_fft(cfg, tx, TX);
+    kiss_fft(cfg, w, W);
+
+
+    for(int i = 0; i < 2*N; i++) {
+        fft1[i].r = TX[i].r * W[i].r - TX[i].i * W[i].i;
+        fft1[i].i = TX[i].r * W[i].i + TX[i].i * W[i].r;
+    }
+
+
+
+    t[0] = 0.0;
+    for(int i = 1; i < N; i++) {
+        t[i] = conj(inputVector[N - i]);
+    }
+    for(int i = 0; i < N; i++) {
+        s[i] = conj(t[N-i-1])*static_cast<floatingPointType>(i+1);
+    }
+    for(int i = 0; i < N; i++) {
+        w[i].r = s[i].real();
+        w[i].i = s[i].imag();
+        tx[i].r = t[i].real();
+        tx[i].i = t[i].imag();
+    }
+    for(int i = N; i < 2*N; i++) {
+        w[i].r = 0.0;
+        tx[i].r = 0.0;
+        w[i].i = 0.0;
+        tx[i].i = 0.0;
+    }
+
+
+
+    kiss_fft_cpx fft2[2*N];
+    kiss_fft(cfg, tx, TX);
+    kiss_fft(cfg, w, W);
+
+
+    tx[N].r = t[0].real();
+    tx[N].i = t[0].imag();
+
+
+    for(int i = 0; i < 2*N; i++) {
+        fft2[i].r = TX[i].r * W[i].r - TX[i].i * W[i].i;
+        fft2[i].i = TX[i].r * W[i].i + TX[i].i * W[i].r;
+    }
+
+    kiss_fft_free(cfg);
+    cfg = kiss_fft_alloc(2*N, 1, NULL, NULL);
+
+    kiss_fft_cpx tmp1[2*N];
+    kiss_fft_cpx tmp2[2*N];
+    kiss_fft(cfg, fft1,tmp1);
+    kiss_fft(cfg, fft2,tmp2);
+
+
+    kiss_fft_free(cfg);
+
+
+
+
+    complex<floatingPointType>* phi = new complex<floatingPointType>[2*N-1];
     for(int i = 0; i < N; i++) {
         phi[i] = complex<floatingPointType>( (tmp1[i].r - tmp2[i].r)/(2*N), ( -tmp1[i].i + tmp2[i].i)/(2*N)    );
     }
