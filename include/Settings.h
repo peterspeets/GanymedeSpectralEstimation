@@ -19,7 +19,7 @@ class Settings
         virtual ~Settings();
         //TODO: create helper functions to be able to make these variables consts.
 
-        int NChunksEnvelopeSubtraction = 64;
+        int NChunksEnvelopeSubtraction = 128;
         int bytesPerPixelIntensity;
         int bytesPerPixelSpectrum;
         int bytesPerPixelChirp;

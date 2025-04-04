@@ -211,6 +211,10 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
         time0 = getTime();
         fa1 = polynomialEstimationLowMem(A,N);//fa1 has size 2*N-1
+
+
+
+
         time1  = getTime();
         cout << "poly time: " << (time1 -time0) << endl;
 
@@ -220,10 +224,6 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
             temp[i].i = fa1[i].imag();
         }
 
-
-
-        temp[K-1].r = 0.0;
-        temp[K-1].i = 0.0;
         kiss_fft(cfg,temp,Fa1);
 
 
@@ -246,6 +246,8 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         temp[0].r = 0.0;
         temp[0].i = 0.0;
 
+        //saveArrayToFile(diaa_num, K, "D:\\data\\num.txt");
+        //saveArrayToFile(diaa_den, K, "D:\\data\\den.txt");
 
 
         diag_a[0] = A[0].real()*A[0].real() + A[0].imag()*A[0].imag()  -(temp[0].r * temp[0].r +  temp[0].i*temp[0].i);
