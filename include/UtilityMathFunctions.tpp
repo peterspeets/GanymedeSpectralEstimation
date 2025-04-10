@@ -81,7 +81,7 @@ template <typename floatingPointType>
 floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K, int q_i, double vt) {
     int i, j;
     floatingPointType** processedImage = new floatingPointType*[M];
-    cout << "Performing FIAA: " << endl;
+    //cout << "Performing FIAA: " << endl;
 
     uint64_t time0;
     uint64_t time1;
@@ -92,7 +92,7 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
         time0 = getTime();
         fiaa_output = fiaa_oct(spectra[i],N,K,q_i,vt);
         time1  = getTime();
-        cout << "fiaa time: " << (time1 -time0)/q_i << endl;
+        //cout << "fiaa time: " << (time1 -time0)/q_i << endl;
 
         cout << i << endl;
         processedImage[i] = fiaa_output.first;
@@ -181,7 +181,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
         tuple<complex<floatingPointType>*, floatingPointType> levinsonOut = levinsonUnsafe(c,N);
         time1  = getTime();
-        cout << "levinson time: " << (time1 -time0) << endl;
+        //cout << "levinson time: " << (time1 -time0) << endl;
 
 
         //delete[] get<2>(levinsonOut);
@@ -194,7 +194,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         time0  = getTime();
         y = tvec_gs_i(A,x,N);
         time1  = getTime();
-        cout << "tvec time: " << (time1 -time0) << endl;
+        //cout << "tvec time: " << (time1 -time0) << endl;
 
         for(i = 0; i<N; i++) {
             temp[i].r = y[i].real();
@@ -216,7 +216,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
 
         time1  = getTime();
-        cout << "poly time: " << (time1 -time0) << endl;
+        //cout << "poly time: " << (time1 -time0) << endl;
 
 
         for(i = 0; i < 2*N-1; i++) {

@@ -61,10 +61,14 @@ public:
     static complex<T>* hilbert(const T* signal, const int N ) {
         complex<T> temp[N] ;
         complex<T>* output;
-        for(int i; i<N; i++) {
-            temp[i] = signal[i];
+        for(int i=0; i<N; i++) {
+
+            temp[i] = complex<T>(signal[i],0.0);
         }
+
+
         output = hilbert(temp,N);
+
         return output;
 
     }
@@ -72,14 +76,12 @@ public:
     template<typename T>
     static complex<T>* hilbert(const complex<T>* signal, const int N) {
 
-        cout << signal[500]<< endl;
+        //cout << "\ntest: " << signal[500] << endl;
         kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
 
         kiss_fft_cpx ft1[N];
         kiss_fft_cpx ft2[N];
         complex<T>* output = new complex<T>[N];
-
-
 
         for(int i = 0; i < N; i++) {
             ft1[i].r = signal[i].real();
@@ -116,7 +118,7 @@ public:
 
         }
 
-
+        //cout << "\ntest: " << output[500] << endl;
 
         kiss_fft_free(cfg);
 
@@ -138,7 +140,9 @@ public:
 
         for(i = 0; i< length; i++) {
             env[i] =  abs(spectrum[i]);
+
         }
+
 
         for(i = 0; i< NChunks; i++) {
             int maxIndex = (i+1)*chunkLength;
@@ -151,19 +155,31 @@ public:
             indexOfMaximumPerChunk[i+1] = static_cast<float>(index);
         }
 
-        indexOfMaximumPerChunk[0] = 0;
+
+        for(i = 1; i< NChunks+2; i++) {
+            if( indexOfMaximumPerChunk[i] - indexOfMaximumPerChunk[i-1] < 5 ){
+                indexOfMaximumPerChunk[i] = (indexOfMaximumPerChunk[i] + indexOfMaximumPerChunk[i+1])/2;
+                maximumValuesPerChunk[i] = (maximumValuesPerChunk[i] + maximumValuesPerChunk[i+1])/2;
+            }
+        }
+
+        indexOfMaximumPerChunk[0] = -1;
         maximumValuesPerChunk[0] = maximumValuesPerChunk[1];
-        indexOfMaximumPerChunk[NChunks + 1] = static_cast<float>(length-1);
+        //create two virtual chucks at indices -1 and length. When set to 0 or length-1, a double entry can occur if the
+        //first or the last element of the list is the maximum.
+        indexOfMaximumPerChunk[NChunks + 1] = static_cast<float>(length);
         maximumValuesPerChunk[NChunks + 1] = maximumValuesPerChunk[NChunks];
-
-
         UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(indexOfMaximumPerChunk,maximumValuesPerChunk,NChunks+2);
         for(i = 0; i < length; i++) {
             env[i] = spline->evaluate(  static_cast<float>( i ) );
+
         }
         delete spline;
         return env;
     }
+
+
+
 
 
     static void equalizeEnvelopeInPlace(float** spectra,size_t N,size_t M) {
@@ -178,7 +194,7 @@ public:
 
             env = calculateEnvelope(spectra[i],M);
 
-            if(i == 0) {
+            if(i == 121) {
 
                 IO<float>::saveArrayToFile( spectra[i], M, "D:\\data\\spe0.txt");
                 IO<float>::saveArrayToFile( env, M, "D:\\data\\env0.txt");
@@ -187,59 +203,24 @@ public:
             for(j = 0; j< M; j++) {
                 spectra[i][j] /= (0.99*env[j] + 0.01);
             }
-            delete[] env;
-            env = calculateEnvelope(spectra[i],M);
-
-            for(j = 0; j< M; j++) {
-                spectra[i][j] /= (0.99*env[j] + 0.1);
-            }
-            delete[] env;
-            env = calculateEnvelope(spectra[i],M);
-
-            if(i == 0) {
-
-                IO<float>::saveArrayToFile( spectra[i], M, "D:\\data\\spe1.txt");
-                IO<float>::saveArrayToFile( env, M, "D:\\data\\env1.txt");
-            }
-
-
-
-            for(j = 0; j< M; j++) {
-                if(env[j] > 1.1) {
-                    env[j] = 1.1;
-                } else if(env[j] < 0.9) {
-                    env[j] = 0.9;
-                }
-
-                spectra[i][j] /= (0.99*env[j] + 0.01);
-            }
-
 
 
             complex<float>* hb = hilbert(spectra[i],M);
-
-
-
             for(j = 0; j< M; j++) {
                 env[j] = abs( hb[j]);
-            }
-
-            delete[] hb;
-
-            for(j = 0; j< M; j++) {
-                spectra[i][j] /= (0.99*env[j] + 0.01);
+                spectra[i][j] /= (0.9999*env[j] + 0.0001);
             }
 
 
 
 
 
-            if(i == 0) {
+            if(i == 121) {
 
                 IO<float>::saveArrayToFile( spectra[i], M, "D:\\data\\spe2.txt");
                 IO<float>::saveArrayToFile( env, M, "D:\\data\\env2.txt");
             }
-
+            delete[] hb;
             delete[] env;
 
         }
@@ -250,8 +231,10 @@ public:
     static void preprocessSpectrumInPlace(float** spectra, float* offsetSpectrum, float* chirp, float* referenceSpectrum   ) {
         int i, j;
         //double* window = hannWindow(settings->sizeZSpectrum);
-        double* window = tukeyWindow(settings->sizeZSpectrum,0.2);
-
+        double* window = tukeyWindow(settings->sizeZSpectrum,0.1);
+        //for(i = 0; i < settings->sizeZSpectrum; i++){
+        //   window[i] = 1.0;
+        //}
 
 
         IO<float>::saveArrayToFile( spectra[settings->sizeXSpectrum/2], settings->sizeZSpectrum, "D:\\data\\rawSpectrum.txt");
@@ -284,6 +267,8 @@ public:
                 referenceSpectrum[j] -= offsetSpectrum[j];
             }
         }
+
+
         for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
             for(j = 0; j < settings->sizeZSpectrum; j++) {
                 if(offsetSpectrum) {
@@ -294,6 +279,8 @@ public:
                 //spectra[i][j] *= 1.0 /referenceSpectrum[j] ;
             }
         }
+
+        IO<float>::saveArrayToFile( spectra[0], settings->sizeZSpectrum, "D:\\data\\tst.txt");
 
         equalizeEnvelopeInPlace(spectra, settings->sizeXSpectrum, settings->sizeZSpectrum);
 
@@ -348,9 +335,11 @@ int main() {
     pair<float*,int> xpair = IO<float>::loadArrayFromFile("D:\\data\\wedgeSpectrum.txt");
     float* x = xpair.first;
     int N = xpair.second;
-    int q_i = 5;
+    int q_i = 2;
     int K = 16*N;
     double vt = 1.0;
+
+
 
 
     pair<float*, float*> riaa_res;
@@ -388,16 +377,21 @@ int main() {
 
     cout << "Spectrum size: " << settings->sizeXSpectrum << "x" << settings->sizeZSpectrum  <<endl;
 
-    spectra[0] = spectra[settings->sizeXSpectrum-10];
-    settings->sizeXSpectrum = 1;
+    //spectra[0] = spectra[settings->sizeXSpectrum-10];
 
+    //settings->sizeXSpectrum = 1;
+    //settings->sizeZSpectrum /= 2;
+    //for(int i = 0; i < settings->sizeXSpectrum; i++){
+    //        spectra[i] += settings->sizeZSpectrum /2 ;
+    //}
+    //referenceSpectrum += settings->sizeZSpectrum /2 ;
 
     cout << "Preprocessing:";
     SignalProcessing::preprocessSpectrumInPlace(spectra,offset, chirp,referenceSpectrum);
     cout << " done" << endl;
-    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_i, 1.0);
+    //processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_i, 1.0);
 
-    IO<float>::saveArrayToFile(processedBscan[0], K, "D:\\data\\riaa.txt");
+
 
 
     float** image_fft = new float*[settings->sizeXSpectrum];
@@ -428,9 +422,9 @@ int main() {
 
     kiss_fft_free(icfg);
 
-    IO<float>::saveArrayToFile(image_fft[0], settings->sizeZSpectrum, "D:\\data\\fft.txt");
+    IO<float>::saveArrayToFile(image_fft[settings->sizeXSpectrum-10], settings->sizeZSpectrum, "D:\\data\\fft.txt");
 
-    return 0;
+    //return 0;
 
 
     //IO<float>::savePng("D:\\data\\spectra.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum,  spectra);
@@ -438,13 +432,20 @@ int main() {
 
 
     processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_i, 1.0);
+
+
+
+
+    IO<float>::saveArrayToFile(processedBscan[settings->sizeXSpectrum-10], K, "D:\\data\\riaa.txt");
+    IO<float>::saveArrayToFile(processedBscan[settings->sizeXSpectrum-1], K, "D:\\data\\riaalast.txt");
+
     float** image = processedBscan ;
 
     //IO<float>::savePng("D:\\data\\testImage3.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, settings->sizeXSpectrum-0,  789,  image,true );
     //IO<float>::savePng("D:\\data\\testImage4.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, 789,  settings->sizeZSpectrum/2,  image,true );
 
 
-    double x_res = settings->x_mm/(settings->sizeXSpectrum - 0);
+    double x_res = 0.1*settings->x_mm/(settings->sizeXSpectrum - 0);
     double z_res = settings->z_mm/(settings->sizeZSpectrum/2);
 
 
@@ -454,14 +455,14 @@ int main() {
         int newXShape = static_cast<int>(round(newXShape_dbl));
         cout << "saving image (keeping z shape)" << newXShape << "x" <<  settings->sizeZSpectrum/2 <<  endl;
         IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, 2*newXShape,  2*settings->sizeZSpectrum/2,  image_fft,true );
-        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-0,  K/2, 2*newXShape,  2*settings->sizeZSpectrum/2,  image,true );
+        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-1,  K/2, 2*newXShape,  2*settings->sizeZSpectrum/2,  image,true );
     } else {
         //z_res poorer,reshape to keep x_res
         double newZShape_dbl = (settings->sizeZSpectrum/2)*(z_res/x_res);
         int newZShape = static_cast<int>(round(newZShape_dbl));
         cout << "saving image (keeping x shape) " << (settings->sizeXSpectrum - 0) << "x" <<  newZShape<<  endl;
         IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image_fft,true );
-        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-0, K/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image,true );
+        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-1, K/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image,true );
     }
 
 
