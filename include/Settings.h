@@ -51,6 +51,9 @@ class Settings
         double referenceIntensity;
         double electronCountScaling;
 
+        size_t numberOfDispersionCoefficients = 5;
+        double dispersionCoefficients[5] = {-1.879839330000001668e-12,9.620353656345360899e-09,-1.875303995051812850e-05,1.615121426873034755e-02,-4.981834509627804941e+00};
+
         map<int, string> pathsSpectra;
         map<int, int> scanStartIndices;
         string pathIntensity;

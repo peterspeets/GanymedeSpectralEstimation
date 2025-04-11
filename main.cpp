@@ -230,8 +230,8 @@ public:
 
     static void preprocessSpectrumInPlace(float** spectra, float* offsetSpectrum, float* chirp, float* referenceSpectrum   ) {
         int i, j;
-        //double* window = hannWindow(settings->sizeZSpectrum);
-        double* window = tukeyWindow(settings->sizeZSpectrum,0.1);
+        double* window = hannWindow(settings->sizeZSpectrum);
+        //double* window = tukeyWindow(settings->sizeZSpectrum,0.1);
         //for(i = 0; i < settings->sizeZSpectrum; i++){
         //   window[i] = 1.0;
         //}
@@ -269,8 +269,10 @@ public:
         }
 
 
-        for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
-            for(j = 0; j < settings->sizeZSpectrum; j++) {
+
+
+        for(j = 0; j < settings->sizeZSpectrum; j++) {
+            for(i = 0; i < settings->sizeXSpectrum ; i++) {
                 if(offsetSpectrum) {
                     spectra[i][j] -= offsetSpectrum[j]  ;
                 }
@@ -280,7 +282,85 @@ public:
             }
         }
 
+        kiss_fft_cfg cfg = kiss_fft_alloc(settings->sizeZSpectrum, 0, NULL, NULL);
+        kiss_fft_cfg icfg = kiss_fft_alloc(settings->sizeZSpectrum, 1, NULL, NULL);
+
+
+        kiss_fft_cpx positiveFrequencies[settings->sizeZSpectrum];
+        kiss_fft_cpx negativeFrequencies[settings->sizeZSpectrum];
+
+        kiss_fft_cpx positiveSignal[settings->sizeZSpectrum];
+        kiss_fft_cpx negativeSignal[settings->sizeZSpectrum];
+
+
+
+        double temp[settings->sizeZSpectrum];
+
+        for(i = 0; i < settings->sizeXSpectrum ; i++) {
+            for(j = 0; j < settings->sizeZSpectrum ; j++) {
+                positiveSignal[j].r = spectra[i][j];
+                positiveSignal[j].i = 0.0;
+            }
+
+
+
+            kiss_fft(cfg, positiveSignal, positiveFrequencies);
+
+            for(j = 0; j < settings->sizeZSpectrum /2; j++) {
+                negativeFrequencies[j].r = 0.0;
+                negativeFrequencies[j].i = 0.0;
+            }
+
+
+            for(j = settings->sizeZSpectrum/2; j < settings->sizeZSpectrum ; j++) {
+                negativeFrequencies[j].r = positiveFrequencies[j].r;
+                negativeFrequencies[j].i = positiveFrequencies[j].i;
+                positiveFrequencies[j].r = 0.0;
+                positiveFrequencies[j].i = 0.0;
+            }
+            kiss_fft(icfg, positiveFrequencies,positiveSignal);
+            kiss_fft(icfg, negativeFrequencies,negativeSignal);
+
+
+
+            for(j = 0; j < settings->sizeZSpectrum ; j++) {
+                double dispersionPhase = j*settings->dispersionCoefficients[0];
+                for(int k = 1; k < settings->numberOfDispersionCoefficients-1; k++){
+                    dispersionPhase = j*(settings->dispersionCoefficients[k] + dispersionPhase);
+                }
+                if(settings->numberOfDispersionCoefficients > 1){
+                    dispersionPhase += settings->dispersionCoefficients[settings->numberOfDispersionCoefficients-1];
+                }
+                dispersionPhase  *= 2*M_PI;
+                positiveSignal[j].r = positiveSignal[j].r  * cos(dispersionPhase ) + positiveSignal[j].i*sin(dispersionPhase) ;
+                negativeSignal[j].r = negativeSignal[j].r  * cos(dispersionPhase ) - negativeSignal[j].i*sin(dispersionPhase) ;
+                temp[j] = negativeSignal[j].r;
+            }
+
+
+
+            if(i == 1500){
+                IO<float>::saveArrayToFile( temp, settings->sizeZSpectrum, "D:\\data\\temptst.txt");
+            }
+
+            for(j = 0; j < settings->sizeZSpectrum ; j++) {
+                spectra[i][j] = positiveSignal[j].r + negativeSignal[j].r;
+            }
+
+
+        }
+
+
+
+
+        kiss_fft_free(cfg);
+        kiss_fft_free(icfg);
+
+
         IO<float>::saveArrayToFile( spectra[0], settings->sizeZSpectrum, "D:\\data\\tst.txt");
+
+
+
 
         equalizeEnvelopeInPlace(spectra, settings->sizeXSpectrum, settings->sizeZSpectrum);
 
@@ -306,6 +386,7 @@ public:
             }
 
         }
+
 
         IO<float>::saveArrayToFile( spectra[settings->x_px/2], settings->sizeZSpectrum, "D:\\data\\processedSpectrum.txt");
 
@@ -335,7 +416,7 @@ int main() {
     pair<float*,int> xpair = IO<float>::loadArrayFromFile("D:\\data\\wedgeSpectrum.txt");
     float* x = xpair.first;
     int N = xpair.second;
-    int q_i = 2;
+    int q_i = 15;
     int K = 16*N;
     double vt = 1.0;
 
@@ -390,9 +471,6 @@ int main() {
     SignalProcessing::preprocessSpectrumInPlace(spectra,offset, chirp,referenceSpectrum);
     cout << " done" << endl;
     //processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_i, 1.0);
-
-
-
 
     float** image_fft = new float*[settings->sizeXSpectrum];
     for (int i = 0; i < settings->sizeXSpectrum; i++) {
