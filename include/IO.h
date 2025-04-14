@@ -47,6 +47,9 @@ class IO
         template <typename T>
         static void save2DArrayToFile(T** array, const int M, const int N, const std::string& filename, char separator = ',');
         template <typename T>
+        static void save2DArrayToFile(T** array, const int M,const int N, const int newM, const int newN ,const string& filename,char separator);
+
+        template <typename T>
         static void test(T** array, int);
 
         static void savePng(const string filename, const int width, const int height, const unsigned char* image);

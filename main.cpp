@@ -404,8 +404,8 @@ int main() {
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MicSlideTest\\MicSlideTest_0004_Mode2D.oct";
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0028_Mode2D.oct";
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0001_ModeDoppler.oct";
-    //string filePath = "C:\\cpp\\onionBscan\\";
-    string filePath = "C:\\cpp\\wedgeBscan\\";
+    string filePath = "C:\\cpp\\onionBscan\\";
+    //string filePath = "C:\\cpp\\wedgeBscan\\";
 
 
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
@@ -414,6 +414,8 @@ int main() {
 
     cout << "load test data."<< endl;
     pair<float*,int> xpair = IO<float>::loadArrayFromFile("D:\\data\\wedgeSpectrum.txt");
+
+
     float* x = xpair.first;
     int N = xpair.second;
     int q_i = 15;
@@ -500,6 +502,9 @@ int main() {
 
     kiss_fft_free(icfg);
 
+    IO<float>::save2DArrayToFile(image_fft, settings->sizeXSpectrum,settings->sizeZSpectrum/4, "D:\\data\\fftimage.txt",',');
+
+
     IO<float>::saveArrayToFile(image_fft[settings->sizeXSpectrum-10], settings->sizeZSpectrum, "D:\\data\\fft.txt");
 
     //return 0;
@@ -541,7 +546,15 @@ int main() {
         cout << "saving image (keeping x shape) " << (settings->sizeXSpectrum - 0) << "x" <<  newZShape<<  endl;
         IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image_fft,true );
         IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-1, K/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image,true );
+
     }
+
+
+
+    IO<float>::save2DArrayToFile(image, settings->sizeXSpectrum,K/4,settings->sizeXSpectrum,settings->sizeZSpectrum/4, "D:\\data\\riaaimage.txt", ',');
+
+
+
 
 
     double newXShape_dbl = (settings->sizeXSpectrum - 0)*(x_res/z_res);

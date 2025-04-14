@@ -490,7 +490,10 @@ void IO<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, 
 template<typename floatingPointType>
 template <typename T>
 void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N, const string& filename,char separator) {
+
     ofstream outFile(filename);
+
+
 
     if (!outFile) {
         cout << "Cannot open: " << filename << endl;
@@ -509,6 +512,143 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
     }
 
     outFile.close();
+}
+
+
+
+template<typename floatingPointType>
+template <typename T>
+void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N, const int newM, const int newN ,const string& filename,char separator) {
+    T** newArray = new T*[M];
+    for(int i = 0; i < newM; i++){
+        newArray[i] = new T[N];
+    }
+
+    if(newM == M && newN == N){
+        save2DArrayToFile(array, M, N,  filename, separator);
+    }else if(newM == M && newN != N){
+        T** newArray = new T*[M];
+        T* zLinspace = new T[N];
+        for (int i = 0; i < N; i++) {
+            zLinspace[i] = 1.0*i/N;
+        }
+
+        for (int i = 0; i < newM; i++) {
+            newArray[i] = new T[newN];
+        }
+
+
+        for(int i = 0; i < M ; i++) {
+
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(zLinspace ,array[i],N);
+
+
+            for(int j = 0; j < newN; j++) {
+                newArray[i][j] = spline->evaluate(  static_cast<T>( j)/newN );
+            }
+            delete spline;
+        }
+
+        save2DArrayToFile(newArray, newM, newN, filename, separator);
+
+        for (int i = 0; i < newM; i++) {
+            delete[] newArray[i];
+        }
+        delete[] newArray;
+        delete[] zLinspace ;
+        return;
+    }else if(newM != M && newN==N){
+
+        T** newArray = new T*[newM];
+        T* xLinspace = new T[M];
+        for (int i = 0; i < M; i++) {
+            xLinspace[i] = 1.0*i/M;
+        }
+
+        for (int i = 0; i < newM; i++) {
+            newArray[i] = new T[newN];
+        }
+        T* column = new T[N];
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                column[j] = array[j][i];
+            }
+
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(xLinspace,column ,M);
+            for(int j = 0; j < newM; j++) {
+                newArray[j][i] = spline->evaluate(  static_cast<T>( j)/newM);
+            }
+            delete spline;
+        }
+        save2DArrayToFile(newArray, newM, newN, filename, separator);
+        for (int i = 0; i < newM; i++) {
+            delete[] newArray[i];
+        }
+        delete[] newArray;
+        delete[] xLinspace;
+        delete[] column;
+        return;
+    }else if(M != newM && N != newN){
+        T** shorterArray = new T*[M];
+        T** newArray = new T*[newM];
+        T* zLinspace = new T[N];
+        T* xLinspace = new T[M];
+        for (int i = 0; i < M; i++) {
+            xLinspace[i] = 1.0*i/M;
+        }
+        for (int i = 0; i < N; i++) {
+            zLinspace [i] = 1.0*i/N;
+        }
+
+        for (int i = 0; i < newM; i++) {
+            newArray[i] = new T[newN];
+        }
+        for (int i = 0; i < M; i++) {
+            shorterArray[i] = new T[newN];
+        }
+
+
+        for(int i = 0; i < M ; i++) {
+
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(zLinspace ,array[i],N);
+            for(int j = 0; j < newN; j++) {
+                shorterArray[i][j] = spline->evaluate(  static_cast<T>( j)/newN);
+            }
+            delete spline;
+        }
+
+        T* xProfile = new T[N];
+        for(int i = 0; i < newN; i++) {
+            for(int j = 0; j < M; j++) {
+                xProfile[j] = shorterArray[j][i];
+            }
+
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(xLinspace,xProfile,M);
+            for(int j = 0; j < newM; j++) {
+                newArray[j][i] = spline->evaluate(  static_cast<T>( j)/newM);
+            }
+            delete spline;
+        }
+
+
+
+        save2DArrayToFile(newArray,  newM, newM,  filename, separator);
+
+        for (int i = 0; i < newM; i++) {
+            delete[] newArray[i];
+
+        }
+        for (int i = 0; i < M; i++) {
+            delete[] shorterArray[i];
+        }
+
+        delete[] shorterArray;
+        delete[] newArray;
+        delete[] xLinspace;
+        delete[] zLinspace;
+        delete[] xProfile;
+        return;
+    }
 }
 
 
