@@ -61,6 +61,7 @@ Settings::Settings(string pathToDirectory){
         pathApodization= pathToDirectory + "sk.txt";
         pathOffset = pathToDirectory + "";
 
+
 }
 
 Settings::Settings(list<Tag*> tags)  {
