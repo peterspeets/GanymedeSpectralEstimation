@@ -114,7 +114,7 @@ public:
         kiss_fft(cfg,ft2,ft1);
 
         for(int i = 0; i < N; i++) {
-            output[i] = complex<T>(signal[i].real() - ft1[i].i/N ,signal[i].imag() + ft1[i].r /N) ;
+            output[i] = complex<T>(signal[i].real() - ft1[i].i/N,signal[i].imag() + ft1[i].r /N) ;
 
         }
 
@@ -157,7 +157,7 @@ public:
 
 
         for(i = 1; i< NChunks+2; i++) {
-            if( indexOfMaximumPerChunk[i] - indexOfMaximumPerChunk[i-1] < 5 ){
+            if( indexOfMaximumPerChunk[i] - indexOfMaximumPerChunk[i-1] < 5 ) {
                 indexOfMaximumPerChunk[i] = (indexOfMaximumPerChunk[i] + indexOfMaximumPerChunk[i+1])/2;
                 maximumValuesPerChunk[i] = (maximumValuesPerChunk[i] + maximumValuesPerChunk[i+1])/2;
             }
@@ -171,8 +171,8 @@ public:
         maximumValuesPerChunk[NChunks + 1] = maximumValuesPerChunk[NChunks];
 
         float maxValue = maximumValuesPerChunk[0];
-        for(int i = 1; i< NChunks + 1; i++){
-            if(maxValue < maximumValuesPerChunk[i]){
+        for(int i = 1; i< NChunks + 1; i++) {
+            if(maxValue < maximumValuesPerChunk[i]) {
                 maxValue = maximumValuesPerChunk[i];
             }
         }
@@ -180,13 +180,14 @@ public:
         UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(indexOfMaximumPerChunk,maximumValuesPerChunk,NChunks+2);
         for(i = 0; i < length; i++) {
             env[i] = spline->evaluate(  static_cast<float>( i ) );
-            if(env[i] < 0.01*maxValue){
+            if(env[i] < 0.01*maxValue) {
                 env[i] = 0.01*maxValue;
             }
         }
         delete spline;
         return env;
     }
+
 
 
 
@@ -247,31 +248,31 @@ public:
 
     }
 
-    static void stretchSpectaInPlace(float** spectra, float* referenceSpectrum, float minimumReferencePower){
+    static void stretchSpectraInPlace(float** spectra, float* referenceSpectrum, float minimumReferencePower) {
         int minIndex, maxIndex;
         float maximumReference =0.0;
         int indexOfMaximum = 0;
 
 
-        for(int i = 0; i < settings->sizeZSpectrum; i++){
-            if(referenceSpectrum[i] > maximumReference){
+        for(int i = 0; i < settings->sizeZSpectrum; i++) {
+            if(referenceSpectrum[i] > maximumReference) {
                 maximumReference = referenceSpectrum[i];
                 indexOfMaximum = i;
             }
         }
 
-        for(minIndex = indexOfMaximum; referenceSpectrum[minIndex] >   minimumReferencePower*maximumReference && minIndex > 0; minIndex--){}
-        for(maxIndex = indexOfMaximum; referenceSpectrum[maxIndex] >   minimumReferencePower*maximumReference && maxIndex < settings->sizeZSpectrum; maxIndex++){}
+        for(minIndex = indexOfMaximum; referenceSpectrum[minIndex] >   minimumReferencePower*maximumReference && minIndex > 0; minIndex--) {}
+        for(maxIndex = indexOfMaximum; referenceSpectrum[maxIndex] >   minimumReferencePower*maximumReference && maxIndex < settings->sizeZSpectrum; maxIndex++) {}
 
         float xrange[settings->sizeZSpectrum];
-        for(int i = 0; i < settings->sizeZSpectrum; i++){
+        for(int i = 0; i < settings->sizeZSpectrum; i++) {
             xrange[i] = 1.0*i/settings->sizeZSpectrum;
         }
 
-        for(int i = 0; i < settings->sizeXSpectrum; i++){
+        for(int i = 0; i < settings->sizeXSpectrum; i++) {
 
             UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(xrange,spectra[i],settings->sizeZSpectrum);
-            for(int j = 0; j < settings->sizeZSpectrum; j++){
+            for(int j = 0; j < settings->sizeZSpectrum; j++) {
                 float x = 1.0*j*( maxIndex - minIndex ) / (settings->sizeZSpectrum*settings->sizeZSpectrum) + (1.0*minIndex)/settings->sizeZSpectrum;
                 spectra[i][j] = spline->evaluate(x);
                 //cout << j << " " << indexOfMaximum << " " << minIndex << "  " << maxIndex << "  "<< x << "  " << spectra[i][j]  << endl;
@@ -284,24 +285,191 @@ public:
         return;
     }
 
-    static void preprocessSpectrumInPlace(float** spectra, float* offsetSpectrum, float* chirp, float* referenceSpectrum   ) {
+
+
+
+
+
+    static void preprocessSpectrumInPlace(float** spectra, float* offsetSpectrum, float* chirp, float* referenceSpectrum,float* window   ) {
         int i, j;
-        double* window = hannWindow(settings->sizeZSpectrum);
-        //double* window = tukeyWindow(settings->sizeZSpectrum,0.1);
-        //for(i = 0; i < settings->sizeZSpectrum; i++){
-        //   window[i] = 1.0;
-        //}
 
 
-        IO<float>::saveArrayToFile( spectra[settings->sizeXSpectrum/2], settings->sizeZSpectrum, "D:\\data\\rawSpectrum.txt");
+        if(offsetSpectrum) {
+            for(j = 0; j < settings->sizeZSpectrum; j++) {
+                for(i = 0; i < settings->sizeXSpectrum ; i++) {
 
-        IO<float>::saveArrayToFile( referenceSpectrum, settings->sizeZApodization, "D:\\data\\reference.txt");
+                    spectra[i][j] -= offsetSpectrum[j]  ;
+                }
+            }
+            if(referenceSpectrum) {
+                for(j = 0; j < settings->sizeZSpectrum; j++) {
+                    referenceSpectrum[j] -= offsetSpectrum[j];
+                }
+            }
+        }
+        if(!referenceSpectrum){
+            referenceSpectrum = new float[settings->sizeZSpectrum];
+            for(j = 0; j < settings->sizeZSpectrum; j++) {
+                referenceSpectrum[j] = spectra[0][j];
+                for(i = 1; i < settings->sizeXSpectrum ; i++) {
+                    referenceSpectrum[j] += abs(spectra[i][j]);
+                }
+                referenceSpectrum[j] /= settings->sizeXSpectrum;
+            }
+        }
 
-        IO<float>::saveArrayToFile( window, settings->sizeZSpectrum, "D:\\data\\window.txt");
-        if(chirp)
-            IO<float>::saveArrayToFile( chirp, settings->sizeZChirp, "D:\\data\\chirp.txt");
-        if(offsetSpectrum)
-            IO<float>::saveArrayToFile( offsetSpectrum, settings->sizeZOffset, "D:\\data\\offset.txt");
+
+        for(j = 0; j < settings->sizeZSpectrum; j++) {
+            if(referenceSpectrum[j] <= 1e-2 ) {
+                if(j == 0) {
+                    referenceSpectrum[j] = referenceSpectrum[j+1] ;
+                } else if(j == settings->sizeZSpectrum-1) {
+                    referenceSpectrum[j] = referenceSpectrum[j-1] ;
+                } else {
+                    referenceSpectrum[j] = 0.5*(referenceSpectrum[j+1] + referenceSpectrum[j-1]) ;
+                }
+            }
+        }
+
+
+        for(j = 0; j < settings->sizeZSpectrum; j++) {
+            for(i = 0; i < settings->sizeXSpectrum ; i++) {
+                spectra[i][j] -= referenceSpectrum[j]  ;
+            }
+        }
+
+
+
+
+        kiss_fft_cfg cfg = kiss_fft_alloc(settings->sizeZSpectrum, 0, NULL, NULL);
+        kiss_fft_cfg icfg = kiss_fft_alloc(settings->sizeZSpectrum, 1, NULL, NULL);
+
+
+        kiss_fft_cpx positiveFrequencies[settings->sizeZSpectrum];
+        kiss_fft_cpx negativeFrequencies[settings->sizeZSpectrum];
+
+        kiss_fft_cpx positiveSignal[settings->sizeZSpectrum];
+        kiss_fft_cpx negativeSignal[settings->sizeZSpectrum];
+
+
+
+        double temp[settings->sizeZSpectrum];
+
+        for(i = 0; i < settings->sizeXSpectrum ; i++) {
+            for(j = 0; j < settings->sizeZSpectrum ; j++) {
+                positiveSignal[j].r = spectra[i][j];
+                positiveSignal[j].i = 0.0;
+            }
+
+
+
+            kiss_fft(cfg, positiveSignal, positiveFrequencies);
+
+            for(j = 0; j < settings->sizeZSpectrum /2; j++) {
+                negativeFrequencies[j].r = 0.0;
+                negativeFrequencies[j].i = 0.0;
+            }
+
+
+            for(j = settings->sizeZSpectrum/2; j < settings->sizeZSpectrum ; j++) {
+                negativeFrequencies[j].r = positiveFrequencies[j].r;
+                negativeFrequencies[j].i = positiveFrequencies[j].i;
+                positiveFrequencies[j].r = 0.0;
+                positiveFrequencies[j].i = 0.0;
+            }
+            kiss_fft(icfg, positiveFrequencies,positiveSignal);
+            kiss_fft(icfg, negativeFrequencies,negativeSignal);
+
+
+
+            for(j = 0; j < settings->sizeZSpectrum ; j++) {
+                double dispersionPhase = j*settings->dispersionCoefficients[0];
+                for(int k = 1; k < settings->numberOfDispersionCoefficients-1; k++) {
+                    dispersionPhase = j*(settings->dispersionCoefficients[k] + dispersionPhase);
+                }
+                if(settings->numberOfDispersionCoefficients > 1) {
+                    dispersionPhase += settings->dispersionCoefficients[settings->numberOfDispersionCoefficients-1];
+                }
+                dispersionPhase  *= 2*M_PI;
+                positiveSignal[j].r = positiveSignal[j].r  * cos(dispersionPhase ) + positiveSignal[j].i*sin(dispersionPhase) ;
+                negativeSignal[j].r = negativeSignal[j].r  * cos(dispersionPhase ) - negativeSignal[j].i*sin(dispersionPhase) ;
+                temp[j] = negativeSignal[j].r;
+            }
+
+            for(j = 0; j < settings->sizeZSpectrum ; j++) {
+                spectra[i][j] = positiveSignal[j].r + negativeSignal[j].r;
+            }
+        }
+
+
+
+
+        kiss_fft_free(cfg);
+        kiss_fft_free(icfg);
+
+
+
+        for(j = 0; j < settings->sizeZSpectrum; j++) {
+            double meanAmplitude= abs(spectra[0][j]);
+            for(i = 1; i < settings->sizeXSpectrum ; i++) {
+                meanAmplitude += abs(spectra[i][j]);
+            }
+
+            meanAmplitude /= settings->sizeXSpectrum;
+            if(window){
+                for(i = 0; i < settings->sizeXSpectrum ; i++) {
+                    spectra[i][j] *= window[j]/meanAmplitude;
+                }
+            }else{
+                for(i = 0; i < settings->sizeXSpectrum ; i++) {
+                    spectra[i][j] /= meanAmplitude;
+                }
+            }
+        }
+
+
+
+
+        if(chirp) {
+            for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
+                UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],settings->sizeZSpectrum);
+                for(j = 0; j < settings->sizeZSpectrum; j++) {
+                    spectra[i][j] = spline->evaluate(  static_cast<float>( j) );
+                }
+                delete spline;
+            }
+        }
+
+
+
+        stretchSpectraInPlace(spectra,referenceSpectrum,0.01);
+
+        for(i = 0; i < settings->sizeXSpectrum  ; i++) {
+            float meanValue = 0.0;
+            for(j = 0; j < settings->sizeZSpectrum; j++) {
+                meanValue += spectra[i][j];
+            }
+            meanValue /= settings->sizeZSpectrum;
+            for(j = 0; j < settings->sizeZSpectrum; j++) {
+                spectra[i][j] -= meanValue;
+            }
+        }
+
+
+        IO<float>::saveArrayToFile(spectra[248], settings->sizeZSpectrum, "D:\\data\\248.txt");
+        IO<float>::saveArrayToFile(spectra[249], settings->sizeZSpectrum, "D:\\data\\249.txt");
+        IO<float>::saveArrayToFile(spectra[250], settings->sizeZSpectrum, "D:\\data\\250.txt");
+
+    }
+
+
+
+
+
+
+    static void preprocessSpectrumInPlaceOud(float** spectra, float* offsetSpectrum, float* chirp, float* referenceSpectrum   ) {
+        int i, j;
+
 
         for(j = 0; j < settings->sizeZSpectrum; j++) {
             if(referenceSpectrum[j] <= 1e-2 ) {
@@ -316,16 +484,11 @@ public:
             }
         }
 
-
-
         if(offsetSpectrum) {
             for(j = 0; j < settings->sizeZSpectrum; j++) {
                 referenceSpectrum[j] -= offsetSpectrum[j];
             }
         }
-
-
-
 
         for(j = 0; j < settings->sizeZSpectrum; j++) {
             for(i = 0; i < settings->sizeXSpectrum ; i++) {
@@ -382,10 +545,10 @@ public:
 
             for(j = 0; j < settings->sizeZSpectrum ; j++) {
                 double dispersionPhase = j*settings->dispersionCoefficients[0];
-                for(int k = 1; k < settings->numberOfDispersionCoefficients-1; k++){
+                for(int k = 1; k < settings->numberOfDispersionCoefficients-1; k++) {
                     dispersionPhase = j*(settings->dispersionCoefficients[k] + dispersionPhase);
                 }
-                if(settings->numberOfDispersionCoefficients > 1){
+                if(settings->numberOfDispersionCoefficients > 1) {
                     dispersionPhase += settings->dispersionCoefficients[settings->numberOfDispersionCoefficients-1];
                 }
                 dispersionPhase  *= 2*M_PI;
@@ -408,16 +571,19 @@ public:
         kiss_fft_free(icfg);
 
 
-        IO<float>::saveArrayToFile( spectra[0], settings->sizeZSpectrum, "D:\\data\\afterDispersionCorrection.txt");
+        float averagePower[settings->sizeXSpectrum];
+        for(i = 0; i < settings->sizeXSpectrum; i++) {
+            averagePower[i] = 0.0;
+            for(j = 0; j < settings->sizeZSpectrum; j++) {
+                averagePower[i] += spectra[i][j]*spectra[i][j];
+            }
+            averagePower[i] /= settings->sizeZSpectrum;
+        }
 
+
+        //IO<float>::saveArrayToFile(averagePower, settings->sizeXSpectrum, "D:\\data\\power.txt");
 
         equalizeEnvelopeInPlace(spectra, settings->sizeXSpectrum, settings->sizeZSpectrum);
-
-
-
-        IO<float>::saveArrayToFile(spectra[0], settings->sizeZSpectrum, "D:\\data\\afterApodization.txt");
-
-
         if(chirp) {
             for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
                 UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],settings->sizeZSpectrum);
@@ -436,14 +602,14 @@ public:
             for(j = 0; j < settings->sizeZSpectrum; j++) {
                 spectra[i][j] -= meanValue;
             }
-
         }
-        stretchSpectaInPlace(spectra,referenceSpectrum,0.01);
+        stretchSpectraInPlace(spectra,referenceSpectrum,0.01);
 
-
-        IO<float>::saveArrayToFile( spectra[0], settings->sizeZSpectrum, "D:\\data\\processedSpectrum.txt");
-
-        delete[] window;
+        for(i = 0; i < settings->sizeXSpectrum; i++) {
+            for(j = 0; j < settings->sizeZSpectrum; j++) {
+                spectra[i][j] *= sqrt(averagePower[i]);
+            }
+        }
     }
 
 };
@@ -492,6 +658,7 @@ int main() {
     float* intensity = nullptr;
     float** spectra = nullptr;
     float** processedBscan = nullptr;
+    float* window = nullptr;
 
     if(filePath.substr(filePath.length() - 4) == ".oct") {
         IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
@@ -507,7 +674,7 @@ int main() {
         tuple<float**,int,int> loadingSpectraTuple =  IO<float>::load2DArrayFromFile(filePath + "rawData.txt");
         pair<float*,int> loadingReferencePair =  IO<float>::loadArrayFromFile(filePath + "sk.txt");
         spectra = get<0>(loadingSpectraTuple);
-        referenceSpectrum = loadingReferencePair.first;
+        //referenceSpectrum = loadingReferencePair.first;
         pair<double*,int> loadingDispersionPair =  IO<double>::loadArrayFromFile(filePath + "phase.txt");
 
         settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
@@ -527,11 +694,15 @@ int main() {
     //referenceSpectrum += settings->sizeZSpectrum /2 ;
 
     cout << "Preprocessing:";
-    SignalProcessing::preprocessSpectrumInPlace(spectra,offset, chirp,referenceSpectrum);
+    SignalProcessing::preprocessSpectrumInPlace(spectra,offset, chirp,referenceSpectrum,window);
     cout << " done" << endl;
 
 
-    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_i, 1.0);
+
+    processedBscan = new float*[settings->sizeXSpectrum];
+    for (int i = 0; i < settings->sizeXSpectrum; i++) {
+        processedBscan[i] = new float[settings->sizeZSpectrum];
+    }
 
     float** image_fft = new float*[settings->sizeXSpectrum];
     for (int i = 0; i < settings->sizeXSpectrum; i++) {
@@ -570,10 +741,12 @@ int main() {
 
 
 
+
+
+
+    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_i, 1.0);
+
     IO<float>::saveArrayToFile(processedBscan[0], K, "D:\\data\\riaa.txt");
-
-
-
     float** image = processedBscan ;
 
     //IO<float>::savePng("D:\\data\\testImage3.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, settings->sizeXSpectrum-0,  789,  image,true );
