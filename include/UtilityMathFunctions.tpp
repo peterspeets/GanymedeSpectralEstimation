@@ -2,8 +2,8 @@
 #include "UtilityMathFunctions.h"
 template <typename floatingPointType>
 uint64_t UtilityMathFunctions<floatingPointType>::getTime() {
-  using namespace std::chrono;
-  return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    using namespace std::chrono;
+    return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 template <typename floatingPointType>
@@ -78,34 +78,150 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* 
 
 
 template <typename floatingPointType>
-floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K, int q_i, double vt) {
+floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init,int q_i, double vt) {
     int i, j;
     floatingPointType** processedImage = new floatingPointType*[M];
-    //cout << "Performing FIAA: " << endl;
+
 
     uint64_t time0;
     uint64_t time1;
-
-    pair<floatingPointType*, floatingPointType*> fiaa_output;
-    for(i = 0; i < M; i++) {
-
-        time0 = getTime();
-        fiaa_output = fiaa_oct(spectra[i],N,K,q_i,vt);
-        time1  = getTime();
-        //cout << "fiaa time: " << (time1 -time0)/q_i << endl;
-
-        cout << i << endl;
-        processedImage[i] = fiaa_output.first;
-
+    for(i = 1; i < M; i++) {
+        processedImage[i] = new floatingPointType[K];
     }
 
-    return processedImage;
+    pair<floatingPointType*, floatingPointType*> fiaa_output;
+    fiaa_output = fiaa_oct(spectra[0],N,K,q_init,vt);
 
+    processedImage[0] = fiaa_output.first;
+    delete[] fiaa_output.second;
+
+    for(i = 1; i < M; i++) {
+        for(j = 0; j < K; j++) {
+            processedImage[i][j] = processedImage[i-1][j];
+        }
+        //fiaa_output = fiaa_oct(spectra[i],N,K,q_i,vt,processedImage[i]);
+        //delete[] fiaa_output.second;
+
+
+        fiaa_oct_partitioned(spectra[i],N,K,2,q_i,vt,processedImage[i]);
+
+        cout << i << endl;
+    }
+    return processedImage;
+}
+
+/*
+
+template <typename floatingPointType>
+void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatingPointType* x,
+        size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
+    pair<floatingPointType*, floatingPointType*> fiaa_output;
+    fiaa_output = fiaa_oct(x,N,K,q_i,vt,&diaaf_floatingPoint[0]);
+    delete[] fiaa_output.second;
+
+
+    cout << "test a" << "  " << endl;
 }
 
 
+*/
+
+
 template <typename floatingPointType>
-pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointType>::fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt) {
+void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatingPointType* x,
+        size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
+
+        //TODO: limit scope of stack intensive arrays, before calling FIAA function.
+        kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
+        kiss_fft_cfg icfg = kiss_fft_alloc(N/numberOfPartitions, 1, NULL, NULL);
+
+
+        kiss_fft_cpx FT[N];
+        kiss_fft_cpx signal[N];
+
+
+
+        for(int i = 0; i < N; i++) {
+            signal[i].r = x[i];
+            signal[i].i = 0.0;
+        }
+
+        kiss_fft( cfg, signal, FT);
+        kiss_fft_free(cfg);
+        //kiss_fft_cfg cfg = kiss_fft_alloc(N/numberOfPartitions, 0, NULL, NULL);
+
+        kiss_fft_cpx partialSignal[N/numberOfPartitions];
+
+
+        floatingPointType partialSignalReal[N/numberOfPartitions];
+
+        kiss_fft_cpx partialFT[N/numberOfPartitions];
+
+        if(!diaaf_floatingPoint ) {
+            cout << "Creating new OPL array." << endl;
+            cfg = kiss_fft_alloc(K, 0, NULL, NULL);
+            kiss_fft_cpx temp[K];
+            kiss_fft_cpx diaaf[K];
+            diaaf_floatingPoint = new floatingPointType[K];
+
+            for(int i = 0; i<N; i++) {
+                temp[i].r = x[i];
+                temp[i].i = 0.0;
+            }
+            for(int i = N; i<K; i++) {
+                temp[i].r = 0.0;
+                temp[i].i = 0.0;
+            }
+            kiss_fft( cfg, temp, diaaf);
+            for(int i = 0; i<K; i++) {
+                diaaf[i].r = (diaaf[i].r *diaaf[i].r  + diaaf[i].i *diaaf[i].i)/(N*N);
+                diaaf[i].i=0;
+            }
+            kiss_fft_free(cfg);
+        }
+
+
+
+        for(int chunkIndex = 0; chunkIndex < numberOfPartitions; chunkIndex++) {
+            cout << "test " << chunkIndex << "  "<< numberOfPartitions << endl;
+            for(int i = 0; i < N/(numberOfPartitions*2); i++) {
+                partialFT[i].r = partialFT[ i + N*chunkIndex/(2*numberOfPartitions)  ].r;
+                partialFT[i].i = partialFT[ i + N*chunkIndex/(2*numberOfPartitions) ].i;
+                partialFT[N/(numberOfPartitions) - i - 1].r = partialFT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].r;
+                partialFT[N/(numberOfPartitions) - i - 1].i = partialFT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].i;
+            }
+
+            kiss_fft( icfg, partialFT, partialSignal);
+            for(int i = 0; i < N/numberOfPartitions; i++) {
+                partialSignalReal[i] = partialSignal[i].r;
+            }
+            pair<floatingPointType*, floatingPointType*> fiaa_output;
+
+
+            //fiaa_output = fiaa_oct(x, N,  K,q_i,vt,diaaf_floatingPoint );
+
+            fiaa_output = fiaa_oct(partialSignalReal, N/numberOfPartitions,  K/numberOfPartitions,q_i,
+                                vt,&diaaf_floatingPoint[0] );
+
+
+
+
+            delete[] fiaa_output.second;
+
+
+
+        }
+
+    kiss_fft_free(icfg);
+    cout << "enf fie" << endl;
+}
+
+
+
+
+template <typename floatingPointType>
+pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointType>::fiaa_oct(const floatingPointType* x,
+        size_t N, int K, int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
     int i, j;
 
     ostringstream  filename;
@@ -121,11 +237,15 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
     Eta[0] = eta;
     kiss_fft_cpx diaaf[K];
-    floatingPointType* diaaf_floatingPoint = new floatingPointType[K];
+
+
+
     kiss_fft_cpx temp[K];
     kiss_fft_cpx temp2[K];
     kiss_fft_cpx q[K];
     kiss_fft_cpx Fa1[K];
+
+
 
     complex<floatingPointType> c[N];
     kiss_fft_cpx diaa_num[K];
@@ -134,6 +254,8 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
     complex<floatingPointType>* A;
     complex<floatingPointType>* y;
     complex<floatingPointType>* fa1;
+
+
 
     uint64_t time0;
     uint64_t time1;
@@ -145,20 +267,32 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
     kiss_fft_cfg icfg = kiss_fft_alloc(K, 1, NULL, NULL);
 
 
-    for(i = 0; i<N; i++) {
-        temp[i].r = x[i];
-        temp[i].i = 0.0;
-    }
-    for(i = N; i<K; i++) {
-        temp[i].r = 0.0;
-        temp[i].i = 0.0;
+    if(!diaaf_floatingPoint ) {
+
+        diaaf_floatingPoint = new floatingPointType[K];
+
+        for(i = 0; i<N; i++) {
+            temp[i].r = x[i];
+            temp[i].i = 0.0;
+        }
+        for(i = N; i<K; i++) {
+            temp[i].r = 0.0;
+            temp[i].i = 0.0;
+        }
+        kiss_fft( cfg, temp, diaaf);
+        for(i = 0; i<K; i++) {
+            diaaf[i].r = (diaaf[i].r *diaaf[i].r  + diaaf[i].i *diaaf[i].i)/(N*N);
+            diaaf[i].i=0;
+        }
+
+    } else {
+
+        for(i = 0; i<K; i++) {
+            diaaf[i].r = diaaf_floatingPoint[i];
+            diaaf[i].i=0;
+        }
     }
 
-    kiss_fft( cfg, temp, diaaf);
-    for(i = 0; i<K; i++) {
-        diaaf[i].r = (diaaf[i].r *diaaf[i].r  + diaaf[i].i *diaaf[i].i)/(N*N);
-        diaaf[i].i=0;
-    }
 
 
 
@@ -284,7 +418,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
 
 template <typename floatingPointType>
-tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<floatingPointType>::levinsonUnsafe(const complex<floatingPointType>* inputVector, size_t N){
+tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<floatingPointType>::levinsonUnsafe(const complex<floatingPointType>* inputVector, size_t N) {
     int i, j,k,kj;
     int khalf;
     complex<floatingPointType> r[N];

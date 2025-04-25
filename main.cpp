@@ -623,8 +623,8 @@ int main() {
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MicSlideTest\\MicSlideTest_0004_Mode2D.oct";
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0028_Mode2D.oct";
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0001_ModeDoppler.oct";
-    string filePath = "C:\\cpp\\onionBscan\\";
-    //string filePath = "C:\\cpp\\wedgeBscan\\";
+    //string filePath = "C:\\cpp\\onionBscan\\";
+    string filePath = "C:\\cpp\\wedgeBscan\\";
 
 
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
@@ -637,13 +637,10 @@ int main() {
 
     float* x = xpair.first;
     int N = xpair.second;
-    int q_i = 15;
+    int q_init = 15;
+    int q_i = 3;
     int K = 16*N;
     double vt = 1.0;
-
-
-
-
     pair<float*, float*> riaa_res;
     //riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
 
@@ -744,7 +741,7 @@ int main() {
 
 
 
-    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_i, 1.0);
+    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_init,q_i, 1.0);
 
     IO<float>::saveArrayToFile(processedBscan[0], K, "D:\\data\\riaa.txt");
     float** image = processedBscan ;
