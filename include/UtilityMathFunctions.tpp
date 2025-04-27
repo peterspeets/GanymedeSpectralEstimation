@@ -103,28 +103,12 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
         //delete[] fiaa_output.second;
 
 
-        fiaa_oct_partitioned(spectra[i],N,K,2,q_i,vt,processedImage[i]);
+        fiaa_oct_partitioned(spectra[i],N,K,32,q_i,vt,processedImage[i]);
 
         cout << i << endl;
     }
     return processedImage;
 }
-
-/*
-
-template <typename floatingPointType>
-void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatingPointType* x,
-        size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
-    pair<floatingPointType*, floatingPointType*> fiaa_output;
-    fiaa_output = fiaa_oct(x,N,K,q_i,vt,&diaaf_floatingPoint[0]);
-    delete[] fiaa_output.second;
-
-
-    cout << "test a" << "  " << endl;
-}
-
-
-*/
 
 
 template <typename floatingPointType>
@@ -138,8 +122,6 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
 
         kiss_fft_cpx FT[N];
         kiss_fft_cpx signal[N];
-
-
 
         for(int i = 0; i < N; i++) {
             signal[i].r = x[i];
@@ -183,37 +165,46 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
 
 
         for(int chunkIndex = 0; chunkIndex < numberOfPartitions; chunkIndex++) {
-            cout << "test " << chunkIndex << "  "<< numberOfPartitions << endl;
+            //cout << "test " << chunkIndex << "  "<< numberOfPartitions << endl;
             for(int i = 0; i < N/(numberOfPartitions*2); i++) {
-                partialFT[i].r = partialFT[ i + N*chunkIndex/(2*numberOfPartitions)  ].r;
-                partialFT[i].i = partialFT[ i + N*chunkIndex/(2*numberOfPartitions) ].i;
-                partialFT[N/(numberOfPartitions) - i - 1].r = partialFT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].r;
-                partialFT[N/(numberOfPartitions) - i - 1].i = partialFT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].i;
+                partialFT[i].r = FT[ i + N*chunkIndex/(2*numberOfPartitions)  ].r;
+                partialFT[i].i = FT[ i + N*chunkIndex/(2*numberOfPartitions) ].i;
+                partialFT[N/(numberOfPartitions) - i - 1].r = FT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].r;
+                partialFT[N/(numberOfPartitions) - i - 1].i = FT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].i;
             }
 
             kiss_fft( icfg, partialFT, partialSignal);
             for(int i = 0; i < N/numberOfPartitions; i++) {
                 partialSignalReal[i] = partialSignal[i].r;
             }
+
+            //saveArrayToFile(partialSignalReal, N/numberOfPartitions, "D:\\data\\partialSignal.txt");
+
             pair<floatingPointType*, floatingPointType*> fiaa_output;
 
-
-            //fiaa_output = fiaa_oct(x, N,  K,q_i,vt,diaaf_floatingPoint );
-
+            if(chunkIndex != -1){
             fiaa_output = fiaa_oct(partialSignalReal, N/numberOfPartitions,  K/numberOfPartitions,q_i,
-                                vt,&diaaf_floatingPoint[0] );
+                                vt,&diaaf_floatingPoint[chunkIndex*K/(2*numberOfPartitions)] );
+                delete[] fiaa_output.second;
+            }else{
+                for(int i = chunkIndex*K/(numberOfPartitions*2); i < K; i++){
+                    diaaf_floatingPoint[i] = 0.0;
+                }
+
+            }
+
+            //fiaa_output = fiaa_oct(partialSignalReal, N/numberOfPartitions,  K/numberOfPartitions,q_i,
+             //   vt,&diaaf_floatingPoint[0] );
 
 
 
-
-            delete[] fiaa_output.second;
 
 
 
         }
 
     kiss_fft_free(icfg);
-    cout << "enf fie" << endl;
+    //cout << "enf fie" << endl;
 }
 
 
