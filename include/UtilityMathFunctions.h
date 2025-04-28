@@ -22,7 +22,6 @@ private:
 
     static uint64_t getTime();
 
-
     template <typename T>
     static void saveArrayToFile(const T* array, const int N, const string& filename);
     static void saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename);

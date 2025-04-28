@@ -1,5 +1,6 @@
-
 #include "UtilityMathFunctions.h"
+
+
 template <typename floatingPointType>
 uint64_t UtilityMathFunctions<floatingPointType>::getTime() {
     using namespace std::chrono;
@@ -85,6 +86,9 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 
     uint64_t time0;
     uint64_t time1;
+
+    time0 = getTime();
+
     for(i = 1; i < M; i++) {
         processedImage[i] = new floatingPointType[K];
     }
@@ -103,10 +107,14 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
         //delete[] fiaa_output.second;
 
 
-        fiaa_oct_partitioned(spectra[i],N,K,32,q_i,vt,processedImage[i]);
+        fiaa_oct_partitioned(spectra[i],N,K,16,q_i,vt,processedImage[i]);
 
         cout << i << endl;
     }
+
+    time1 = getTime();
+    cout << "done in " << 1e-3*(time1 - time0) << " s." << endl;
+
     return processedImage;
 }
 
@@ -216,6 +224,11 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
     int i, j;
 
     ostringstream  filename;
+    static int evaluated = 0;
+    static uint64_t fiaaTime = 0;
+    static uint64_t startingTime = getTime();
+
+
 
     floatingPointType* Eta = new floatingPointType[q_i+1];
     floatingPointType eta = 0.0;
@@ -287,8 +300,10 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
 
 
-
     for(int k = 0; k < q_i; k++) {
+        evaluated++;
+        startingTime = getTime();
+
         kiss_fft(icfg,diaaf,q);
 
         //filename.str("");
@@ -302,12 +317,9 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
         //cout << "eta: "<< eta << endl;
 
-        time0 = getTime();
+
 
         tuple<complex<floatingPointType>*, floatingPointType> levinsonOut = levinsonUnsafe(c,N);
-        time1  = getTime();
-        //cout << "levinson time: " << (time1 -time0) << endl;
-
 
         //delete[] get<2>(levinsonOut);
         A = get<0>(levinsonOut);
@@ -348,6 +360,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
             temp[i].r = fa1[i].real();
             temp[i].i = fa1[i].imag();
         }
+        delete[] fa1;
 
         kiss_fft(cfg,temp,Fa1);
 
@@ -388,6 +401,12 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         }
         eta /= N;
         Eta[k] = eta;
+
+        fiaaTime += getTime() - startingTime;
+        if(evaluated == 10*1024*4){
+            cout << "Total time = " << ((1.0*fiaaTime)/evaluated) << " ms" << endl;
+        }
+
     }
 
 
@@ -412,6 +431,12 @@ template <typename floatingPointType>
 tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<floatingPointType>::levinsonUnsafe(const complex<floatingPointType>* inputVector, size_t N) {
     int i, j,k,kj;
     int khalf;
+    static uint64_t levinsonTime = 0;
+    uint64_t startingTime = getTime();
+
+    static int evaluated = 0;
+    evaluated++;
+
     complex<floatingPointType> r[N];
 
     floatingPointType T0 = inputVector[0].real();
@@ -464,6 +489,13 @@ tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<float
             }
         }
     }
+    //UtilityMathFunctions<floatingPointType>::
+
+    levinsonTime += getTime() - startingTime;
+    if(evaluated == 10*1024*4){
+        cout << "Levinson time = " << ((1.0*levinsonTime)/evaluated) << " ms" << endl;
+    }
+
     return  make_tuple(A,P);
 }
 
@@ -503,6 +535,10 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 template <typename floatingPointType>
 complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,const complex<floatingPointType>* x,const size_t N) {
     int i, j;
+    static uint64_t vectorTime = 0;
+    static int evaluated = 0;
+    evaluated++;
+    uint64_t startingTime = getTime();
 
 
     kiss_fft_cpx t1t[2*N];
@@ -663,6 +699,11 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     }
 
 
+    vectorTime += getTime() - startingTime;
+
+    if(evaluated == 10*1024*4){
+        cout << "Vector time = " << ((1.0*vectorTime)/evaluated) << " ms" << endl;
+    }
 
     return y;
 
@@ -800,6 +841,11 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
     //Algorithm from: Fast and accurate spectral-estimation axial super-resolution optical coherence tomography, J. de Wit et al. (2021)
     //Matlab code at https://zenodo.org/records/5482794 (J. de Wit)
 
+    static uint64_t polyTime = 0;
+    uint64_t startingTime = getTime();
+    static int evaluated = 0;
+    evaluated++;
+
     complex<floatingPointType> t[N];
     complex<floatingPointType> s[N];
 
@@ -912,6 +958,13 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
     }
     for(int i = 0; i < N-2; i++) {
         phi[N+i] = conj( phi[N-i-2 ] );
+    }
+
+
+    polyTime += getTime()-startingTime;
+
+    if(evaluated == 10*1024*4){
+        cout << "Poly evaluated " << evaluated << " times.  time = " << ((1.0*polyTime)/evaluated) << " ms" << endl;
     }
 
     return phi;

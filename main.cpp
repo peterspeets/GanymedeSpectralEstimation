@@ -261,8 +261,8 @@ public:
             }
         }
 
-        for(minIndex = indexOfMaximum; referenceSpectrum[minIndex] >   minimumReferencePower*maximumReference && minIndex > 0; minIndex--) {}
-        for(maxIndex = indexOfMaximum; referenceSpectrum[maxIndex] >   minimumReferencePower*maximumReference && maxIndex < settings->sizeZSpectrum; maxIndex++) {}
+        for(minIndex = indexOfMaximum; referenceSpectrum[minIndex] > minimumReferencePower*maximumReference && minIndex > 0; minIndex--) {}
+        for(maxIndex = indexOfMaximum; referenceSpectrum[maxIndex] > minimumReferencePower*maximumReference && maxIndex < settings->sizeZSpectrum; maxIndex++) {}
 
         float xrange[settings->sizeZSpectrum];
         for(int i = 0; i < settings->sizeZSpectrum; i++) {
@@ -624,8 +624,8 @@ int main() {
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0028_Mode2D.oct";
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0001_ModeDoppler.oct";
     //string filePath = "C:\\cpp\\onionBscan\\";
-    string filePath = "C:\\cpp\\skinBscan\\";
-    //string filePath = "C:\\cpp\\wedgeBscan\\";
+    //string filePath = "C:\\cpp\\skinBscan\\";
+    string filePath = "C:\\cpp\\wedgeBscan\\";
 
 
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
