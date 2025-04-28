@@ -639,8 +639,8 @@ int main() {
     float* x = xpair.first;
     int N = xpair.second;
     int q_init = 15;
-    int q_i = 3;
-    int K = 16*N;
+    int q_i = 2;
+    int K = 8*N;
     double vt = 1.0;
     pair<float*, float*> riaa_res;
     //riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
