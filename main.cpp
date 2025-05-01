@@ -723,7 +723,7 @@ int main() {
         }
         kiss_fft(icfg, in, out);
         for (int j = 1; j < settings->sizeZSpectrum+1; j++) {
-            image_fft[i][j-1] = out[j].r*out[j].r + out[j].i*out[j].i;
+            image_fft[i][j-1] = (out[j].r*out[j].r + out[j].i*out[j].i)/(settings->sizeZSpectrum*settings->sizeZSpectrum) ;
         }
     }
 

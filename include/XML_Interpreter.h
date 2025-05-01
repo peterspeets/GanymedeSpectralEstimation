@@ -22,4 +22,4 @@ class XML_Interpreter
     private:
 };
 
-#endif // XML_INTERPRETER_H
+#endif // XML_INTERPRETER

@@ -73,10 +73,36 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* 
         }
     }
     outFile.close();
-
 }
 
+template <typename floatingPointType>
+void UtilityMathFunctions<floatingPointType>::fiaa_oct_loop(floatingPointType** spectra,int fromIndex, int toIndex,
+        size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* startingColumn,floatingPointType** processedImage ) {
+        int sign = 1;
+        if(fromIndex > toIndex){
+            sign = -1;
+        }
 
+
+
+        for(int i = fromIndex; i != toIndex ; i+=sign) {
+            for(int j = 0; j < K; j++) {
+                if(i == fromIndex){
+                    processedImage[i][j] = startingColumn[j];
+                }else{
+                    processedImage[i][j] = processedImage[i-sign][j];
+                }
+
+            }
+            fiaa_oct_partitioned(spectra[i],N,K,4,q_i,vt,processedImage[i]);
+            cout << i << endl;
+        }
+}
+
+template <typename floatingPointType>
+void UtilityMathFunctions<floatingPointType>::test(){
+    cout << "test" << endl;
+}
 
 template <typename floatingPointType>
 floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init,int q_i, double vt) {
@@ -94,23 +120,22 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
     }
 
     pair<floatingPointType*, floatingPointType*> fiaa_output;
-    fiaa_output = fiaa_oct(spectra[0],N,K,q_init,vt);
+    fiaa_output = fiaa_oct(spectra[M/2],N,K,q_init,vt);
 
-    processedImage[0] = fiaa_output.first;
+    processedImage[M/2] = fiaa_output.first;
     delete[] fiaa_output.second;
 
-    for(i = 1; i < M; i++) {
-        for(j = 0; j < K; j++) {
-            processedImage[i][j] = processedImage[i-1][j];
-        }
-        //fiaa_output = fiaa_oct(spectra[i],N,K,q_i,vt,processedImage[i]);
-        //delete[] fiaa_output.second;
 
+    //fiaa_oct_loop(spectra,M/2+1,M,N,K,4,q_i,vt,processedImage[M/2],processedImage);
 
-        fiaa_oct_partitioned(spectra[i],N,K,16,q_i,vt,processedImage[i]);
+    //thread thread1(fiaa_oct_loop,spectra,M/2+1,M,N,K,4,q_i,vt,processedImage[M/2],processedImage);
+    fiaa_oct_loop(spectra,M/2+1,M,N,K,4,q_i,vt,processedImage[M/2],processedImage);
+    fiaa_oct_loop(spectra,M/2-1,0,N,K,4,q_i,vt,processedImage[M/2],processedImage);
 
-        cout << i << endl;
-    }
+    //thread t(test);
+
+    //t.join();
+
 
     time1 = getTime();
     cout << "done in " << 1e-3*(time1 - time0) << " s." << endl;
@@ -125,9 +150,6 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
 
         //TODO: limit scope of stack intensive arrays, before calling FIAA function.
         kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
-
-
-
         kiss_fft_cpx FT[N];
         kiss_fft_cpx signal[N];
 
@@ -138,13 +160,8 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
 
         kiss_fft( cfg, signal, FT);
         kiss_fft_free(cfg);
-
-
         kiss_fft_cpx partialSignal[N/numberOfPartitions];
-
-
         floatingPointType partialSignalReal[N/numberOfPartitions];
-
         kiss_fft_cpx partialFT[N/numberOfPartitions];
 
         if(!diaaf_floatingPoint ) {
@@ -183,10 +200,11 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
 
             kiss_fft( icfg, partialFT, partialSignal);
             for(int i = 0; i < N/numberOfPartitions; i++) {
-                partialSignalReal[i] = partialSignal[i].r;
+                partialSignalReal[i] = partialSignal[i].r /N ;
             }
 
             pair<floatingPointType*, floatingPointType*> fiaa_output;
+
 
             if(chunkIndex != -1){
             fiaa_output = fiaa_oct(partialSignalReal, N/numberOfPartitions,  K/numberOfPartitions,q_i,
@@ -196,10 +214,7 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
                 for(int i = chunkIndex*K/(numberOfPartitions*2); i < K; i++){
                     diaaf_floatingPoint[i] = 0.0;
                 }
-
             }
-
-
         }
 
     kiss_fft_free(icfg);
