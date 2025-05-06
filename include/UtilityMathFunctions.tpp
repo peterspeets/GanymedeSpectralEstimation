@@ -105,36 +105,79 @@ void UtilityMathFunctions<floatingPointType>::test(){
 }
 
 template <typename floatingPointType>
-floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init,int q_i, double vt) {
+floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init,int q_i, double vt,int NThreads) {
     int i, j;
     floatingPointType** processedImage = new floatingPointType*[M];
 
-
+    NThreads = 6;
     uint64_t time0;
     uint64_t time1;
+    pair<floatingPointType*, floatingPointType*> fiaa_output;
 
     time0 = getTime();
 
-    for(i = 1; i < M; i++) {
-        processedImage[i] = new floatingPointType[K];
+
+
+
+    for(int i = 0; i < M; i++) {
+        if( (i) % (M/NThreads) == 0 && i != 0){
+            fiaa_output = fiaa_oct(spectra[i],N,K,q_init,vt);
+            processedImage[i] = fiaa_output.first;
+
+
+
+            delete[] fiaa_output.second;
+        }else{
+
+            processedImage[i] = new floatingPointType[K];
+        }
+
     }
 
-    pair<floatingPointType*, floatingPointType*> fiaa_output;
-    fiaa_output = fiaa_oct(spectra[M/2],N,K,q_init,vt);
-
-    processedImage[M/2] = fiaa_output.first;
-    delete[] fiaa_output.second;
+    int startIndex;
+    int stopIndex;
 
 
-    //fiaa_oct_loop(spectra,M/2+1,M,N,K,4,q_i,vt,processedImage[M/2],processedImage);
+    vector<thread> threads;
 
-    //thread thread1(fiaa_oct_loop,spectra,M/2+1,M,N,K,4,q_i,vt,processedImage[M/2],processedImage);
-    fiaa_oct_loop(spectra,M/2+1,M,N,K,4,q_i,vt,processedImage[M/2],processedImage);
-    fiaa_oct_loop(spectra,M/2-1,0,N,K,4,q_i,vt,processedImage[M/2],processedImage);
+    for(int threadIndex = 0; threadIndex < NThreads; threadIndex++){
 
-    //thread t(test);
+        if(threadIndex % 2 == 0){
 
-    //t.join();
+            startIndex = (threadIndex+1) * (M/NThreads);
+
+            stopIndex = threadIndex * (M/NThreads);
+            cout << "backwards " << startIndex << "  " << stopIndex << endl;
+
+
+            threads.emplace_back(fiaa_oct_loop,spectra,startIndex-1,stopIndex-1,N,K,4,q_i,vt,processedImage[startIndex],processedImage);
+            //fiaa_oct_loop(spectra,startIndex-1,stopIndex-1,N,K,4,q_i,vt,processedImage[startIndex],processedImage);
+        }else{
+            startIndex = (threadIndex) * (M/NThreads);
+            stopIndex = (threadIndex+1) * (M/NThreads)-1;
+            cout << "forwards " << startIndex << "  " << stopIndex << endl;
+            threads.emplace_back(fiaa_oct_loop,spectra,startIndex+1,stopIndex+1,N,K,4,q_i,vt,processedImage[startIndex],processedImage);
+            //fiaa_oct_loop(spectra,startIndex+1,stopIndex+1,N,K,4,q_i,vt,processedImage[startIndex],processedImage);
+        }
+
+
+    }
+
+
+
+    for(thread& t : threads){
+        if(t.joinable()) {
+            t.join();
+        }
+    }
+
+
+
+
+    saveArrayToFile(spectra[0], K, "D:\\data\\riaa.txt");
+
+
+
 
 
     time1 = getTime();

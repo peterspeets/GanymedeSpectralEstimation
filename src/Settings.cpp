@@ -61,6 +61,10 @@ Settings::Settings(string pathToDirectory){
         pathApodization= pathToDirectory + "sk.txt";
         pathOffset = pathToDirectory + "";
 
+        if(NThreads < 0){
+            NThreads = thread::hardware_concurrency()/2;
+        }
+
 
 }
 
@@ -195,6 +199,10 @@ Settings::Settings(list<Tag*> tags)  {
     }
 
     sizeXSpectrum = sizeXSpectrumRaw-scanStartIndices[0];
+
+    if(NThreads < 0){
+        NThreads = thread::hardware_concurrency()/2;
+    }
 }
 
 Settings::~Settings() {

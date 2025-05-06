@@ -6,8 +6,9 @@
 #include <string>
 #include <vector>
 
-#include <kiss_fft.h>
+
 #include <miniz.h>
+#include <kiss_fft.h>
 #include "Tag.h"
 #include <png.h>
 

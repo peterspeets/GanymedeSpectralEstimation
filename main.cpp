@@ -625,7 +625,7 @@ int main() {
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0001_ModeDoppler.oct";
     //string filePath = "C:\\cpp\\onionBscan\\";
     //string filePath = "C:\\cpp\\skinBscan\\";
-    string filePath = "C:\\cpp\\wedgeBscan\\";
+    string filePath = "C:\\GanymedeSpectralEstimation\\wedgeBscan\\";
 
 
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
@@ -633,21 +633,11 @@ int main() {
 
 
     cout << "load test data."<< endl;
-    pair<float*,int> xpair = IO<float>::loadArrayFromFile("D:\\data\\wedgeSpectrum.txt");
-
-
-    float* x = xpair.first;
-    int N = xpair.second;
-    int q_init = 15;
-    int q_i = 2;
-    int K = 8*N;
-    double vt = 1.0;
-    pair<float*, float*> riaa_res;
-    //riaa_res = UtilityMathFunctions<float>::fiaa_oct(x, N, K, q_i, vt);
 
 
 
-    IO<float>::saveArrayToFile(x, N, "D:\\data\\x.txt");
+
+
 
 
     float* offset = nullptr;
@@ -679,7 +669,14 @@ int main() {
         settings->dispersionCoefficients = loadingDispersionPair.first;
     }
 
+    cout << "Number of threads: " << settings->NThreads << endl;
 
+
+    int N = settings->sizeXSpectrum;
+    int q_init = 15;
+    int q_i = 2;
+    int K = 8*N;
+    double vt = 1.0;
 
     cout << "Spectrum size: " << settings->sizeXSpectrum << "x" << settings->sizeZSpectrum  <<endl;
 
@@ -737,15 +734,16 @@ int main() {
 
 
 
-
-
-
-
-
     processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_init,q_i, 1.0);
+
+
+
+
 
     IO<float>::saveArrayToFile(processedBscan[0], K, "D:\\data\\riaa.txt");
     float** image = processedBscan ;
+
+
 
     //IO<float>::savePng("D:\\data\\testImage3.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, settings->sizeXSpectrum-0,  789,  image,true );
     //IO<float>::savePng("D:\\data\\testImage4.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, 789,  settings->sizeZSpectrum/2,  image,true );
@@ -753,6 +751,8 @@ int main() {
 
     double x_res = 0.1*settings->x_mm/(settings->sizeXSpectrum - 0);
     double z_res = settings->z_mm/(settings->sizeZSpectrum/2);
+
+    cout << "Reshaping image." << endl;
 
 
     if(x_res > z_res) {

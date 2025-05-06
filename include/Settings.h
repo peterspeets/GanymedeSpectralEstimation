@@ -7,6 +7,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <thread>
 #include "Tag.h"
 //#include "IO.h"
 
@@ -20,6 +21,7 @@ class Settings
         //TODO: create helper functions to be able to make these variables consts.
 
         int NChunksEnvelopeSubtraction = 64;
+        int NThreads = -1;
         int bytesPerPixelIntensity;
         int bytesPerPixelSpectrum;
         int bytesPerPixelChirp;
