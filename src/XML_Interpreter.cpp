@@ -36,7 +36,7 @@ XML_Interpreter::XML_Interpreter(const string xml_text) {
                         tag->innerTags = openingTag->innerTags;
                         tag->content = openingTag->content;
                         tag->raw_content = openingTag->raw_content;
-                        if(activeTags.back()->label != tag->label){
+                        if(activeTags.back()->label != tag->label) {
                             cout <<"Problem in tags:"<<endl;
                             cout << activeTags.back()->label << endl;
                             cout << tag->label << endl;
@@ -79,7 +79,7 @@ XML_Interpreter::XML_Interpreter(const string xml_text) {
     for (list<Tag*>::reverse_iterator openingTag_iter = activeTags.rbegin(); openingTag_iter  != activeTags.rend(); openingTag_iter ++ ) {
         Tag* openingTag = *openingTag_iter;
         string xml_tag_string = "</" + openingTag->label + " ";
-        for(map<string,string>::iterator it_key = openingTag->keys.begin(); it_key != openingTag->keys.end(); it_key ++){
+        for(map<string,string>::iterator it_key = openingTag->keys.begin(); it_key != openingTag->keys.end(); it_key ++) {
             xml_tag_string  += " " + it_key->first + " = \"" + it_key->second  + "\"" ;
         }
         xml_tag_string   += " >";
@@ -89,21 +89,22 @@ XML_Interpreter::XML_Interpreter(const string xml_text) {
     }
     string str_new_content;
     for (Tag* tag : tags) {
-        if(tag->label == "Comment"){
+        if(tag->label == "Comment") {
             continue;
         }
         str_new_content = "";
-        for(i = 0; i < tag->content.length();i++){
-            if(tag->content[i] == '\\'){
+        for(i = 0; i < tag->content.length(); i++) {
+            if(tag->content[i] == '\\') {
                 tag->content[i] = '/';
             }
         }
 
-        for(i = 0; i < tag->content.length();i++){
-            if(i > 0 && tag->content[i] == '/' && tag->content[i-1] == '/' ){
+        for(i = 0; i < tag->content.length(); i++) {
+            if(i > 0 && tag->content[i] == '/' && tag->content[i-1] == '/' ) {
                 continue;
-            }else{
-            str_new_content += tag->content[i];}
+            } else {
+                str_new_content += tag->content[i];
+            }
         }
         tag->content = str_new_content ;
 
@@ -115,7 +116,7 @@ XML_Interpreter::XML_Interpreter(const string xml_text) {
 
 
 XML_Interpreter::~XML_Interpreter() {
-    for (Tag* tag : tags){
+    for (Tag* tag : tags) {
         delete tag;
     }
     tags.clear();

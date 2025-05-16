@@ -78,29 +78,29 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* 
 template <typename floatingPointType>
 void UtilityMathFunctions<floatingPointType>::fiaa_oct_loop(floatingPointType** spectra,int fromIndex, int toIndex,
         size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* startingColumn,floatingPointType** processedImage ) {
-        int sign = 1;
-        if(fromIndex > toIndex){
-            sign = -1;
-        }
+    int sign = 1;
+    if(fromIndex > toIndex) {
+        sign = -1;
+    }
 
 
 
-        for(int i = fromIndex; i != toIndex ; i+=sign) {
-            for(int j = 0; j < K; j++) {
-                if(i == fromIndex){
-                    processedImage[i][j] = startingColumn[j];
-                }else{
-                    processedImage[i][j] = processedImage[i-sign][j];
-                }
-
+    for(int i = fromIndex; i != toIndex ; i+=sign) {
+        for(int j = 0; j < K; j++) {
+            if(i == fromIndex) {
+                processedImage[i][j] = startingColumn[j];
+            } else {
+                processedImage[i][j] = processedImage[i-sign][j];
             }
-            fiaa_oct_partitioned(spectra[i],N,K,4,q_i,vt,processedImage[i]);
-            cout << i << endl;
+
         }
+        fiaa_oct_partitioned(spectra[i],N,K,4,q_i,vt,processedImage[i]);
+        cout << i << endl;
+    }
 }
 
 template <typename floatingPointType>
-void UtilityMathFunctions<floatingPointType>::test(){
+void UtilityMathFunctions<floatingPointType>::test() {
     cout << "test" << endl;
 }
 
@@ -116,18 +116,15 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 
     time0 = getTime();
 
-
-
-
     for(int i = 0; i < M; i++) {
-        if( (i) % (M/NThreads) == 0 && i != 0){
+        if( (i) % (M/NThreads) == 0 && i != 0) {
             fiaa_output = fiaa_oct(spectra[i],N,K,q_init,vt);
             processedImage[i] = fiaa_output.first;
 
 
 
             delete[] fiaa_output.second;
-        }else{
+        } else {
 
             processedImage[i] = new floatingPointType[K];
         }
@@ -140,9 +137,9 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 
     vector<thread> threads;
 
-    for(int threadIndex = 0; threadIndex < NThreads; threadIndex++){
+    for(int threadIndex = 0; threadIndex < NThreads; threadIndex++) {
 
-        if(threadIndex % 2 == 0){
+        if(threadIndex % 2 == 0) {
 
             startIndex = (threadIndex+1) * (M/NThreads);
 
@@ -152,7 +149,7 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 
             threads.emplace_back(fiaa_oct_loop,spectra,startIndex-1,stopIndex-1,N,K,4,q_i,vt,processedImage[startIndex],processedImage);
             //fiaa_oct_loop(spectra,startIndex-1,stopIndex-1,N,K,4,q_i,vt,processedImage[startIndex],processedImage);
-        }else{
+        } else {
             startIndex = (threadIndex) * (M/NThreads);
             stopIndex = (threadIndex+1) * (M/NThreads)-1;
             cout << "forwards " << startIndex << "  " << stopIndex << endl;
@@ -165,14 +162,11 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 
 
 
-    for(thread& t : threads){
+    for(thread& t : threads) {
         if(t.joinable()) {
             t.join();
         }
     }
-
-
-
 
     saveArrayToFile(spectra[0], K, "D:\\data\\riaa.txt");
 
@@ -191,74 +185,74 @@ template <typename floatingPointType>
 void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatingPointType* x,
         size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
 
-        //TODO: limit scope of stack intensive arrays, before calling FIAA function.
-        kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
-        kiss_fft_cpx FT[N];
-        kiss_fft_cpx signal[N];
+    //TODO: limit scope of stack intensive arrays, before calling FIAA function.
+    kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
+    kiss_fft_cpx FT[N];
+    kiss_fft_cpx signal[N];
 
-        for(int i = 0; i < N; i++) {
-            signal[i].r = x[i];
-            signal[i].i = 0.0;
+    for(int i = 0; i < N; i++) {
+        signal[i].r = x[i];
+        signal[i].i = 0.0;
+    }
+
+    kiss_fft( cfg, signal, FT);
+    kiss_fft_free(cfg);
+    kiss_fft_cpx partialSignal[N/numberOfPartitions];
+    floatingPointType partialSignalReal[N/numberOfPartitions];
+    kiss_fft_cpx partialFT[N/numberOfPartitions];
+
+    if(!diaaf_floatingPoint ) {
+        cout << "Creating new OPL array." << endl;
+        cfg = kiss_fft_alloc(K, 0, NULL, NULL);
+        kiss_fft_cpx temp[K];
+        kiss_fft_cpx diaaf[K];
+        diaaf_floatingPoint = new floatingPointType[K];
+
+        for(int i = 0; i<N; i++) {
+            temp[i].r = x[i];
+            temp[i].i = 0.0;
         }
-
-        kiss_fft( cfg, signal, FT);
+        for(int i = N; i<K; i++) {
+            temp[i].r = 0.0;
+            temp[i].i = 0.0;
+        }
+        kiss_fft( cfg, temp, diaaf);
+        for(int i = 0; i<K; i++) {
+            diaaf[i].r = diaaf_floatingPoint[i] = (diaaf[i].r *diaaf[i].r  + diaaf[i].i *diaaf[i].i)/(N*N);
+            diaaf[i].i=0;
+        }
         kiss_fft_free(cfg);
-        kiss_fft_cpx partialSignal[N/numberOfPartitions];
-        floatingPointType partialSignalReal[N/numberOfPartitions];
-        kiss_fft_cpx partialFT[N/numberOfPartitions];
+    }
 
-        if(!diaaf_floatingPoint ) {
-            cout << "Creating new OPL array." << endl;
-            cfg = kiss_fft_alloc(K, 0, NULL, NULL);
-            kiss_fft_cpx temp[K];
-            kiss_fft_cpx diaaf[K];
-            diaaf_floatingPoint = new floatingPointType[K];
+    kiss_fft_cfg icfg = kiss_fft_alloc(N/numberOfPartitions, 1, NULL, NULL);
 
-            for(int i = 0; i<N; i++) {
-                temp[i].r = x[i];
-                temp[i].i = 0.0;
-            }
-            for(int i = N; i<K; i++) {
-                temp[i].r = 0.0;
-                temp[i].i = 0.0;
-            }
-            kiss_fft( cfg, temp, diaaf);
-            for(int i = 0; i<K; i++) {
-                diaaf[i].r = diaaf_floatingPoint[i] = (diaaf[i].r *diaaf[i].r  + diaaf[i].i *diaaf[i].i)/(N*N);
-                diaaf[i].i=0;
-            }
-            kiss_fft_free(cfg);
+    for(int chunkIndex = 0; chunkIndex < numberOfPartitions; chunkIndex++) {
+        //cout << "test " << chunkIndex << "  "<< numberOfPartitions << endl;
+        for(int i = 0; i < N/(numberOfPartitions*2); i++) {
+            partialFT[i].r = FT[ i + N*chunkIndex/(2*numberOfPartitions)  ].r;
+            partialFT[i].i = FT[ i + N*chunkIndex/(2*numberOfPartitions) ].i;
+            partialFT[N/(numberOfPartitions) - i - 1].r = FT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].r;
+            partialFT[N/(numberOfPartitions) - i - 1].i = FT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].i;
         }
 
-        kiss_fft_cfg icfg = kiss_fft_alloc(N/numberOfPartitions, 1, NULL, NULL);
+        kiss_fft( icfg, partialFT, partialSignal);
+        for(int i = 0; i < N/numberOfPartitions; i++) {
+            partialSignalReal[i] = partialSignal[i].r /N ;
+        }
 
-        for(int chunkIndex = 0; chunkIndex < numberOfPartitions; chunkIndex++) {
-            //cout << "test " << chunkIndex << "  "<< numberOfPartitions << endl;
-            for(int i = 0; i < N/(numberOfPartitions*2); i++) {
-                partialFT[i].r = FT[ i + N*chunkIndex/(2*numberOfPartitions)  ].r;
-                partialFT[i].i = FT[ i + N*chunkIndex/(2*numberOfPartitions) ].i;
-                partialFT[N/(numberOfPartitions) - i - 1].r = FT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].r;
-                partialFT[N/(numberOfPartitions) - i - 1].i = FT[N- (i + N*chunkIndex/(2*numberOfPartitions) ) -1].i;
-            }
-
-            kiss_fft( icfg, partialFT, partialSignal);
-            for(int i = 0; i < N/numberOfPartitions; i++) {
-                partialSignalReal[i] = partialSignal[i].r /N ;
-            }
-
-            pair<floatingPointType*, floatingPointType*> fiaa_output;
+        pair<floatingPointType*, floatingPointType*> fiaa_output;
 
 
-            if(chunkIndex != -1){
+        if(chunkIndex != -1) {
             fiaa_output = fiaa_oct(partialSignalReal, N/numberOfPartitions,  K/numberOfPartitions,q_i,
-                                vt,&diaaf_floatingPoint[chunkIndex*K/(2*numberOfPartitions)] );
-                delete[] fiaa_output.second;
-            }else{
-                for(int i = chunkIndex*K/(numberOfPartitions*2); i < K; i++){
-                    diaaf_floatingPoint[i] = 0.0;
-                }
+                                   vt,&diaaf_floatingPoint[chunkIndex*K/(2*numberOfPartitions)] );
+            delete[] fiaa_output.second;
+        } else {
+            for(int i = chunkIndex*K/(numberOfPartitions*2); i < K; i++) {
+                diaaf_floatingPoint[i] = 0.0;
             }
         }
+    }
 
     kiss_fft_free(icfg);
 }
@@ -430,7 +424,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         Eta[k] = eta;
 
         fiaaTime += getTime() - startingTime;
-        if(evaluated == 10*1024*4){
+        if(evaluated == 10*1024*4) {
             cout << "Total time = " << ((1.0*fiaaTime)/evaluated) << " ms" << endl;
         }
 
@@ -469,7 +463,7 @@ tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<float
     floatingPointType T0 = inputVector[0].real();
 
     int M = N - 1;
-    if(!A){
+    if(!A) {
         A = new complex<floatingPointType>[N];
     }
 
@@ -521,7 +515,7 @@ tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<float
     //UtilityMathFunctions<floatingPointType>::
 
     levinsonTime += getTime() - startingTime;
-    if(evaluated == 10*1024*4){
+    if(evaluated == 10*1024*4) {
         cout << "Levinson time = " << ((1.0*levinsonTime)/evaluated) << " ms" << endl;
     }
 
@@ -584,7 +578,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     kiss_fft_cpx tmp2[2*N];
     kiss_fft_cpx ftmp[2*N];
 
-    if(!y){
+    if(!y) {
         complex<floatingPointType>* y = new complex<floatingPointType>[N];
     }
 
@@ -730,7 +724,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 
     vectorTime += getTime() - startingTime;
 
-    if(evaluated == 10*1024*4){
+    if(evaluated == 10*1024*4) {
         cout << "Vector time = " << ((1.0*vectorTime)/evaluated) << " ms" << endl;
     }
 
@@ -856,7 +850,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
 
 
-    if(!phi){
+    if(!phi) {
         phi = new complex<floatingPointType>[2*N-1];
     }
 
@@ -871,7 +865,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
     polyTime += getTime()-startingTime;
 
-    if(evaluated == 10*1024*4){
+    if(evaluated == 10*1024*4) {
         cout << "Poly evaluated " << evaluated << " times.  time = " << ((1.0*polyTime)/evaluated) << " ms" << endl;
     }
 

@@ -23,6 +23,7 @@
 #include "Settings.h"
 #include "UtilityMathFunctions.h"
 #include "IO.h"
+#include "BScan.h"
 
 
 using namespace std;
@@ -307,7 +308,7 @@ public:
                 }
             }
         }
-        if(!referenceSpectrum){
+        if(!referenceSpectrum) {
             referenceSpectrum = new float[settings->sizeZSpectrum];
             for(j = 0; j < settings->sizeZSpectrum; j++) {
                 referenceSpectrum[j] = spectra[0][j];
@@ -416,11 +417,11 @@ public:
             }
 
             meanAmplitude /= settings->sizeXSpectrum;
-            if(window){
+            if(window) {
                 for(i = 0; i < settings->sizeXSpectrum ; i++) {
                     spectra[i][j] *= window[j]/meanAmplitude;
                 }
-            }else{
+            } else {
                 for(i = 0; i < settings->sizeXSpectrum ; i++) {
                     spectra[i][j] /= meanAmplitude;
                 }
@@ -632,125 +633,35 @@ int main() {
     settings = make_shared<Settings>();
 
 
-    cout << "load test data."<< endl;
-
-
-
-
-
-
-
-    float* offset = nullptr;
-    float* chirp = nullptr;
-    float* referenceSpectrum = nullptr;
-    float* intensity = nullptr;
-    float** spectra = nullptr;
-    float** processedBscan = nullptr;
-    float* window = nullptr;
-
-    if(filePath.substr(filePath.length() - 4) == ".oct") {
-        IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
-        settings = fileLoader. loadSettings() ;
-        offset = fileLoader.loadCalibrationSpectrum(settings->pathOffset);
-        chirp = fileLoader.loadCalibrationSpectrum(settings->pathChirp);
-        referenceSpectrum = fileLoader.loadCalibrationSpectrum(settings->pathApodization);
-        intensity = fileLoader.loadCalibrationSpectrum(settings->pathIntensity);
-        spectra = fileLoader.loadSpectrum(0);
-
-    } else {
-        settings = make_shared<Settings>(filePath);
-        tuple<float**,int,int> loadingSpectraTuple =  IO<float>::load2DArrayFromFile(filePath + "rawData.txt");
-        pair<float*,int> loadingReferencePair =  IO<float>::loadArrayFromFile(filePath + "sk.txt");
-        spectra = get<0>(loadingSpectraTuple);
-        //referenceSpectrum = loadingReferencePair.first;
-        pair<double*,int> loadingDispersionPair =  IO<double>::loadArrayFromFile(filePath + "phase.txt");
-
-        settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
-        settings->dispersionCoefficients = loadingDispersionPair.first;
-    }
-
-    cout << "Number of threads: " << settings->NThreads << endl;
-
-
-    int N = settings->sizeXSpectrum;
-    int q_init = 15;
-    int q_i = 2;
-    int K = 8*N;
-    double vt = 1.0;
-
+    BScan* scan = new BScan(filePath);
     cout << "Spectrum size: " << settings->sizeXSpectrum << "x" << settings->sizeZSpectrum  <<endl;
-
-    //spectra[0] = spectra[settings->sizeXSpectrum-10];
-    //settings->sizeXSpectrum = 1;
-    //settings->sizeZSpectrum /= 2;
-    //for(int i = 0; i < settings->sizeXSpectrum; i++){
-    //        spectra[i] += settings->sizeZSpectrum /2 ;
-    //}
-    //referenceSpectrum += settings->sizeZSpectrum /2 ;
-
     cout << "Preprocessing:";
-    SignalProcessing::preprocessSpectrumInPlace(spectra,offset, chirp,referenceSpectrum,window);
+    scan->preprocessSpectrumInPlace();
     cout << " done" << endl;
+    scan->fftBScan();
+    scan->processBScan();
+
+    tuple<float**,int,int> result = scan->getProcessedBScan();
+    IO<float>::savePng("D:/data/test.png", get<1>(result), get<2>(result), get<0>(result));
 
 
 
-    processedBscan = new float*[settings->sizeXSpectrum];
-    for (int i = 0; i < settings->sizeXSpectrum; i++) {
-        processedBscan[i] = new float[settings->sizeZSpectrum];
-    }
-
-    float** image_fft = new float*[settings->sizeXSpectrum];
-    for (int i = 0; i < settings->sizeXSpectrum; i++) {
-        image_fft[i] = new float[settings->sizeZSpectrum];
-    }
-
-    kiss_fft_cfg icfg = kiss_fft_alloc(settings->sizeZSpectrum, 1, NULL, NULL);
-
-    kiss_fft_cpx in[settings->sizeZSpectrum];
-    kiss_fft_cpx out[settings->sizeZSpectrum];
-
-    for (int j = 0; j < settings->sizeZSpectrum; j++) {
-        in[j].i = 0.0;
-    }
+    //system("pause");
+    cout << "end" << endl;
+    return 0;
 
 
-    for (int i = 0; i < settings->sizeXSpectrum; i++) {
-        for (int j = 0; j < settings->sizeZSpectrum; j++) {
-            in[j].r = spectra[i][j];
-        }
-        kiss_fft(icfg, in, out);
-        for (int j = 1; j < settings->sizeZSpectrum+1; j++) {
-            image_fft[i][j-1] = (out[j].r*out[j].r + out[j].i*out[j].i)/(settings->sizeZSpectrum*settings->sizeZSpectrum) ;
-        }
-    }
-
-
-    kiss_fft_free(icfg);
-
-    IO<float>::save2DArrayToFile(image_fft, settings->sizeXSpectrum,settings->sizeZSpectrum/4, "D:\\data\\fftimage.txt",',');
-
-
-    IO<float>::saveArrayToFile(image_fft[0], settings->sizeZSpectrum, "D:\\data\\fft.txt");
-
-
-
-    processedBscan = UtilityMathFunctions<float>::processBScan(spectra,  settings->sizeXSpectrum,settings->sizeZSpectrum,  K, q_init,q_i, 1.0);
+}
 
 
 
 
-
-    IO<float>::saveArrayToFile(processedBscan[0], K, "D:\\data\\riaa.txt");
-    float** image = processedBscan ;
+/*
 
 
-
-    //IO<float>::savePng("D:\\data\\testImage3.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, settings->sizeXSpectrum-0,  789,  image,true );
-    //IO<float>::savePng("D:\\data\\testImage4.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, 789,  settings->sizeZSpectrum/2,  image,true );
+    return 0;
 
 
-    double x_res = 0.1*settings->x_mm/(settings->sizeXSpectrum - 0);
-    double z_res = settings->z_mm/(settings->sizeZSpectrum/2);
 
     cout << "Reshaping image." << endl;
 
@@ -769,7 +680,6 @@ int main() {
         cout << "saving image (keeping x shape) " << (settings->sizeXSpectrum - 0) << "x" <<  newZShape<<  endl;
         IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image_fft,true );
         IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-1, K/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image,true );
-
     }
 
 
@@ -798,9 +708,4 @@ int main() {
 
 
 
-    //system("pause");
-    cout << "end" << endl;
-    return 0;
-
-
-}
+*/

@@ -11,63 +11,71 @@
 #include "Tag.h"
 //#include "IO.h"
 
-class Settings
-{
-    public:
-        Settings();
-        Settings(list<Tag*>);
-        Settings(string);
-        virtual ~Settings();
-        //TODO: create helper functions to be able to make these variables consts.
+class Settings {
+public:
+    Settings();
+    Settings(list<Tag*>);
+    Settings(string);
+    Settings(Settings& other);
+    Settings& operator=(const Settings& other);
 
-        int NChunksEnvelopeSubtraction = 64;
-        int NThreads = -1;
-        int bytesPerPixelIntensity;
-        int bytesPerPixelSpectrum;
-        int bytesPerPixelChirp;
-        int bytesPerPixelApodization;
-        int bytesPerPixelOffset;
-        int sizeXIntensity;
-        int sizeZIntensity;
-        int sizeXSpectrumRaw;
-        int sizeXSpectrum;
-        int sizeZSpectrum;
-        int sizeXChirp;
-        int sizeZChirp;
-        int sizeXApodization;
-        int sizeZApodization;
-        int sizeXOffset;
-        int sizeZOffset;
+    virtual ~Settings();
+    //TODO: create helper functions to be able to make these variables consts.
 
-        int spectrumAveraging;
-        int numberOfAScans;
-        int numberOfBScans;
-        int x_px;
-        int z_px;
-        double x_mm;
-        double z_mm;
+    int NChunksEnvelopeSubtraction = 64;
+    int NThreads = -1;
+    int bytesPerPixelIntensity;
+    int bytesPerPixelSpectrum;
+    int bytesPerPixelChirp;
+    int bytesPerPixelApodization;
+    int bytesPerPixelOffset;
+    int sizeXIntensity;
+    int sizeZIntensity;
+    int sizeXSpectrumRaw;
+    int sizeXSpectrum;
+    int sizeZSpectrum;
+    int sizeXChirp;
+    int sizeZChirp;
+    int sizeXApodization;
+    int sizeZApodization;
+    int sizeXOffset;
+    int sizeZOffset;
 
-        double wavelength_nm;
-        double bandwidth_nm;
-        double refractiveIndex;
-        double referenceIntensity;
-        double electronCountScaling;
+    int initialNumberOfIterations = 15;
+    int numberOfIterations = 3;
+    int upscalingFactor = 8;
+    int NChunksRIAA = 16;
 
-        size_t numberOfDispersionCoefficients = 1;
-        double* dispersionCoefficients = nullptr;
+    int spectrumAveraging;
+    int numberOfAScans;
+    int numberOfBScans;
+    int x_px;
+    int z_px;
+    double x_mm;
+    double z_mm;
 
-        map<int, string> pathsSpectra;
-        map<int, int> scanStartIndices;
-        string pathIntensity;
-        string pathChirp;
-        string pathApodization;
-        string pathOffset;
+    double wavelength_nm;
+    double bandwidth_nm;
+    double refractiveIndex;
+    double referenceIntensity;
+    double electronCountScaling;
+    double RIAA_NoiseParameter = 1.0;
+
+    size_t numberOfDispersionCoefficients = 1;
+    double* dispersionCoefficients = nullptr;
+
+    map<int, string> pathsSpectra;
+    map<int, int> scanStartIndices;
+    string pathIntensity;
+    string pathChirp;
+    string pathApodization;
+    string pathOffset;
 
 
 
 
-    protected:
-    private:
+protected:
+private:
 };
 
 #endif // SETTINGS_H

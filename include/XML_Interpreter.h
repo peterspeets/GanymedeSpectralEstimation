@@ -10,16 +10,15 @@
 using namespace std;
 
 
-class XML_Interpreter
-{
-    public:
-        XML_Interpreter(const string );
-        virtual ~XML_Interpreter();
-        list<Tag*> tags;
+class XML_Interpreter {
+public:
+    XML_Interpreter(const string );
+    virtual ~XML_Interpreter();
+    list<Tag*> tags;
 
-    protected:
+protected:
 
-    private:
+private:
 };
 
 #endif // XML_INTERPRETER

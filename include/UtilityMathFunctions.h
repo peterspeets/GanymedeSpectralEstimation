@@ -53,15 +53,15 @@ public:
     static pair<floatingPointType*, floatingPointType*> fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt, floatingPointType* diaaf_floatingPoint = nullptr);
     static void fiaa_oct_partitioned(const floatingPointType* x, size_t N, int K, int numberOfPartitions,int q_i, double vt,floatingPointType* diaaf_floatingPoint = nullptr);
     static void fiaa_oct_loop(floatingPointType** x, int fromIndex, int toIndex,size_t N, int K, int numberOfPartitions,int q_i,
-                               double vt,floatingPointType* startingColumn ,floatingPointType** diaaf_floatingPoint);
+                              double vt,floatingPointType* startingColumn,floatingPointType** diaaf_floatingPoint);
     static void test();
 
 
     class SplineInterpolation {
     public:
-        SplineInterpolation(Spline<floatingPointType>** splines , const size_t arraySize );
+        SplineInterpolation(Spline<floatingPointType>** splines, const size_t arraySize );
         floatingPointType evaluate(floatingPointType x);
-    //virtual:
+        //virtual:
         ~SplineInterpolation();
     private:
         const size_t N;
