@@ -50,27 +50,46 @@
 			<Add directory="../kissfft-master" />
 			<Add directory="../lpng1645" />
 			<Add directory="../kissfft-master/build" />
+			<Add directory="C:/Qt/6.9.0/mingw_64/include" />
+			<Add directory="C:/Qt/6.9.0/mingw_64/include/QtCore" />
+			<Add directory="C:/Qt/6.9.0/mingw_64/include/QtGui" />
+			<Add directory="C:/Qt/6.9.0/mingw_64/lib" />
+			<Add directory="C:/Qt/6.9.0/mingw_64/include/QtWidgets" />
 		</Compiler>
 		<Linker>
 			<Add library="../kissfft-master/build/libkissfft-float.a" />
 			<Add library="../lpng1645/build/libpng.a" />
 			<Add library="../miniz/build/libminiz.a" />
 			<Add library="../../cpp/lpng1645/build/zlib-1.3.1/libzlibstatic.a" />
+			<Add library="C:/Qt/6.9.0/mingw_64/lib/libQt6Core.a" />
+			<Add library="C:/Qt/6.9.0/mingw_64/lib/libQt6Gui.a" />
+			<Add library="C:/Qt/6.9.0/mingw_64/lib/libQt6Widgets.a" />
 		</Linker>
+		<ExtraCommands>
+			<Add before='&quot;C:\ProgramData\Anaconda3\python.exe&quot; &quot;$(PROJECT_DIR)mocFiles.py&quot;' />
+		</ExtraCommands>
 		<Unit filename="include/BScan.h" />
 		<Unit filename="include/IO.h" />
 		<Unit filename="include/IO.tpp" />
 		<Unit filename="include/Settings.h" />
+		<Unit filename="include/SideBar.h" />
 		<Unit filename="include/Tag.h" />
 		<Unit filename="include/UtilityMathFunctions.h" />
 		<Unit filename="include/UtilityMathFunctions.tpp" />
+		<Unit filename="include/Window.h" />
 		<Unit filename="include/XML_Interpreter.h" />
+		<Unit filename="include/globals.h" />
+		<Unit filename="include/moc_SideBar.cpp" />
+		<Unit filename="include/moc_Window.cpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/BScan.cpp" />
 		<Unit filename="src/IO.cpp" />
 		<Unit filename="src/Settings.cpp" />
+		<Unit filename="src/SideBar.cpp" />
 		<Unit filename="src/Tag.cpp" />
+		<Unit filename="src/Window.cpp" />
 		<Unit filename="src/XML_Interpreter.cpp" />
+		<Unit filename="src/globals.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

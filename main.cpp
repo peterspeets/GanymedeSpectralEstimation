@@ -24,11 +24,13 @@
 #include "UtilityMathFunctions.h"
 #include "IO.h"
 #include "BScan.h"
-
+#include "Window.h"
+#include "globals.h"
 
 using namespace std;
 
-shared_ptr<Settings> settings;
+shared_ptr<Settings> settings = nullptr;
+shared_ptr<BScan> scan = nullptr;
 
 
 class SignalProcessing {
@@ -619,7 +621,11 @@ public:
 
 
 
-int main() {
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+    Window window;
+    window.show();
+
 
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MicSlideTest\\MicSlideTest_0004_Mode2D.oct";
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0028_Mode2D.oct";
@@ -630,25 +636,32 @@ int main() {
 
 
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
-    settings = make_shared<Settings>();
+    //settings = make_shared<Settings>();
+    //scan = make_shared<BScan>();
 
 
-    BScan* scan = new BScan(filePath);
+    //scan = new BScan(filePath);
+
+    /*
+
     cout << "Spectrum size: " << settings->sizeXSpectrum << "x" << settings->sizeZSpectrum  <<endl;
     cout << "Preprocessing:";
     scan->preprocessSpectrumInPlace();
     cout << " done" << endl;
     scan->fftBScan();
     scan->processBScan();
-
+    cout << "get processed scan." << endl;
     tuple<float**,int,int> result = scan->getProcessedBScan();
+    cout << "Saving png." << endl;
     IO<float>::savePng("D:/data/test.png", get<1>(result), get<2>(result), get<0>(result));
 
 
-
+    */
     //system("pause");
     cout << "end" << endl;
-    return 0;
+
+
+    return app.exec();
 
 
 }

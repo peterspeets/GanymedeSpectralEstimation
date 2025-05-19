@@ -2,13 +2,8 @@
 
 
 
-
-
-
-
 BScan::BScan(const string filePath)
 {
-    //filePath = "C:\\GanymedeSpectralEstimation\\wedgeBscan\\";
 
     if(filePath.substr(filePath.length() - 4) == ".oct") {
         IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
@@ -20,12 +15,22 @@ BScan::BScan(const string filePath)
         spectra = fileLoader.loadSpectrum(0);
 
     } else {
-        settings = make_shared<Settings>(filePath);
-        tuple<float**,int,int> loadingSpectraTuple =  IO<float>::load2DArrayFromFile(filePath + "rawData.txt");
-        pair<float*,int> loadingReferencePair =  IO<float>::loadArrayFromFile(filePath + "sk.txt");
+        string directoryPath = filePath;
+        if(filePath.substr(filePath.length() - 4) == ".txt"){
+            for(int i = filePath.length()-1; i > 0; i--){
+                if(filePath[i] == '\\' || filePath[i] == '/'){
+                    directoryPath = filePath.substr(0,i+1);
+                    cout << directoryPath << endl;
+                }
+            }
+        }
+
+        settings = make_shared<Settings>(directoryPath );
+        tuple<float**,int,int> loadingSpectraTuple =  IO<float>::load2DArrayFromFile(directoryPath + "rawData.txt");
+        pair<float*,int> loadingReferencePair =  IO<float>::loadArrayFromFile(directoryPath  + "sk.txt");
         spectra = get<0>(loadingSpectraTuple);
         //referenceSpectrum = loadingReferencePair.first;
-        pair<double*,int> loadingDispersionPair =  IO<double>::loadArrayFromFile(filePath + "phase.txt");
+        pair<double*,int> loadingDispersionPair =  IO<double>::loadArrayFromFile(directoryPath  + "phase.txt");
 
         settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
         settings->dispersionCoefficients = loadingDispersionPair.first;
@@ -296,7 +301,11 @@ void BScan::fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex
         sign = -1;
     }
 
-    for(int i = fromIndex; i != toIndex ; i+=sign) {
+    int i = fromIndex;
+    for(i = fromIndex; i != toIndex ; i+=sign) {
+        if(i < 0 || i > 1023){
+            cout << i << "fkdjfdkfdskfdkf dskjdksf ksadlfadks;lf ads;fjd;" << endl;
+        }
         for(int j = 0; j < K; j++) {
             if(i == fromIndex) {
                 processedImage[i][j] = startingColumn[j];
@@ -307,7 +316,10 @@ void BScan::fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex
         }
         scan->fiaa_oct_partitioned(spectra[i],N,K,4,q_i,vt,processedImage[i]);
         cout << i << endl;
+
+
     }
+    cout << "ended at " << i-sign << endl;
 }
 
 void BScan::fiaa_oct_partitioned(const float* x, float* diaaf_floatingPoint,int numberOfIterations){
@@ -631,14 +643,24 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
 
         if(threadIndex % 2 == 0) {
 
-            startIndex = (threadIndex+1) * (M/NThreads);
+
+            if(threadIndex >= NThreads -1 ){
+                startIndex = M-1;
+            }else{
+                startIndex = (threadIndex+1) * (M/NThreads);
+            }
 
             stopIndex = threadIndex * (M/NThreads);
             cout << "backwards " << startIndex << "  " << stopIndex << endl;
             threads.emplace_back(fiaa_oct_loop,spectra,this,startIndex-1,stopIndex-1,N,K,4,q_i,vt,processedBScan[startIndex],processedBScan);
         } else {
             startIndex = (threadIndex) * (M/NThreads);
-            stopIndex = (threadIndex+1) * (M/NThreads)-1;
+
+            if(threadIndex >= NThreads -1 ){
+                stopIndex =  M-1;
+            }else{
+                stopIndex = (threadIndex+1) * (M/NThreads)-1;
+            }
             cout << "forwards " << startIndex << "  " << stopIndex << endl;
             threads.emplace_back(fiaa_oct_loop,spectra,this,startIndex+1,stopIndex+1,N,K,4,q_i,vt,processedBScan[startIndex],processedBScan);
         }
@@ -651,10 +673,6 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
             t.join();
         }
     }
-
-    IO<float>::saveArrayToFile(spectra[0], K, "D:\\data\\riaa.txt");
-
-
 
 
 
