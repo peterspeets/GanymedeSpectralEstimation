@@ -70,13 +70,7 @@ Settings::Settings(string pathToDirectory) {
 
 Settings::Settings(list<Tag*> tags)  {
 
-    /*
-    for(Tag* tag : tags){
-            cout << *tag << endl;
-            cout << tag->content << endl;
 
-    }
-    */
 
     for(Tag* tag : tags) {
         if(tag->label == "DataFile" && tag->content.substr(0,13) == "data/Spectral" && tag->isOpeningTag) {
@@ -205,9 +199,10 @@ Settings::Settings(list<Tag*> tags)  {
     }
 }
 
+void Settings::copyMembers(const Settings& other){
 
 
-Settings::Settings(Settings& other) {
+
     numberOfDispersionCoefficients = other.numberOfDispersionCoefficients;
     if(dispersionCoefficients){
         dispersionCoefficients = new double[numberOfDispersionCoefficients];
@@ -217,22 +212,74 @@ Settings::Settings(Settings& other) {
     }else{
         dispersionCoefficients = nullptr;
     }
+
+
+    NChunksEnvelopeSubtraction = other.NChunksEnvelopeSubtraction;
+    NThreads = other.NThreads;
+    bytesPerPixelIntensity = other.bytesPerPixelIntensity;
+    bytesPerPixelSpectrum = other.bytesPerPixelSpectrum;
+    bytesPerPixelChirp= other.bytesPerPixelChirp;
+    bytesPerPixelApodization= other.bytesPerPixelApodization;
+    bytesPerPixelOffset= other.bytesPerPixelOffset;
+    sizeXIntensity= other.sizeXIntensity;
+    sizeZIntensity= other.sizeZIntensity;
+    sizeXSpectrumRaw= other.sizeXSpectrumRaw;
+    sizeXSpectrum= other.sizeXSpectrum;
+    sizeZSpectrum= other.sizeZSpectrum;
+    sizeXChirp= other.sizeXChirp;
+    sizeZChirp= other.sizeZChirp;
+    sizeXApodization= other.sizeXApodization;
+    sizeZApodization= other.sizeZApodization;
+    sizeXOffset= other.sizeXOffset;
+    sizeZOffset= other.sizeZOffset;
+
+    initialNumberOfIterations = other.initialNumberOfIterations;
+    numberOfIterations = other.numberOfIterations;
+    upscalingFactor = other.upscalingFactor;
+    NChunksRIAA = other.NChunksRIAA;
+
+    spectrumAveraging = other.spectrumAveraging;
+    numberOfAScans= other.numberOfAScans;
+    numberOfBScans= other.numberOfBScans;
+    x_px= other.x_px;
+    z_px= other.z_px;
+    x_mm= other.x_mm;
+    z_mm= other.z_mm;
+
+
+
+    wavelength_nm= other.wavelength_nm;
+    bandwidth_nm= other.bandwidth_nm;
+    refractiveIndex= other.refractiveIndex;
+    referenceIntensity= other.referenceIntensity;
+    electronCountScaling= other.electronCountScaling;
+    RIAA_NoiseParameter = other.RIAA_NoiseParameter;
+
+    numberOfDispersionCoefficients = other.numberOfDispersionCoefficients;
+
+    pathsSpectra= other.pathsSpectra;
+    scanStartIndices= other.scanStartIndices;
+    pathIntensity= other.pathIntensity;
+    pathChirp= other.pathChirp;
+    pathApodization= other.pathApodization;
+    pathOffset= other.pathOffset;
+
+
+    return;
+
+}
+
+
+Settings::Settings(Settings& other) {
+
+    copyMembers(other);
 
 }
 
 
 Settings& Settings::operator=(const Settings& other) {
 
-    numberOfDispersionCoefficients = other.numberOfDispersionCoefficients;
-    if(dispersionCoefficients){
-        dispersionCoefficients = new double[numberOfDispersionCoefficients];
-        for(int i = 0; i < numberOfDispersionCoefficients ; i++){
-            dispersionCoefficients[i] = other.dispersionCoefficients[i];
-        }
-    }else{
-        dispersionCoefficients = nullptr;
-    }
-
+    copyMembers(other);
 
     return *this;
 }

@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 
 #include <miniz.h>
@@ -38,8 +39,10 @@ public:
     template <typename T>
     static void saveArrayToFile(const complex<T>* cpx, const int N, const string& filename);
 
-    template <typename T>
-    static void test(T);
+    //template <typename T>
+    //static void test(T a);
+
+    static void testa(float a);
 
     static void saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename);
 
@@ -60,6 +63,8 @@ public:
 
     static pair<floatingPointType*, int> loadArrayFromFile(const string& filename);
     static tuple<floatingPointType**, int, int> load2DArrayFromFile(const string& filename);
+
+    static map<string, vector<double>> loadObjectiveDispersionData(const string& filename);
 
     class FileLoader{
         public:
@@ -88,6 +93,8 @@ public:
 protected:
 
 private:
+
+            static string trimString(string);
 };
 
 

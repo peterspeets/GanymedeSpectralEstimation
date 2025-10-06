@@ -105,6 +105,17 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
     savePng(filename, width, height, image_png);
     delete[] image_png;
 }
+/*
+template<typename T>
+void IO<T>::test(T a){
+    cout << "Test function. " << a << endl;
+    return;
+}*/
+template<typename T>
+void IO<T>::testa(float a){
+    cout << "Test function. " << a << endl;
+    return;
+}
 
 
 template<typename T>
@@ -283,8 +294,73 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
     }
 }
 
+template <typename T>
+map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& filename){
+    ifstream file(filename);
+    if (!file) {
+        cout << "Cannot open: " << filename << endl;
+    }
+    string line;
+
+    string keyword;
+    string stringOfDoubles;
+    string tempString;
+    map<string, vector<double>> objectiveLensSettings;
+    int previousIndex = 0;
+
+    while(getline(file,line)) {
+        for(int i = 0; i < line.size(); i++) {
+            if(line[i] == ':'){
+                keyword = line.substr(0,i);
+            }
+            stringOfDoubles = line.substr(i+1,line.size());
+            break;
+        }
+
+        for(int i = 0; i < stringOfDoubles.size(); i++) {
 
 
+            if(stringOfDoubles[i] == ','){
+                tempString = stringOfDoubles.substr(previousIndex,i);
+                previousIndex = i;
+                objectiveLensSettings[keyword].push_back(stod(tempString));
+            }
+
+        }
+
+        tempString = stringOfDoubles.substr(previousIndex,stringOfDoubles.size());
+
+        if(tempString.size() > 0 &&  ((tempString[0] >= 48 && tempString[0] < 58) || tempString[0] == ' ') ){
+            objectiveLensSettings[keyword].push_back(stod(tempString));
+        }
+
+
+    }
+
+    return objectiveLensSettings;
+
+
+}
+
+
+template <typename T>
+string IO<T>::trimString(string inputString){
+    string outputString;
+    for(int i = 0; i < inputString.size();i++){
+        if( (inputString[i] >= 48 && inputString[i] < 58) || inputString[i] == '.'  ){
+            outputString = inputString.substr(i,inputString.size());
+            break;
+        }
+    }
+    for(int i = outputString.size()-1; i > 0; i--){
+        if( (outputString[i] >= 48 && outputString[i] < 58) || outputString[i] == '.'  ){
+            outputString = outputString.substr(0,i+1);
+            break;
+        }
+    }
+
+    return outputString;
+}
 
 template <typename T>
 tuple<T**, int, int> IO<T>::load2DArrayFromFile(const string& filename) {
@@ -307,7 +383,7 @@ tuple<T**, int, int> IO<T>::load2DArrayFromFile(const string& filename) {
         } else if(line[i] == '\t') {
             separationCharacter = '\t';
             break;
-            // Spaces may be added for readability. This 25 size offset is  a (temporary ?) heuristic to see if no other separation character has been found.
+            // Spaces may be added for readability. This 30 size offset is  a (temporary ?) heuristic to see if no other separation character has been found.
         } else if(line[i] == ' ' && i > 30) {
             separationCharacter = ' ';
             break;
@@ -704,7 +780,7 @@ int IO<T>::GanymedeFileLoader::getFileIndex( string fileName) {
     int file_index = mz_zip_reader_locate_file(&OCTArchive, fileName.c_str(), NULL, MZ_ZIP_FLAG_IGNORE_PATH);
 
     /*mz_zip_reader_locate_file fails to locate directories, so here a workaround.
-    If no file has been found, it looks for .
+    If no file has been found, it loops over all file indices, and tries to load it.
     If that also fails, it replaces the slashes with backslashes.
     */
 

@@ -512,7 +512,7 @@ tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<float
             }
         }
     }
-    //UtilityMathFunctions<floatingPointType>::
+
 
     levinsonTime += getTime() - startingTime;
     if(evaluated == 10*1024*4) {

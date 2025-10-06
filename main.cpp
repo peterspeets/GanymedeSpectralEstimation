@@ -623,6 +623,13 @@ public:
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
+    //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
+    settings = make_shared<Settings>();
+
+
+
+
+
     Window window;
     window.show();
 
@@ -635,12 +642,14 @@ int main(int argc, char *argv[]) {
     string filePath = "C:\\GanymedeSpectralEstimation\\wedgeBscan\\";
 
 
-    //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
-    //settings = make_shared<Settings>();
-    //scan = make_shared<BScan>();
 
 
-    //scan = new BScan(filePath);
+
+
+    //scan = make_shared<BScan>(filePath);
+    scan = make_shared<BScan>();
+    window.setImage(scan->fftBScan(),settings->sizeXSpectrum,settings->sizeZSpectrum);
+
 
     /*
 

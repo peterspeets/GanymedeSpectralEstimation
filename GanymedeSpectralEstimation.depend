@@ -2,12 +2,13 @@
 1741110628 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\io.cpp
 	"IO.h"
 
-1747395146 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.h
+1757865616 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.h
 	<iostream>
 	<fstream>
 	<memory>
 	<string>
 	<vector>
+	<map>
 	<miniz.h>
 	<kiss_fft.h>
 	"Tag.h"
@@ -43,7 +44,7 @@
 	<kiss_fftr.h>
 	"UtilityMathFunctions.tpp"
 
-1747403679 c:\ganymedespectralestimation\ganymedespectralestimation\include\utilitymathfunctions.tpp
+1750952942 c:\ganymedespectralestimation\ganymedespectralestimation\include\utilitymathfunctions.tpp
 	"UtilityMathFunctions.h"
 
 1747394955 c:\ganymedespectralestimation\ganymedespectralestimation\include\xml_interpreter.h
@@ -52,7 +53,7 @@
 	<list>
 	"Tag.h"
 
-1747413668 c:\ganymedespectralestimation\ganymedespectralestimation\include\settings.h
+1751310293 c:\ganymedespectralestimation\ganymedespectralestimation\include\settings.h
 	<iostream>
 	<fstream>
 	<string>
@@ -62,7 +63,7 @@
 	<thread>
 	"Tag.h"
 
-1747499096 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
+1757865438 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
 	"IO.h"
 	"Settings.h"
 
@@ -72,7 +73,7 @@
 1747394955 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\xml_interpreter.cpp
 	"XML_Interpreter.h"
 
-1747682126 source:c:\ganymedespectralestimation\ganymedespectralestimation\main.cpp
+1759752218 source:c:\ganymedespectralestimation\ganymedespectralestimation\main.cpp
 	<iostream>
 	<fstream>
 	<string>
@@ -99,7 +100,7 @@
 	"Window.h"
 	"globals.h"
 
-1747413780 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\settings.cpp
+1751386520 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\settings.cpp
 	"Settings.h"
 	"IO.h"
 
@@ -127,7 +128,7 @@
 	<setjmp.h>
 	<time.h>
 
-1747411897 c:\ganymedespectralestimation\ganymedespectralestimation\include\bscan.h
+1759751885 c:\ganymedespectralestimation\ganymedespectralestimation\include\bscan.h
 	<cmath>
 	<algorithm>
 	<complex>
@@ -142,17 +143,21 @@
 	"UtilityMathFunctions.h"
 	"IO.h"
 
-1747673588 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
+1759752789 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
 	"BScan.h"
 
-1747665723 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\sidebar.cpp
+1751387824 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\sidebar.cpp
+	<iostream>
 	"SideBar.h"
+	"Window.h"
 
-1747665723 c:\ganymedespectralestimation\ganymedespectralestimation\include\sidebar.h
+1751374426 c:\ganymedespectralestimation\ganymedespectralestimation\include\sidebar.h
 	<QVBoxLayout>
 	<QApplication>
 	<QtWidgets>
 	<QPushButton>
+	"Settings.h"
+	"BScan.h"
 
 1743166676 c:\qt\6.9.0\mingw_64\include\qtwidgets\qvboxlayout
 	"qboxlayout.h"
@@ -1535,20 +1540,22 @@
 	<QtGui/qkeysequence.h>
 	<QtWidgets/qwidget.h>
 
-1747672269 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\window.cpp
+1759755262 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\window.cpp
 	"window.h"
 
-1747682161 c:\ganymedespectralestimation\ganymedespectralestimation\include\window.h
+1759756114 c:\ganymedespectralestimation\ganymedespectralestimation\include\window.h
 	<iostream>
 	<QApplication>
 	<QtWidgets>
 	<QPushButton>
 	<QFileDialog>
+	<cmath>
 	"Settings.h"
 	"UtilityMathFunctions.h"
 	"IO.h"
 	"BScan.h"
 	"globals.h"
+	"ColorMaps.h"
 	"SideBar.h"
 
 1743166676 c:\qt\6.9.0\mingw_64\include\qtwidgets\qfiledialog
@@ -1633,4 +1640,140 @@
 	"BScan.h"
 
 1747682148 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\globals.cpp
+
+1750436278 source:c:\ganymedespectralestimation\ganymedespectralestimation\include\moc_window.cpp
+	"Window.h"
+	<QtCore/qmetatype.h>
+	<QtCore/qtmochelpers.h>
+	<memory>
+	<QtCore/qxptype_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtmochelpers.h
+	<QtCore/qmetatype.h>
+	<QtCore/qtmocconstants.h>
+	<QtCore/q20algorithm.h>
+	<QtCore/q23type_traits.h>
+	<limits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtmocconstants.h
+	<QtCore/qflags.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtypes.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q20algorithm.h
+	<QtCore/qglobal.h>
+	<algorithm>
+	<QtCore/q20functional.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q23type_traits.h
+	<QtCore/q20type_traits.h>
+
+1751278065 c:\ganymedespectralestimation\ganymedespectralestimation\include\colormaps.h
+	<cmath>
+	<tuple>
+
+1751278094 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\colormaps.cpp
+	"ColorMaps.h"
+
+1743166578 c:\qt\6.9.0\mingw_64\include\qtgui\qimagereader
+	"qimagereader.h"
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qimagereader.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qbytearray.h>
+	<QtCore/qcoreapplication.h>
+	<QtGui/qimage.h>
+	<QtGui/qimageiohandler.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qimageiohandler.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qimage.h>
+	<QtCore/qiodevice.h>
+	<QtCore/qplugin.h>
+	<QtCore/qfactoryinterface.h>
+	<QtCore/qscopedpointer.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qplugin.h
+	<QtCore/qobject.h>
+	<QtCore/qpointer.h>
+	<QtCore/qjsonobject.h>
+	<QtCore/q20algorithm.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qpointer.h
+	<QtCore/qcompare.h>
+	<QtCore/qsharedpointer.h>
+	<QtCore/qtypeinfo.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qjsonobject.h
+	<QtCore/qjsonvalue.h>
+	<QtCore/qiterator.h>
+	<QtCore/qpair.h>
+	<QtCore/qshareddata.h>
+	<initializer_list>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qjsonvalue.h
+	<QtCore/qcborvalue.h>
+	<QtCore/qcompare.h>
+	<QtCore/qglobal.h>
+	<QtCore/qjsondocument.h>
+	<QtCore/qjsonparseerror.h>
+	<QtCore/qstring.h>
+	<QtCore/qshareddata.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcborvalue.h
+	<QtCore/qbytearray.h>
+	<QtCore/qcborcommon.h>
+	<QtCore/qcompare.h>
+	<QtCore/qdatetime.h>
+	<QtCore/qregularexpression.h>
+	<QtCore/qstring.h>
+	<QtCore/qstringview.h>
+	<QtCore/qurl.h>
+	<QtCore/quuid.h>
+	<QtCore/qvariant.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcborcommon.h
+	<QtCore/qobjectdefs.h>
+	<QtCore/qmetatype.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qregularexpression.h
+	<QtCore/qglobal.h>
+	<QtCore/qstring.h>
+	<QtCore/qstringview.h>
+	<QtCore/qshareddata.h>
+	<QtCore/qvariant.h>
+	<iterator>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\quuid.h
+	<QtCore/qcompare.h>
+	<QtCore/qendian.h>
+	<QtCore/qstring.h>
+	<QtCore/qsystemdetection.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qjsondocument.h
+	<QtCore/qcompare.h>
+	<QtCore/qjsonparseerror.h>
+	<QtCore/qjsonvalue.h>
+	<QtCore/qlatin1stringview.h>
+	<QtCore/qscopedpointer.h>
+	<QtCore/qstringview.h>
+	<memory>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qjsonparseerror.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfactoryinterface.h
+	<QtCore/qobject.h>
+	<QtCore/qstringlist.h>
+
+1743166420 c:\qt\6.9.0\mingw_64\include\qtcore\qdebug
+	"qdebug.h"
+
+1751386096 source:c:\ganymedespectralestimation\ganymedespectralestimation\include\moc_sidebar.cpp
+	"SideBar.h"
+	<QtCore/qmetatype.h>
+	<QtCore/qtmochelpers.h>
+	<memory>
+	<QtCore/qxptype_traits.h>
 

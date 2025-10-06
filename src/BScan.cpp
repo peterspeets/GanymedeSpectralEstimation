@@ -1,10 +1,36 @@
 #include "BScan.h"
 
+BScan::BScan(){
+
+    settings = make_shared<Settings>();
+
+    settings->bytesPerPixelIntensity = 0;
+    settings->bytesPerPixelSpectrum = 0;
+    settings->bytesPerPixelChirp = 0;
+    settings->bytesPerPixelApodization = 0;
+    settings->bytesPerPixelOffset = 0;
+    settings->sizeXIntensity = 0;
+    settings->sizeZIntensity = 0;
+    settings->sizeXSpectrumRaw = 0;
+    settings->sizeXSpectrum = 0;
+    settings->sizeZSpectrum = 0;
+    settings->sizeXChirp = 0;
+    settings->sizeZChirp = 0;
+    settings->sizeXApodization = 0;
+    settings->sizeZApodization = 0;
+    settings->sizeXOffset = 0;
+    settings->sizeZOffset = 0;
+    settings->spectrumAveraging = 0;
+    settings->numberOfAScans = 0;
+    settings->numberOfBScans = 0;
+    settings->x_px = 0;
+    settings->z_px = 0;
+
+}
 
 
 BScan::BScan(const string filePath)
 {
-
     if(filePath.substr(filePath.length() - 4) == ".oct") {
         IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
         settings = fileLoader.loadSettings() ;
@@ -20,7 +46,7 @@ BScan::BScan(const string filePath)
             for(int i = filePath.length()-1; i > 0; i--){
                 if(filePath[i] == '\\' || filePath[i] == '/'){
                     directoryPath = filePath.substr(0,i+1);
-                    cout << directoryPath << endl;
+                    break;
                 }
             }
         }
@@ -36,9 +62,11 @@ BScan::BScan(const string filePath)
         settings->dispersionCoefficients = loadingDispersionPair.first;
     }
 
-
+    preprocessSpectrumInPlace();
     BScanSettings = *settings;
-    processedBScan = new float*[settings->sizeXSpectrum];
+    imageRIAA = new float*[settings->sizeXSpectrum];
+    fftBScan();
+    processBScan();
 }
 
 uint64_t BScan::getTime() {
@@ -47,7 +75,35 @@ uint64_t BScan::getTime() {
 }
 
 
+void BScan::fftPartBSscan(float** spectra, float** image, int Nz,int startXIndex, int stopXIndex) {
+    kiss_fft_cfg icfg = kiss_fft_alloc(Nz, 1, NULL, NULL);
+    kiss_fft_cpx in[Nz];
+    kiss_fft_cpx out[Nz];
+    for (int j = 0; j < Nz; j++) {
+        in[j].i = 0.0;
+    }
+
+
+    for (int i = startXIndex; i < stopXIndex; i++) {
+        for (int j = 0; j < Nz; j++) {
+            in[j].r = spectra[i][j];
+        }
+        kiss_fft(icfg, in, out);
+        for (int j = 1; j < Nz+1; j++) {
+            image[i][j-1] = (out[j].r*out[j].r + out[j].i*out[j].i)/(Nz*Nz) ;
+        }
+    }
+
+
+    kiss_fft_free(icfg);
+
+}
+
+
 float** BScan::fftBScan(){
+    if(settings->sizeXSpectrum == 0){
+        return imageFFT;
+    }
 
     if(!imageFFT ){
         imageFFT = new float*[settings->sizeXSpectrum];
@@ -56,7 +112,31 @@ float** BScan::fftBScan(){
         }
     }
 
+    static uint64_t stopTime = 0;
+    static uint64_t startingTime = getTime();
 
+
+    int startIndex = 0;
+    int stopIndex = 0;
+    int NThreads = settings->NThreads;
+
+
+    vector<thread> threads;
+
+    for(int threadIndex = 0; threadIndex < NThreads; threadIndex++) {
+
+        startIndex = threadIndex  *settings->sizeXSpectrum/NThreads;
+        stopIndex = (threadIndex + 1) *settings->sizeXSpectrum/NThreads;
+        threads.emplace_back(fftPartBSscan,spectra, imageFFT, settings->sizeZSpectrum,startIndex,stopIndex);
+    }
+
+    for(thread& t : threads) {
+        if(t.joinable()) {
+            t.join();
+        }
+    }
+
+    return imageFFT;
 
     kiss_fft_cfg icfg = kiss_fft_alloc(settings->sizeZSpectrum, 1, NULL, NULL);
     kiss_fft_cpx in[settings->sizeZSpectrum];
@@ -85,7 +165,7 @@ float** BScan::fftBScan(){
 }
 
 tuple<float**,int,int> BScan::getProcessedBScan(){
-    tuple<float**,int,int> output = make_tuple(processedBScan,settings->sizeXSpectrum,settings->upscalingFactor*settings->sizeZSpectrum);
+    tuple<float**,int,int> output = make_tuple(imageRIAA,settings->sizeXSpectrum,settings->upscalingFactor*settings->sizeZSpectrum);
     return output;
 }
 
@@ -304,7 +384,7 @@ void BScan::fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex
     int i = fromIndex;
     for(i = fromIndex; i != toIndex ; i+=sign) {
         if(i < 0 || i > 1023){
-            cout << i << "fkdjfdkfdskfdkf dskjdksf ksadlfadks;lf ads;fjd;" << endl;
+            cout << i << "Error in array indicing." << endl;
         }
         for(int j = 0; j < K; j++) {
             if(i == fromIndex) {
@@ -604,18 +684,22 @@ float** BScan::processBScan(){
 calculateLowResBitmap(){
 }
 
+
+
+
+
 float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, double vt,int NThreads) {
     int i, j;
 
 
     for(i = 0 ; i < M; i++){
-        if(!processedBScan[i]){
-            delete[] processedBScan[i];
+        if(!imageRIAA[i]){
+            delete[] imageRIAA[i];
         }
 
     }
 
-    NThreads = 6;
+
     uint64_t time0;
     uint64_t time1;
     pair<float*, float*> fiaa_output;
@@ -625,11 +709,11 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
     for(int i = 0; i < M; i++) {
         if( (i) % (M/NThreads) == 0 && i != 0) {
             fiaa_output = fiaa_oct(spectra[i],N,K,q_init,vt);
-            processedBScan[i] = fiaa_output.first;
+            imageRIAA[i] = fiaa_output.first;
             delete[] fiaa_output.second;
         } else {
 
-            processedBScan[i] = new float[K];
+            imageRIAA[i] = new float[K];
         }
     }
 
@@ -652,7 +736,7 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
 
             stopIndex = threadIndex * (M/NThreads);
             cout << "backwards " << startIndex << "  " << stopIndex << endl;
-            threads.emplace_back(fiaa_oct_loop,spectra,this,startIndex-1,stopIndex-1,N,K,4,q_i,vt,processedBScan[startIndex],processedBScan);
+            threads.emplace_back(fiaa_oct_loop,spectra,this,startIndex-1,stopIndex-1,N,K,4,q_i,vt,imageRIAA[startIndex],imageRIAA);
         } else {
             startIndex = (threadIndex) * (M/NThreads);
 
@@ -662,7 +746,7 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
                 stopIndex = (threadIndex+1) * (M/NThreads)-1;
             }
             cout << "forwards " << startIndex << "  " << stopIndex << endl;
-            threads.emplace_back(fiaa_oct_loop,spectra,this,startIndex+1,stopIndex+1,N,K,4,q_i,vt,processedBScan[startIndex],processedBScan);
+            threads.emplace_back(fiaa_oct_loop,spectra,this,startIndex+1,stopIndex+1,N,K,4,q_i,vt,imageRIAA[startIndex],imageRIAA);
         }
     }
 
@@ -679,7 +763,7 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
     time1 = getTime();
     cout << "done in " << 1e-3*(time1 - time0) << " s." << endl;
 
-    return processedBScan;
+    return imageRIAA;
 }
 
 

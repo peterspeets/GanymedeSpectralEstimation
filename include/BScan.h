@@ -24,6 +24,7 @@ using namespace std;
 class BScan
 {
     public:
+        BScan();
         BScan(const string filePath);
         Settings BScanSettings;
         void preprocessSpectrumInPlace();
@@ -42,20 +43,22 @@ class BScan
         pair<float*, float*> fiaa_oct(const float* x, size_t N, int K, int q_i, double vt, float* diaaf_floatingPoint = nullptr);
         tuple<float**,int,int> getProcessedBScan();
         void calculateLowResBitmap();
+        float** imageRIAA = nullptr;
+        float** imageFFT = nullptr;
+        unsigned char* lowResBitmap = nullptr; //no alpha channel
+
 
 
     protected:
 
     private:
         float** spectra = nullptr;
-        float** processedBScan = nullptr;
-        float** imageFFT = nullptr;
-        unsigned char* lowResBitmap = nullptr; //no alpha channel
         float* offset = nullptr;
         float* chirp = nullptr;
         float* referenceSpectrum = nullptr;
         float* intensity = nullptr;
         float* window = nullptr;
+        static void fftPartBSscan(float** spectra, float** image, int Nz,int startXIndex, int stopXIndex) ;
 
 };
 

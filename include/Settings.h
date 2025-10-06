@@ -70,12 +70,21 @@ public:
     string pathChirp;
     string pathApodization;
     string pathOffset;
+    int colorMap = 1;
+    bool useDecibelColorScale = true;
+    double decibelFloor = -120;
+    double percentageFloor = 20.0;
+    double decibelCeil = 0;
+    double percentageCeil= 100;
+    bool useRIAA = false;
 
 
 
 
 protected:
 private:
+    void copyMembers(const Settings&);
+
 };
 
 #endif // SETTINGS_H
