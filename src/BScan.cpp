@@ -2,7 +2,13 @@
 
 BScan::BScan(){
 
+    shared_ptr<Settings> oldSettings = settings;
     settings = make_shared<Settings>();
+
+    settings->pathToExecutable = oldSettings->pathToExecutable;
+    map<string, vector<double>> mapFromData = IO<double>::loadObjectiveDispersionData(
+        settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
+    settings->objectiveDispersionData.insert(mapFromData.begin(), mapFromData.end());
 
     settings->bytesPerPixelIntensity = 0;
     settings->bytesPerPixelSpectrum = 0;
@@ -31,6 +37,8 @@ BScan::BScan(){
 
 BScan::BScan(const string filePath)
 {
+    shared_ptr<Settings> oldSettings = settings;
+
     if(filePath.substr(filePath.length() - 4) == ".oct") {
         IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
         settings = fileLoader.loadSettings() ;
@@ -58,8 +66,30 @@ BScan::BScan(const string filePath)
         //referenceSpectrum = loadingReferencePair.first;
         pair<double*,int> loadingDispersionPair =  IO<double>::loadArrayFromFile(directoryPath  + "phase.txt");
 
+        settings->dispersionCoefficients = loadingDispersionPair.first;
+        settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
+
+        settings->objectiveLabel = "Native";
+        settings->objectiveDispersionData[settings->objectiveLabel] = vector<double>(loadingDispersionPair.first,
+                                                                                     loadingDispersionPair.first + loadingDispersionPair.second);
         settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
         settings->dispersionCoefficients = loadingDispersionPair.first;
+
+        settings->pathToExecutable = oldSettings->pathToExecutable;
+        map<string, vector<double>> mapFromData = IO<double>::loadObjectiveDispersionData(
+            settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
+        settings->objectiveDispersionData.insert(mapFromData.begin(), mapFromData.end());
+
+
+
+        /*
+        Settings is now overwritten by all variables that are loaded by the BScan constructor.However,
+        the the problem is that some settings, such as the executable path and some other settings
+        should be kept. Therefore, this needs to change to a BScan settings settings, such as the SizeXSpectrum,
+        and the global settings, such as the dispersion correction. For now, do this with this temporary solution
+        of copying some old settings here.
+        */
+
     }
 
     preprocessSpectrumInPlace();

@@ -3,9 +3,16 @@
 
 
 
-ObjectiveSettingsWindow::ObjectiveSettingsWindow(){
-    this->setVisible(true);
+ObjectiveSettingsWindow::ObjectiveSettingsWindow(QMainWindow *parent){
+    setVisible(false);
+    setWindowTitle("Objective lens settings");
+    resize(500,500);
+    QIcon icon("../../icons/icontrans.png");
+    setWindowIcon(icon);
 
+    static map<string, vector<double>> dispersionFormulas;
+
+    //IO::loadObjectiveDispersionData("C:\\GanymedeSpectralEstimation\\GanymedeSpectralEstimation\\settings\\objectives.yaml");
 
 
 }
@@ -62,8 +69,8 @@ Window::Window() {
     Build settings window:
     */
 
-    objectiveSettingsWindow = new ObjectiveSettingsWindow();
-    objectiveSettingsWindow->setTitle("Objective lens settings");
+    objectiveSettingsWindow = new ObjectiveSettingsWindow(this);
+
 
 
     show();
@@ -326,6 +333,8 @@ void Window::loadFileWithDialog() {
 
         setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);
         cout << "Loaded scan" << endl;
+        sideBar->populateObjectiveSelectionComboBox();
+
     }
 
     return;

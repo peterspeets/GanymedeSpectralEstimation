@@ -98,10 +98,6 @@ SideBar::SideBar(Window* parent){
     }
     connect(upscalingFactorComboBox, &QComboBox::currentIndexChanged, this, &upscalingFactorComboBoxChanged);
 
-
-
-
-
     QButtonGroup *selectAlgorithmRadioButtonsGroup = new QButtonGroup(this);
     selectAlgorithmRadioButtonsGroup->addButton(selectFFTRadioButton);
     selectAlgorithmRadioButtonsGroup->addButton(selectRIAARadioButton);
@@ -119,6 +115,21 @@ SideBar::SideBar(Window* parent){
     useDecibelColorScaleCheckBox->setChecked(settings->useDecibelColorScale);
     connect(useDecibelColorScaleCheckBox, &QCheckBox::checkStateChanged, this, &useDecibelColorScaleCheckBoxToggled);
 
+    objectiveSelectionComboBoxLayout = new QVBoxLayout;
+    objectiveSelectionComboBoxLabel = new QLabel("Select objective lens for dispersion correction");
+
+    objectiveSelectionComboBox = new QComboBox();
+
+    populateObjectiveSelectionComboBox();
+
+    objectiveSelectionComboBox->setMinimumWidth(100);
+    objectiveSelectionComboBox->setMaximumWidth(200);
+
+    objectiveSelectionComboBoxLayout->addWidget(objectiveSelectionComboBoxLabel);
+    objectiveSelectionComboBoxLayout->addWidget(objectiveSelectionComboBox);
+    objectiveSelectionComboBoxLayout->setSpacing(1);
+    connect(objectiveSelectionComboBox, &QComboBox::currentIndexChanged, this, &objectiveSelectionComboBoxChanged);
+
     addWidget(selectColorMapComboBox);
     addWidget(useDecibelColorScaleCheckBox);
     addLayout(ceilPixelValueSpinBoxLayout);
@@ -130,11 +141,27 @@ SideBar::SideBar(Window* parent){
     addLayout(upscalingFactorComboBoxLayout);
     addStretch();
 
+    addLayout(objectiveSelectionComboBoxLayout);
 
+    addStretch();
     addStretch();
     addWidget(startButton);
 
 }
+
+void SideBar::populateObjectiveSelectionComboBox(){
+    objectiveSelectionComboBox->clear();
+    for (pair<const string, vector<double>> &dispersionDataPair: settings->objectiveDispersionData) {
+        objectiveSelectionComboBox->addItem(QString::fromStdString(dispersionDataPair.first));
+    }
+
+    int index = objectiveSelectionComboBox->findText("Native");
+    if (index != -1) {
+        objectiveSelectionComboBox->setCurrentIndex(index);
+    }
+    return;
+}
+
 
 
 void SideBar::selectAlgorithmRadioButtonClicked(QAbstractButton* button){
@@ -147,6 +174,17 @@ void SideBar::selectAlgorithmRadioButtonClicked(QAbstractButton* button){
     }
 
 
+    return;
+}
+
+
+void SideBar::objectiveSelectionComboBoxChanged(int index){
+    settings->objectiveLabel =  objectiveSelectionComboBox->itemText(index).toStdString();
+    //double* dispersionCoefficients = nullptr;
+    //map<string, vector<double>> objectiveDispersionData;
+
+    settings->dispersionCoefficients = settings->objectiveDispersionData[settings->objectiveLabel].data();
+    settings->numberOfDispersionCoefficients = settings->objectiveDispersionData[settings->objectiveLabel].size();
     return;
 }
 

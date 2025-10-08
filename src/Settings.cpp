@@ -2,10 +2,9 @@
 #include "IO.h"
 
 Settings::Settings() {
+    objectiveDispersionData[objectiveLabel] = {1.0};
     return;
 }
-
-
 
 
 Settings::Settings(string pathToDirectory) {
@@ -20,6 +19,8 @@ Settings::Settings(string pathToDirectory) {
     pair<double*, int> sizePair = IO<double>::loadArrayFromFile(pathToDirectory + "Size.txt");
     pair<float*, int> referenceSpectrumPair = IO<float>::loadArrayFromFile(pathToDirectory + "sk.txt");
     tuple<float**, int,int> spectraTuple = IO<float>::load2DArrayFromFile(pathToDirectory + "rawData.txt");
+
+    objectiveDispersionData[objectiveLabel] = {};
 
     sizeXIntensity = get<1>(spectraTuple);
     sizeZIntensity= get<2>(spectraTuple);
@@ -66,6 +67,13 @@ Settings::Settings(string pathToDirectory) {
     }
 
 
+}
+
+
+void Settings::writeToYAML(string filePath){
+
+
+return;
 }
 
 Settings::Settings(list<Tag*> tags)  {
@@ -202,8 +210,16 @@ Settings::Settings(list<Tag*> tags)  {
 void Settings::copyMembers(const Settings& other){
 
 
-
+    objectiveDispersionData = other.objectiveDispersionData;
+    objectiveLabel = other.objectiveLabel;
     numberOfDispersionCoefficients = other.numberOfDispersionCoefficients;
+    dispersionCoefficients = objectiveDispersionData[objectiveLabel].data();
+
+    /*
+    This code is replaced by storing the dispersion data in the vector,
+    the pointer dispersionCoefficients now points to a row in the vector.
+
+    (remove in next commit after testing)
     if(dispersionCoefficients){
         dispersionCoefficients = new double[numberOfDispersionCoefficients];
         for(int i = 0; i < numberOfDispersionCoefficients ; i++){
@@ -212,6 +228,7 @@ void Settings::copyMembers(const Settings& other){
     }else{
         dispersionCoefficients = nullptr;
     }
+    */
 
 
     NChunksEnvelopeSubtraction = other.NChunksEnvelopeSubtraction;
@@ -286,7 +303,11 @@ Settings& Settings::operator=(const Settings& other) {
 
 
 Settings::~Settings() {
+    /*
+    The behaviour of dispersionCoefficients changed. It is now a pointer to a vector
+    element. In the future, this raw pointer will be removed entirely.
     if(dispersionCoefficients){
         delete[] dispersionCoefficients;
     }
+    */
 }

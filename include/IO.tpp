@@ -300,6 +300,10 @@ map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& fil
     if (!file) {
         cout << "Cannot open: " << filename << endl;
     }
+    else{
+
+        cout << "opening " << filename << endl;
+    }
     string line;
 
     string keyword;
@@ -312,27 +316,33 @@ map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& fil
         for(int i = 0; i < line.size(); i++) {
             if(line[i] == ':'){
                 keyword = line.substr(0,i);
+                stringOfDoubles = line.substr(i+1,line.size());
+                break;
             }
-            stringOfDoubles = line.substr(i+1,line.size());
-            break;
+
         }
 
+        previousIndex = 0;
         for(int i = 0; i < stringOfDoubles.size(); i++) {
 
 
             if(stringOfDoubles[i] == ','){
-                tempString = stringOfDoubles.substr(previousIndex,i);
-                previousIndex = i;
+                tempString = stringOfDoubles.substr(previousIndex,i-previousIndex);
+
+                previousIndex = i+1;
                 objectiveLensSettings[keyword].push_back(stod(tempString));
+
             }
 
         }
 
-        tempString = stringOfDoubles.substr(previousIndex,stringOfDoubles.size());
+        tempString = stringOfDoubles.substr(previousIndex,stringOfDoubles.size()-previousIndex);
 
-        if(tempString.size() > 0 &&  ((tempString[0] >= 48 && tempString[0] < 58) || tempString[0] == ' ') ){
+        if(tempString.size() > 0 &&  ((tempString[0] >= 48 && tempString[0] < 58) || tempString[0] == ' ' || tempString[0] == '-') ){
             objectiveLensSettings[keyword].push_back(stod(tempString));
         }
+
+
 
 
     }

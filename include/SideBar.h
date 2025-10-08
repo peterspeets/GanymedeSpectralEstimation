@@ -26,9 +26,8 @@ class SideBar : public QVBoxLayout  {
     public:
 
         SideBar(Window* parent);
-
-
         ~SideBar();
+        void populateObjectiveSelectionComboBox();
     private slots:
         void startButtonClicked();
         void selectAlgorithmRadioButtonClicked(QAbstractButton*);
@@ -37,6 +36,7 @@ class SideBar : public QVBoxLayout  {
         void upscalingFactorComboBoxChanged(int index);
         void floorPixelValueSpinBoxChanged(double newValue);
         void ceilPixelValueSpinBoxChanged(double newValue);
+        void objectiveSelectionComboBoxChanged(int index);
     private:
         Window* parentWindow = nullptr;
         void setColorScalingSpinboxes();
@@ -62,6 +62,10 @@ class SideBar : public QVBoxLayout  {
         QLabel* ceilPixelValueSpinBoxLabel;
         QDoubleSpinBox* ceilPixelValueSpinBox;
         QVBoxLayout* ceilPixelValueSpinBoxLayout;
+
+        QVBoxLayout* objectiveSelectionComboBoxLayout;
+        QLabel* objectiveSelectionComboBoxLabel;
+        QComboBox* objectiveSelectionComboBox;
 
 
         QPushButton* startButton;

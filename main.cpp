@@ -625,13 +625,20 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
     settings = make_shared<Settings>();
-
-
-
-
+    settings->pathToExecutable = QCoreApplication::applicationDirPath().toStdString();
+    map<string, vector<double>> mapFromData;
+    mapFromData = IO<double>::loadObjectiveDispersionData(
+        settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
+    settings->objectiveDispersionData.insert(mapFromData.begin(), mapFromData.end());
+    for(const pair<string, vector<double>> &objectiveDispersionPair : settings->objectiveDispersionData){
+        cout << objectiveDispersionPair.first << endl;
+    }
 
     Window window;
     window.show();
+
+
+
 
 
     //string filePath = "C:\\data\\ThorlabsCppTestData\\MicSlideTest\\MicSlideTest_0004_Mode2D.oct";
@@ -644,12 +651,16 @@ int main(int argc, char *argv[]) {
 
 
 
-
-
     //scan = make_shared<BScan>(filePath);
     scan = make_shared<BScan>();
-    window.setImage(scan->fftBScan(),settings->sizeXSpectrum,settings->sizeZSpectrum);
 
+
+    for(const pair<string, vector<double>> &objectiveDispersionPair : settings->objectiveDispersionData){
+        cout << objectiveDispersionPair.first << endl;
+    }
+
+
+    window.setImage(scan->fftBScan(),settings->sizeXSpectrum,settings->sizeZSpectrum);
 
     /*
 
@@ -668,7 +679,6 @@ int main(int argc, char *argv[]) {
     */
     //system("pause");
     cout << "end" << endl;
-
 
     return app.exec();
 

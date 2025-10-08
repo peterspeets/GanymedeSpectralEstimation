@@ -11,6 +11,8 @@
 #include "Tag.h"
 //#include "IO.h"
 
+
+
 class Settings {
 public:
     Settings();
@@ -18,6 +20,7 @@ public:
     Settings(string);
     Settings(Settings& other);
     Settings& operator=(const Settings& other);
+    void writeToYAML(string);
 
     virtual ~Settings();
     //TODO: create helper functions to be able to make these variables consts.
@@ -63,6 +66,9 @@ public:
 
     size_t numberOfDispersionCoefficients = 1;
     double* dispersionCoefficients = nullptr;
+    map<string, vector<double>> objectiveDispersionData;
+    string objectiveLabel = "No correction";
+    string pathToExecutable;
 
     map<int, string> pathsSpectra;
     map<int, int> scanStartIndices;

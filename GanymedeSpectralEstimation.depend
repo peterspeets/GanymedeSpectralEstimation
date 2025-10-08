@@ -53,7 +53,7 @@
 	<list>
 	"Tag.h"
 
-1751310293 c:\ganymedespectralestimation\ganymedespectralestimation\include\settings.h
+1759854577 c:\ganymedespectralestimation\ganymedespectralestimation\include\settings.h
 	<iostream>
 	<fstream>
 	<string>
@@ -63,7 +63,7 @@
 	<thread>
 	"Tag.h"
 
-1757865438 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
+1759853981 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
 	"IO.h"
 	"Settings.h"
 
@@ -73,7 +73,7 @@
 1747394955 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\xml_interpreter.cpp
 	"XML_Interpreter.h"
 
-1759752218 source:c:\ganymedespectralestimation\ganymedespectralestimation\main.cpp
+1759931035 source:c:\ganymedespectralestimation\ganymedespectralestimation\main.cpp
 	<iostream>
 	<fstream>
 	<string>
@@ -100,7 +100,7 @@
 	"Window.h"
 	"globals.h"
 
-1751386520 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\settings.cpp
+1759857220 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\settings.cpp
 	"Settings.h"
 	"IO.h"
 
@@ -143,15 +143,15 @@
 	"UtilityMathFunctions.h"
 	"IO.h"
 
-1759752789 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
+1759932171 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
 	"BScan.h"
 
-1751387824 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\sidebar.cpp
+1759932219 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\sidebar.cpp
 	<iostream>
 	"SideBar.h"
 	"Window.h"
 
-1751374426 c:\ganymedespectralestimation\ganymedespectralestimation\include\sidebar.h
+1759848940 c:\ganymedespectralestimation\ganymedespectralestimation\include\sidebar.h
 	<QVBoxLayout>
 	<QApplication>
 	<QtWidgets>
@@ -1540,10 +1540,10 @@
 	<QtGui/qkeysequence.h>
 	<QtWidgets/qwidget.h>
 
-1759755262 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\window.cpp
+1759932202 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\window.cpp
 	"window.h"
 
-1759756114 c:\ganymedespectralestimation\ganymedespectralestimation\include\window.h
+1759841865 c:\ganymedespectralestimation\ganymedespectralestimation\include\window.h
 	<iostream>
 	<QApplication>
 	<QtWidgets>
