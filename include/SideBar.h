@@ -37,6 +37,7 @@ class SideBar : public QVBoxLayout  {
         void floorPixelValueSpinBoxChanged(double newValue);
         void ceilPixelValueSpinBoxChanged(double newValue);
         void objectiveSelectionComboBoxChanged(int index);
+        void redoPreprocessingCheckBoxToggled();
     private:
         Window* parentWindow = nullptr;
         void setColorScalingSpinboxes();
@@ -67,6 +68,7 @@ class SideBar : public QVBoxLayout  {
         QLabel* objectiveSelectionComboBoxLabel;
         QComboBox* objectiveSelectionComboBox;
 
+        QCheckBox* redoPreprocessingCheckBox;
 
         QPushButton* startButton;
         QDoubleSpinBox* decibelFloorSpinBox;

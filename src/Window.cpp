@@ -14,8 +14,8 @@ ObjectiveSettingsWindow::ObjectiveSettingsWindow(QMainWindow *parent){
 
     //IO::loadObjectiveDispersionData("C:\\GanymedeSpectralEstimation\\GanymedeSpectralEstimation\\settings\\objectives.yaml");
 
-
 }
+
 
 
 Window::Window() {
@@ -33,19 +33,10 @@ Window::Window() {
     setCentralWidget(centralWidget);
     mainLayout = new QVBoxLayout(centralWidget);
     centralWidget->setLayout(mainLayout);
-
-
-
-
     buildMenuBar();
     buildSideBar();
 
     sideBar = new SideBar(this);
-
-
-
-
-
 
     topToolBarLayout = new QHBoxLayout();
     sideBarAndCanvasLayout = new QHBoxLayout();
@@ -318,13 +309,20 @@ void Window::setImage(float** floatImage,const size_t floatImageWidth, const siz
 
 void Window::loadFileWithDialog() {
     QString filePath = QFileDialog::getOpenFileName(nullptr,"Open File","C:\\","OCT Files (*.oct);;Text Files (*.txt)");
+    loadFile(filePath.toStdString());
 
-    if (filePath.isEmpty()) {
+
+    return;
+
+}
+
+void Window::loadFile(string filePath){
+    if (filePath == "") {
         return;
     }else {
-        cout << "Loaded " << filePath.toStdString() << endl;
+        cout << "Loaded " << filePath << endl;
 
-        scan =  std::make_shared<BScan>(filePath.toStdString());
+        scan =  std::make_shared<BScan>(filePath);
 
         cout << scan->imageFFT << endl;
         cout << scan->imageFFT[0][0] << endl;
@@ -334,11 +332,10 @@ void Window::loadFileWithDialog() {
         setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);
         cout << "Loaded scan" << endl;
         sideBar->populateObjectiveSelectionComboBox();
+        settings->pathToData = filePath;
 
     }
-
     return;
-
 }
 
 

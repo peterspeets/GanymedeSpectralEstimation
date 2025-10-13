@@ -66,14 +66,28 @@ BScan::BScan(const string filePath)
         //referenceSpectrum = loadingReferencePair.first;
         pair<double*,int> loadingDispersionPair =  IO<double>::loadArrayFromFile(directoryPath  + "phase.txt");
 
-        settings->dispersionCoefficients = loadingDispersionPair.first;
-        settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
 
-        settings->objectiveLabel = "Native";
-        settings->objectiveDispersionData[settings->objectiveLabel] = vector<double>(loadingDispersionPair.first,
+
+        bool hasNativeDispersionCorrection = false;
+        for(pair<string,vector<double>> const objectiveDispersionDataPair : oldSettings->objectiveDispersionData){
+            cout << "dispersion label: " << objectiveDispersionDataPair.first  << endl;
+            if(objectiveDispersionDataPair.first == "Native"){
+                cout << "Found native label." << endl;
+                hasNativeDispersionCorrection = true;
+                break;
+            }
+        }
+        if(!hasNativeDispersionCorrection){
+            cout << "Set to native." << endl;
+            settings->objectiveLabel = "Native";
+        }
+        settings->objectiveDispersionData["Native"] = vector<double>(loadingDispersionPair.first,
                                                                                      loadingDispersionPair.first + loadingDispersionPair.second);
-        settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
-        settings->dispersionCoefficients = loadingDispersionPair.first;
+
+        if(settings->objectiveLabel == "Native"){
+            settings->dispersionCoefficients = loadingDispersionPair.first;
+            settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
+        }
 
         settings->pathToExecutable = oldSettings->pathToExecutable;
         map<string, vector<double>> mapFromData = IO<double>::loadObjectiveDispersionData(
@@ -96,6 +110,7 @@ BScan::BScan(const string filePath)
     BScanSettings = *settings;
     imageRIAA = new float*[settings->sizeXSpectrum];
     fftBScan();
+    cout << "Process B scan kdjkafjd;a" << endl;
     processBScan();
 }
 
@@ -261,8 +276,6 @@ void BScan::preprocessSpectrumInPlace() {
     kiss_fft_cpx positiveSignal[settings->sizeZSpectrum];
     kiss_fft_cpx negativeSignal[settings->sizeZSpectrum];
 
-
-
     double temp[settings->sizeZSpectrum];
 
     for(i = 0; i < settings->sizeXSpectrum ; i++) {
@@ -290,16 +303,21 @@ void BScan::preprocessSpectrumInPlace() {
         kiss_fft(icfg, positiveFrequencies,positiveSignal);
         kiss_fft(icfg, negativeFrequencies,negativeSignal);
 
-
-
         for(j = 0; j < settings->sizeZSpectrum ; j++) {
+
             double dispersionPhase = j*settings->dispersionCoefficients[0];
+            //cout << "dispersionPhase 0 "<<dispersionPhase  <<endl;
+
             for(int k = 1; k < settings->numberOfDispersionCoefficients-1; k++) {
                 dispersionPhase = j*(settings->dispersionCoefficients[k] + dispersionPhase);
             }
+            //cout << "dispersionPhase 1 "<<dispersionPhase  <<endl;
             if(settings->numberOfDispersionCoefficients > 1) {
                 dispersionPhase += settings->dispersionCoefficients[settings->numberOfDispersionCoefficients-1];
             }
+            //cout << "dispersionPhase 2 "<<dispersionPhase  <<endl;
+            //cout << "dispersion phase: " << dispersionPhase <<endl;
+
             dispersionPhase  *= 2*M_PI;
             positiveSignal[j].r = positiveSignal[j].r  * cos(dispersionPhase ) + positiveSignal[j].i*sin(dispersionPhase) ;
             negativeSignal[j].r = negativeSignal[j].r  * cos(dispersionPhase ) - negativeSignal[j].i*sin(dispersionPhase) ;

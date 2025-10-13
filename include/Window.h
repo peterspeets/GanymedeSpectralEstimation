@@ -37,6 +37,7 @@ public:
     Window();
     void displayImage(unsigned char*,size_t width,size_t height);
     void setImage(float** floatImage,const size_t floatImagewidth, const size_t floatImageheight_);
+    void loadFile(string);
     virtual ~Window();
 
 protected:

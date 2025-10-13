@@ -69,6 +69,7 @@ public:
     map<string, vector<double>> objectiveDispersionData;
     string objectiveLabel = "No correction";
     string pathToExecutable;
+    string pathToData;
 
     map<int, string> pathsSpectra;
     map<int, int> scanStartIndices;
@@ -83,6 +84,7 @@ public:
     double decibelCeil = 0;
     double percentageCeil= 100;
     bool useRIAA = false;
+    bool alwaysRedoPreprocessing = false;
 
 
 

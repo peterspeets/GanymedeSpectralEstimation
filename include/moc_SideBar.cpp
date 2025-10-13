@@ -50,7 +50,8 @@ template <> constexpr inline auto SideBar::qt_create_metaobjectdata<qt_meta_tag_
         "floorPixelValueSpinBoxChanged",
         "newValue",
         "ceilPixelValueSpinBoxChanged",
-        "objectiveSelectionComboBoxChanged"
+        "objectiveSelectionComboBoxChanged",
+        "redoPreprocessingCheckBoxToggled"
     };
 
     QtMocHelpers::UintData qt_methods {
@@ -82,6 +83,8 @@ template <> constexpr inline auto SideBar::qt_create_metaobjectdata<qt_meta_tag_
         QtMocHelpers::SlotData<void(int)>(12, 2, QMC::AccessPrivate, QMetaType::Void, {{
             { QMetaType::Int, 7 },
         }}),
+        // Slot 'redoPreprocessingCheckBoxToggled'
+        QtMocHelpers::SlotData<void()>(13, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -113,6 +116,7 @@ void SideBar::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         case 5: _t->floorPixelValueSpinBoxChanged((*reinterpret_cast< std::add_pointer_t<double>>(_a[1]))); break;
         case 6: _t->ceilPixelValueSpinBoxChanged((*reinterpret_cast< std::add_pointer_t<double>>(_a[1]))); break;
         case 7: _t->objectiveSelectionComboBoxChanged((*reinterpret_cast< std::add_pointer_t<int>>(_a[1]))); break;
+        case 8: _t->redoPreprocessingCheckBoxToggled(); break;
         default: ;
         }
     }
@@ -137,14 +141,14 @@ int SideBar::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 9)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 9;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 8)
+        if (_id < 9)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 8;
+        _id -= 9;
     }
     return _id;
 }

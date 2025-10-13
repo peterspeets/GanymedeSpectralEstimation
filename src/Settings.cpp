@@ -20,7 +20,7 @@ Settings::Settings(string pathToDirectory) {
     pair<float*, int> referenceSpectrumPair = IO<float>::loadArrayFromFile(pathToDirectory + "sk.txt");
     tuple<float**, int,int> spectraTuple = IO<float>::load2DArrayFromFile(pathToDirectory + "rawData.txt");
 
-    objectiveDispersionData[objectiveLabel] = {};
+    objectiveDispersionData[objectiveLabel] = {0.0};
 
     sizeXIntensity = get<1>(spectraTuple);
     sizeZIntensity= get<2>(spectraTuple);
@@ -281,6 +281,7 @@ void Settings::copyMembers(const Settings& other){
     pathApodization= other.pathApodization;
     pathOffset= other.pathOffset;
 
+    alwaysRedoPreprocessing = other.alwaysRedoPreprocessing;
 
     return;
 

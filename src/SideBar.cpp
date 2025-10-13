@@ -115,6 +115,10 @@ SideBar::SideBar(Window* parent){
     useDecibelColorScaleCheckBox->setChecked(settings->useDecibelColorScale);
     connect(useDecibelColorScaleCheckBox, &QCheckBox::checkStateChanged, this, &useDecibelColorScaleCheckBoxToggled);
 
+    redoPreprocessingCheckBox = new QCheckBox("Force reload\n(turn on to change dispersion correction))");
+    redoPreprocessingCheckBox->setChecked(settings->alwaysRedoPreprocessing);
+    connect(redoPreprocessingCheckBox, &QCheckBox::checkStateChanged, this, &redoPreprocessingCheckBoxToggled);
+
     objectiveSelectionComboBoxLayout = new QVBoxLayout;
     objectiveSelectionComboBoxLabel = new QLabel("Select objective lens for dispersion correction");
 
@@ -136,6 +140,7 @@ SideBar::SideBar(Window* parent){
     addLayout(floorPixelValueSpinBoxLayout);
 
     addStretch();
+    addWidget(redoPreprocessingCheckBox);
     addLayout(selectAlgorithmRadioButtonsLayout);
 
     addLayout(upscalingFactorComboBoxLayout);
@@ -162,7 +167,12 @@ void SideBar::populateObjectiveSelectionComboBox(){
     return;
 }
 
+void SideBar::redoPreprocessingCheckBoxToggled(){
 
+    settings->alwaysRedoPreprocessing = redoPreprocessingCheckBox->isChecked();
+
+    return;
+}
 
 void SideBar::selectAlgorithmRadioButtonClicked(QAbstractButton* button){
     settings->useRIAA = selectRIAARadioButton->isChecked();
@@ -204,10 +214,7 @@ void SideBar::floorPixelValueSpinBoxChanged(double newValue){
         }else{
             parentWindow->setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);
         }
-
     }
-
-
     return;
 }
 
@@ -226,7 +233,6 @@ void SideBar::ceilPixelValueSpinBoxChanged(double newValue){
         }else if(scan->imageFFT){
             parentWindow->setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);
         }
-
     }
     return;
 }
@@ -310,8 +316,6 @@ void SideBar::selectColorMapComboBoxToggled(int index){
     }else{
         parentWindow->setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);
     }
-
-
     return;
 }
 
@@ -321,21 +325,29 @@ void SideBar::useDecibelColorScaleCheckBoxToggled(){
     setColorScalingSpinboxes();
 
 
+
     if(settings->useRIAA){
         parentWindow->setImage(scan->imageRIAA,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum*settings->upscalingFactor);
     }else{
         parentWindow->setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);
     }
 
+
+
     return;
 }
 
 
 void SideBar::startButtonClicked(){
+    if(settings->alwaysRedoPreprocessing){
+        parentWindow->loadFile(settings->pathToData);
+    }
     if(settings->useRIAA){
         scan->processBScan();
+        parentWindow->setImage(scan->imageRIAA,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum*settings->upscalingFactor);
     }else{
         scan->fftBScan();
+        parentWindow->setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);
     }
 
 
