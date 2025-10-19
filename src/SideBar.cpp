@@ -85,7 +85,6 @@ SideBar::SideBar(Window* parent){
     {
         if(settings->upscalingFactor == upscalingFactorComboBox->itemText( i ).toInt()){
             comboBoxElementNotFound  = false;
-
             upscalingFactorComboBox->setCurrentIndex(i);
             break;
         }
@@ -115,7 +114,7 @@ SideBar::SideBar(Window* parent){
     useDecibelColorScaleCheckBox->setChecked(settings->useDecibelColorScale);
     connect(useDecibelColorScaleCheckBox, &QCheckBox::checkStateChanged, this, &useDecibelColorScaleCheckBoxToggled);
 
-    redoPreprocessingCheckBox = new QCheckBox("Force reload\n(turn on to change dispersion correction))");
+    redoPreprocessingCheckBox = new QCheckBox("Force reload\n(turn on to change dispersion correction)");
     redoPreprocessingCheckBox->setChecked(settings->alwaysRedoPreprocessing);
     connect(redoPreprocessingCheckBox, &QCheckBox::checkStateChanged, this, &redoPreprocessingCheckBoxToggled);
 
@@ -155,12 +154,18 @@ SideBar::SideBar(Window* parent){
 }
 
 void SideBar::populateObjectiveSelectionComboBox(){
+    string objectiveLabel = settings->objectiveLabel;//local copy since the global settings one gets overwritten.
     objectiveSelectionComboBox->clear();
+
     for (pair<const string, vector<double>> &dispersionDataPair: settings->objectiveDispersionData) {
         objectiveSelectionComboBox->addItem(QString::fromStdString(dispersionDataPair.first));
     }
 
-    int index = objectiveSelectionComboBox->findText("Native");
+
+    if(objectiveLabel == ""){
+        objectiveLabel = "Native";
+    }
+    int index = objectiveSelectionComboBox->findText(QString::fromStdString(objectiveLabel));
     if (index != -1) {
         objectiveSelectionComboBox->setCurrentIndex(index);
     }
@@ -189,7 +194,12 @@ void SideBar::selectAlgorithmRadioButtonClicked(QAbstractButton* button){
 
 
 void SideBar::objectiveSelectionComboBoxChanged(int index){
+    if(index < 0){
+        return;
+    }
     settings->objectiveLabel =  objectiveSelectionComboBox->itemText(index).toStdString();
+
+
     //double* dispersionCoefficients = nullptr;
     //map<string, vector<double>> objectiveDispersionData;
 

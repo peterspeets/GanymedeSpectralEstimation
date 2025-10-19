@@ -47,6 +47,12 @@ BScan::BScan(const string filePath)
         referenceSpectrum = fileLoader.loadCalibrationSpectrum(settings->pathApodization);
         intensity = fileLoader.loadCalibrationSpectrum(settings->pathIntensity);
         spectra = fileLoader.loadSpectrum(0);
+        if (settings->objectiveDispersionData.count("Native")){
+            settings->objectiveDispersionData.erase("Native");
+        }
+
+        settings->objectiveLabel = oldSettings->objectiveLabel;
+
 
     } else {
         string directoryPath = filePath;
@@ -70,31 +76,26 @@ BScan::BScan(const string filePath)
 
         bool hasNativeDispersionCorrection = false;
         for(pair<string,vector<double>> const objectiveDispersionDataPair : oldSettings->objectiveDispersionData){
-            cout << "dispersion label: " << objectiveDispersionDataPair.first  << endl;
             if(objectiveDispersionDataPair.first == "Native"){
                 cout << "Found native label." << endl;
                 hasNativeDispersionCorrection = true;
                 break;
             }
         }
+
+        settings->objectiveLabel = oldSettings->objectiveLabel;
         if(!hasNativeDispersionCorrection){
-            cout << "Set to native." << endl;
+            cout << "Set to native, only once." << endl;
             settings->objectiveLabel = "Native";
         }
         settings->objectiveDispersionData["Native"] = vector<double>(loadingDispersionPair.first,
                                                                                      loadingDispersionPair.first + loadingDispersionPair.second);
 
         if(settings->objectiveLabel == "Native"){
+            cout << "Settings already where on native.";
             settings->dispersionCoefficients = loadingDispersionPair.first;
             settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
         }
-
-        settings->pathToExecutable = oldSettings->pathToExecutable;
-        map<string, vector<double>> mapFromData = IO<double>::loadObjectiveDispersionData(
-            settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
-        settings->objectiveDispersionData.insert(mapFromData.begin(), mapFromData.end());
-
-
 
         /*
         Settings is now overwritten by all variables that are loaded by the BScan constructor.However,
@@ -106,12 +107,23 @@ BScan::BScan(const string filePath)
 
     }
 
+
+    settings->pathToExecutable = oldSettings->pathToExecutable;
+    map<string, vector<double>> mapFromData = IO<double>::loadObjectiveDispersionData(
+        settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
+    settings->objectiveDispersionData.insert(mapFromData.begin(), mapFromData.end());
+    settings->numberOfDispersionCoefficients = settings->objectiveDispersionData[settings->objectiveLabel].size();
+
+    settings->dispersionCoefficients = settings->objectiveDispersionData[settings->objectiveLabel].data();
+    settings->alwaysRedoPreprocessing = oldSettings->alwaysRedoPreprocessing;
+
     preprocessSpectrumInPlace();
     BScanSettings = *settings;
     imageRIAA = new float*[settings->sizeXSpectrum];
     fftBScan();
-    cout << "Process B scan kdjkafjd;a" << endl;
+    cout << "Process B scan" << endl;
     processBScan();
+    cout << "objective label "<< settings->objectiveLabel << endl;
 }
 
 uint64_t BScan::getTime() {
@@ -217,8 +229,6 @@ tuple<float**,int,int> BScan::getProcessedBScan(){
 
 void BScan::preprocessSpectrumInPlace() {
     int i, j;
-
-
     if(offset) {
         for(j = 0; j < settings->sizeZSpectrum; j++) {
             for(i = 0; i < settings->sizeXSpectrum ; i++) {
@@ -242,8 +252,6 @@ void BScan::preprocessSpectrumInPlace() {
             referenceSpectrum[j] /= settings->sizeXSpectrum;
         }
     }
-
-
     for(j = 0; j < settings->sizeZSpectrum; j++) {
         if(referenceSpectrum[j] <= 1e-2 ) {
             if(j == 0) {
@@ -263,9 +271,6 @@ void BScan::preprocessSpectrumInPlace() {
         }
     }
 
-
-
-
     kiss_fft_cfg cfg = kiss_fft_alloc(settings->sizeZSpectrum, 0, NULL, NULL);
     kiss_fft_cfg icfg = kiss_fft_alloc(settings->sizeZSpectrum, 1, NULL, NULL);
 
@@ -277,8 +282,9 @@ void BScan::preprocessSpectrumInPlace() {
     kiss_fft_cpx negativeSignal[settings->sizeZSpectrum];
 
     double temp[settings->sizeZSpectrum];
-
     for(i = 0; i < settings->sizeXSpectrum ; i++) {
+
+
         for(j = 0; j < settings->sizeZSpectrum ; j++) {
             positiveSignal[j].r = spectra[i][j];
             positiveSignal[j].i = 0.0;
@@ -356,8 +362,6 @@ void BScan::preprocessSpectrumInPlace() {
     }
 
 
-
-
     if(chirp) {
         for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
             UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],settings->sizeZSpectrum);
@@ -431,21 +435,15 @@ void BScan::fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex
 
     int i = fromIndex;
     for(i = fromIndex; i != toIndex ; i+=sign) {
-        if(i < 0 || i > 1023){
-            cout << i << "Error in array indicing." << endl;
-        }
         for(int j = 0; j < K; j++) {
             if(i == fromIndex) {
                 processedImage[i][j] = startingColumn[j];
             } else {
                 processedImage[i][j] = processedImage[i-sign][j];
             }
-
         }
         scan->fiaa_oct_partitioned(spectra[i],N,K,4,q_i,vt,processedImage[i]);
         cout << i << endl;
-
-
     }
     cout << "ended at " << i-sign << endl;
 }

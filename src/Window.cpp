@@ -323,10 +323,8 @@ void Window::loadFile(string filePath){
         cout << "Loaded " << filePath << endl;
 
         scan =  std::make_shared<BScan>(filePath);
-
         cout << scan->imageFFT << endl;
         cout << scan->imageFFT[0][0] << endl;
-
         cout << scan->BScanSettings.sizeXSpectrum << "x" << scan->BScanSettings.sizeZSpectrum << endl << endl;
 
         setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);

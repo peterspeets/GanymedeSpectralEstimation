@@ -1,0 +1,1650 @@
+# depslib dependency file v1.0
+1759931035 source:c:\ganymedespectralestimation\ganymedespectralestimation\main.cpp
+	<iostream>
+	<fstream>
+	<string>
+	<algorithm>
+	<list>
+	<map>
+	<complex>
+	<memory>
+	<utility>
+	<cmath>
+	<vector>
+	<kiss_fft.h>
+	<kiss_fftr.h>
+	<png.h>
+	<cstdio>
+	<cstdlib>
+	<miniz.h>
+	"Tag.h"
+	"XML_Interpreter.h"
+	"Settings.h"
+	"UtilityMathFunctions.h"
+	"IO.h"
+	"BScan.h"
+	"Window.h"
+	"globals.h"
+
+1741110629 c:\ganymedespectralestimation\kissfft-master\kiss_fft.h
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	<xmmintrin.h>
+	<stdint.h>
+
+1741110629 c:\ganymedespectralestimation\kissfft-master\kiss_fftr.h
+	"kiss_fft.h"
+
+1741110653 c:\ganymedespectralestimation\lpng1645\png.h
+	"pnglibconf.h"
+	"pngconf.h"
+
+1741110653 c:\ganymedespectralestimation\lpng1645\pnglibconf.h
+
+1741110653 c:\ganymedespectralestimation\lpng1645\pngconf.h
+	<limits.h>
+	<stddef.h>
+	<stdio.h>
+	<setjmp.h>
+	<time.h>
+
+1741110676 c:\ganymedespectralestimation\miniz\miniz.h
+	<stdlib.h>
+	<time.h>
+	<string.h>
+	<assert.h>
+
+1747394952 c:\ganymedespectralestimation\ganymedespectralestimation\include\tag.h
+	<iostream>
+	<string>
+	<list>
+	<map>
+
+1747394955 c:\ganymedespectralestimation\ganymedespectralestimation\include\xml_interpreter.h
+	<iostream>
+	<string>
+	<list>
+	"Tag.h"
+
+1760365602 c:\ganymedespectralestimation\ganymedespectralestimation\include\settings.h
+	<iostream>
+	<fstream>
+	<string>
+	<vector>
+	<list>
+	<map>
+	<thread>
+	"Tag.h"
+
+1747394955 c:\ganymedespectralestimation\ganymedespectralestimation\include\utilitymathfunctions.h
+	<cmath>
+	<algorithm>
+	<complex>
+	<iomanip>
+	<ctime>
+	<chrono>
+	<thread>
+	<sstream>
+	<vector>
+	<kiss_fft.h>
+	<kiss_fftr.h>
+	"UtilityMathFunctions.tpp"
+
+1750952942 c:\ganymedespectralestimation\ganymedespectralestimation\include\utilitymathfunctions.tpp
+	"UtilityMathFunctions.h"
+
+1757865616 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.h
+	<iostream>
+	<fstream>
+	<memory>
+	<string>
+	<vector>
+	<map>
+	<miniz.h>
+	<kiss_fft.h>
+	"Tag.h"
+	<png.h>
+	"UtilityMathFunctions.h"
+	"XML_Interpreter.h"
+	"Settings.h"
+	"IO.tpp"
+
+1759853981 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
+	"IO.h"
+	"Settings.h"
+
+1759751885 c:\ganymedespectralestimation\ganymedespectralestimation\include\bscan.h
+	<cmath>
+	<algorithm>
+	<complex>
+	<iomanip>
+	<ctime>
+	<chrono>
+	<thread>
+	<sstream>
+	<vector>
+	<kiss_fft.h>
+	"Settings.h"
+	"UtilityMathFunctions.h"
+	"IO.h"
+
+1760365602 c:\ganymedespectralestimation\ganymedespectralestimation\include\window.h
+	<iostream>
+	<QApplication>
+	<QtWidgets>
+	<QPushButton>
+	<QFileDialog>
+	<cmath>
+	"Settings.h"
+	"UtilityMathFunctions.h"
+	"IO.h"
+	"BScan.h"
+	"globals.h"
+	"ColorMaps.h"
+	"SideBar.h"
+
+1743166675 c:\qt\6.9.0\mingw_64\include\qtwidgets\qapplication
+	"qapplication.h"
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qapplication.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtCore/qcoreapplication.h>
+	<QtGui/qwindowdefs.h>
+	<QtCore/qpoint.h>
+	<QtCore/qsize.h>
+	<QtGui/qcursor.h>
+	<QtGui/qguiapplication.h>
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qtwidgetsglobal.h
+	<QtGui/qtguiglobal.h>
+	<QtWidgets/qtwidgets-config.h>
+	<QtWidgets/qtwidgetsexports.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qtguiglobal.h
+	<QtCore/qglobal.h>
+	<QtGui/qtgui-config.h>
+	<QtGui/qtguiexports.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qglobal.h
+	<type_traits>
+	<cstddef>
+	<utility>
+	<cstdint>
+	<assert.h>
+	<stdbool.h>
+	<stddef.h>
+	<QtCore/qtcoreglobal.h>
+	<QtCore/qtpreprocessorsupport.h>
+	<QtCore/qsystemdetection.h>
+	<QtCore/qprocessordetection.h>
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qassert.h>
+	<QtCore/qtnoop.h>
+	<QtCore/qtypes.h>
+	<QtCore/qtversion.h>
+	<QtCore/qtclasshelpermacros.h>
+	<QtCore/qtypeinfo.h>
+	<QtCore/qsysinfo.h>
+	<QtCore/qlogging.h>
+	<QtCore/qflags.h>
+	<QtCore/qatomic.h>
+	<QtCore/qconstructormacros.h>
+	<QtCore/qdarwinhelpers.h>
+	<QtCore/qexceptionhandling.h>
+	<QtCore/qforeach.h>
+	<QtCore/qfunctionpointer.h>
+	<QtCore/qglobalstatic.h>
+	<QtCore/qmalloc.h>
+	<QtCore/qminmax.h>
+	<QtCore/qnumeric.h>
+	<QtCore/qoverload.h>
+	<QtCore/qswap.h>
+	<QtCore/qtdeprecationmarkers.h>
+	<QtCore/qtenvironmentvariables.h>
+	<QtCore/qtresource.h>
+	<QtCore/qttranslation.h>
+	<QtCore/qttypetraits.h>
+	<QtCore/qversiontagging.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtcoreglobal.h
+	<QtCore/qtversionchecks.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtversionchecks.h
+	<QtCore/qtconfiginclude.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtconfiginclude.h
+	<version>
+	<QtCore/qconfig.h>
+	"qconfig-bootstrapped.h"
+	<QtCore/qtcore-config.h>
+
+1743166413 c:\qt\6.9.0\mingw_64\include\qtcore\qconfig.h
+
+1743166413 c:\qt\6.9.0\mingw_64\include\qtcore\qtcore-config.h
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtconfigmacros.h
+	<QtCore/qtconfiginclude.h>
+	<QtCore/qtdeprecationdefinitions.h>
+	<QtCore/qtversionchecks.h>
+	<assert.h>
+
+1743166393 c:\qt\6.9.0\mingw_64\include\qtcore\qtdeprecationdefinitions.h
+	<QtCore/qcompilerdetection.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcompilerdetection.h
+	<QtCore/qprocessordetection.h>
+	<QtCore/qsystemdetection.h>
+	<QtCore/qtconfiginclude.h>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qprocessordetection.h
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qsystemdetection.h
+	<TargetConditionals.h>
+	<Availability.h>
+	<AvailabilityMacros.h>
+
+1743166390 c:\qt\6.9.0\mingw_64\include\qtcore\qtcoreexports.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtdeprecationmarkers.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtdeprecationmarkers.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtclasshelpermacros.h>
+	<QtCore/qtdeprecationdefinitions.h>
+	<QtCore/qtversionchecks.h>
+	<QtCore/qcompilerdetection.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtclasshelpermacros.h
+	<QtCore/qtconfigmacros.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtpreprocessorsupport.h
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qassert.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+	<QtCore/qtnoop.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtnoop.h
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtypes.h
+	<QtCore/qprocessordetection.h>
+	<QtCore/qsystemdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qassert.h>
+	<cstddef>
+	<cstdint>
+	<stdfloat>
+	<type_traits>
+	<assert.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtversion.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtypeinfo.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qcontainerfwd.h>
+	<type_traits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcontainerfwd.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtypes.h>
+	<cstddef>
+	<utility>
+	<limits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qsysinfo.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qprocessordetection.h>
+	<QtCore/qtcoreexports.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qlogging.h
+	<QtCore/qtclasshelpermacros.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+	<QtCore/qcontainerfwd.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qflags.h
+	<QtCore/qcompare_impl.h>
+	<QtCore/qtypeinfo.h>
+	<algorithm>
+	<initializer_list>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcompare_impl.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qcompilerdetection.h>
+	<type_traits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qatomic.h
+	<QtCore/qbasicatomic.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qbasicatomic.h
+	<QtCore/qatomic_cxx11.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qatomic_cxx11.h
+	<QtCore/qgenericatomic.h>
+	<QtCore/qyieldcpu.h>
+	<atomic>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qgenericatomic.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtypes.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qyieldcpu.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qprocessordetection.h>
+	<QtCore/qtconfigmacros.h>
+	<atomic>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qconstructormacros.h
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qdarwinhelpers.h
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qexceptionhandling.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtcoreexports.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qforeach.h
+	<QtCore/qtclasshelpermacros.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtdeprecationmarkers.h>
+	<QtCore/qttypetraits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qttypetraits.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtdeprecationmarkers.h>
+	<compare>
+	<concepts>
+	<optional>
+	<tuple>
+	<type_traits>
+	<utility>
+	<variant>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfunctionpointer.h
+	<QtCore/qtconfigmacros.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qglobalstatic.h
+	<QtCore/qassert.h>
+	<QtCore/qatomic.h>
+	<QtCore/qtclasshelpermacros.h>
+	<atomic>
+	<type_traits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qmalloc.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+	<cstddef>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qminmax.h
+	<QtCore/qassert.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qttypetraits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qnumeric.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+	<QtCore/qtypes.h>
+	<cmath>
+	<limits>
+	<type_traits>
+	<intrin.h>
+	<float.h>
+	<arm64_ghs.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qoverload.h
+	<QtCore/qtconfigmacros.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qswap.h
+	<QtCore/qtconfigmacros.h>
+	<type_traits>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtenvironmentvariables.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+	<QtCore/qtdeprecationmarkers.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtresource.h
+	<QtCore/qtconfigmacros.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qttranslation.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtcoreexports.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qversiontagging.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtversionchecks.h>
+	<QtCore/qtypes.h>
+
+1743166413 c:\qt\6.9.0\mingw_64\include\qtgui\qtgui-config.h
+
+1743166398 c:\qt\6.9.0\mingw_64\include\qtgui\qtguiexports.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtdeprecationmarkers.h>
+
+1743166413 c:\qt\6.9.0\mingw_64\include\qtwidgets\qtwidgets-config.h
+
+1743166403 c:\qt\6.9.0\mingw_64\include\qtwidgets\qtwidgetsexports.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtdeprecationmarkers.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcoreapplication.h
+	<QtCore/qglobal.h>
+	<QtCore/qstring.h>
+	<QtCore/qcoreevent.h>
+	<QtCore/qdeadlinetimer.h>
+	<QtCore/qeventloop.h>
+	<QtCore/qobject.h>
+	<QtCore/qscopedpointer.h>
+	<QtCore/qnativeinterface.h>
+	<QtCore/qcoreapplication_platform.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstring.h
+	<QtCore/qchar.h>
+	<QtCore/qcompare.h>
+	<QtCore/qbytearray.h>
+	<QtCore/qbytearrayview.h>
+	<QtCore/qarraydata.h>
+	<QtCore/qlatin1stringview.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qstringliteral.h>
+	<QtCore/qstringalgorithms.h>
+	<QtCore/qanystringview.h>
+	<QtCore/qstringtokenizer.h>
+	<string>
+	<iterator>
+	<QtCore/q20memory.h>
+	<string_view>
+	<stdarg.h>
+	<QtCore/qstringbuilder.h>
+	<QtCore/qstringconverter.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qchar.h
+	<QtCore/qglobal.h>
+	<QtCore/qcompare.h>
+	<functional>
+	<QtCore/qstringview.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcompare.h
+	<QtCore/qglobal.h>
+	<QtCore/qcompare_impl.h>
+	<QtCore/qstdlibdetection.h>
+	<bit>
+	<compare>
+	<QtCore/qcomparehelpers.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstdlibdetection.h
+	<QtCore/qtconfiginclude.h>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcomparehelpers.h
+	<QtCore/qflags.h>
+	<QtCore/qoverload.h>
+	<QtCore/qttypetraits.h>
+	<QtCore/qtypeinfo.h>
+	<QtCore/qtypes.h>
+	<compare>
+	<QtCore/q20type_traits.h>
+	<functional>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q20type_traits.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qsystemdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<type_traits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringview.h
+	<QtCore/qchar.h>
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qbytearray.h>
+	<QtCore/qstringfwd.h>
+	<QtCore/qstringliteral.h>
+	<QtCore/qstringalgorithms.h>
+	<string>
+	<string_view>
+	<QtCore/q20type_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qbytearray.h
+	<QtCore/qrefcount.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qarraydata.h>
+	<QtCore/qarraydatapointer.h>
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qbytearrayalgorithms.h>
+	<QtCore/qbytearrayview.h>
+	<stdlib.h>
+	<string.h>
+	<string>
+	<iterator>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qrefcount.h
+	<QtCore/qatomic.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qnamespace.h
+	<QtCore/qglobal.h>
+	<QtCore/qcompare.h>
+	<QtCore/qtclasshelpermacros.h>
+	<QtCore/qtmetamacros.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtmetamacros.h
+	<QtCore/qglobal.h>
+	<QtCore/qtclasshelpermacros.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qarraydata.h
+	<QtCore/qpair.h>
+	<QtCore/qatomic.h>
+	<QtCore/qflags.h>
+	<QtCore/qcontainerfwd.h>
+	<string.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qpair.h
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qglobal.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qarraydatapointer.h
+	<QtCore/qarraydataops.h>
+	<QtCore/qcontainertools_impl.h>
+	<QtCore/q20functional.h>
+	<QtCore/q20memory.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qarraydataops.h
+	<QtCore/qarraydata.h>
+	<QtCore/qcontainertools_impl.h>
+	<QtCore/qnamespace.h>
+	<memory>
+	<new>
+	<string.h>
+	<utility>
+	<iterator>
+	<tuple>
+	<type_traits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcontainertools_impl.h
+	<QtCore/qglobal.h>
+	<QtCore/qtypeinfo.h>
+	<QtCore/qxptype_traits.h>
+	<cstring>
+	<iterator>
+	<memory>
+	<algorithm>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qxptype_traits.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qcompilerdetection.h>
+	<QtCore/q20type_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q20functional.h
+	<QtCore/qglobal.h>
+	<functional>
+	<functional>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q20memory.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/q17memory.h>
+	<QtCore/q20type_traits.h>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q17memory.h
+	<QtCore/qexceptionhandling.h>
+	<QtCore/qtconfigmacros.h>
+	<iterator>
+	<memory>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qbytearrayalgorithms.h
+	<QtCore/qnamespace.h>
+	<string.h>
+	<stdarg.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qbytearrayview.h
+	<QtCore/qbytearrayalgorithms.h>
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qstringfwd.h>
+	<QtCore/qarraydata.h>
+	<string>
+	<string_view>
+	<QtCore/q20type_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringfwd.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtversionchecks.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringliteral.h
+	<QtCore/qarraydata.h>
+	<QtCore/qarraydatapointer.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringalgorithms.h
+	<QtCore/qbytearrayalgorithms.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qstringfwd.h>
+	<algorithm>
+	<iterator>
+	<QtCore/q20type_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qlatin1stringview.h
+	<QtCore/qchar.h>
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qtversionchecks.h>
+	<QtCore/qstringfwd.h>
+	<QtCore/qstringview.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qanystringview.h
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qlatin1stringview.h>
+	<QtCore/qstringview.h>
+	<QtCore/qutf8stringview.h>
+	<QtCore/q20type_traits.h>
+	<limits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qutf8stringview.h
+	<QtCore/qstringalgorithms.h>
+	<QtCore/qstringfwd.h>
+	<QtCore/qarraydata.h>
+	<QtCore/qbytearrayview.h>
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<string>
+	<string_view>
+	<QtCore/q20type_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringtokenizer.h
+	<QtCore/qnamespace.h>
+	<QtCore/qcontainerfwd.h>
+	<iterator>
+	<QtCore/qstringview.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringbuilder.h
+	<QtCore/qstring.h>
+	<QtCore/qbytearray.h>
+	<string.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringconverter.h
+	<QtCore/qstringconverter_base.h>
+	<QtCore/qstring.h>
+	<QtCore/qstringbuilder.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringconverter_base.h
+	<optional>
+	<QtCore/qglobal.h>
+	<QtCore/qflags.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qstringfwd.h>
+	<cstring>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcoreevent.h
+	<QtCore/qbasictimer.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qbytearray.h>
+	<QtCore/qobjectdefs.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qbasictimer.h
+	<QtCore/qglobal.h>
+	<QtCore/qabstracteventdispatcher.h>
+	<QtCore/qnamespace.h>
+	<chrono>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qabstracteventdispatcher.h
+	<QtCore/qobject.h>
+	<QtCore/qeventloop.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qobject.h
+	<QtCore/qobjectdefs.h>
+	<QtCore/qstring.h>
+	<QtCore/qbytearray.h>
+	<QtCore/qlist.h>
+	<QtCore/qcoreevent.h>
+	<QtCore/qscopedpointer.h>
+	<QtCore/qmetatype.h>
+	<QtCore/qobject_impl.h>
+	<QtCore/qbindingstorage.h>
+	<QtCore/qtcoreexports.h>
+	<chrono>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qobjectdefs.h
+	<QtCore/qnamespace.h>
+	<QtCore/qobjectdefs_impl.h>
+	<QtCore/qtcoreexports.h>
+	<QtCore/qtmetamacros.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qobjectdefs_impl.h
+	<QtCore/qnamespace.h>
+	<QtCore/qfunctionaltools_impl.h>
+	<memory>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfunctionaltools_impl.h
+	<QtCore/qtconfigmacros.h>
+	<type_traits>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qlist.h
+	<QtCore/qarraydatapointer.h>
+	<QtCore/qcompare.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qhashfunctions.h>
+	<QtCore/qiterator.h>
+	<QtCore/qcontainertools_impl.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qttypetraits.h>
+	<functional>
+	<limits>
+	<initializer_list>
+	<type_traits>
+	<QtCore/qbytearraylist.h>
+	<QtCore/qstringlist.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qhashfunctions.h
+	<QtCore/qstring.h>
+	<QtCore/qstringfwd.h>
+	<numeric>
+	<functional>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qiterator.h
+	<QtCore/qglobal.h>
+	<QtCore/qcontainertools_impl.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qbytearraylist.h
+	<QtCore/qlist.h>
+	<QtCore/qbytearray.h>
+	<limits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringlist.h
+	<QtCore/qlist.h>
+	<QtCore/qalgorithms.h>
+	<QtCore/qcontainertools_impl.h>
+	<QtCore/qstring.h>
+	<QtCore/qstringmatcher.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qalgorithms.h
+	<QtCore/qglobal.h>
+	<bit>
+	<intrin.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qstringmatcher.h
+	<QtCore/qstring.h>
+	<QtCore/qstringview.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qscopedpointer.h
+	<QtCore/qglobal.h>
+	<stdlib.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qmetatype.h
+	<QtCore/qglobal.h>
+	<QtCore/qatomic.h>
+	<QtCore/qbytearray.h>
+	<QtCore/qcompare.h>
+	<QtCore/qdatastream.h>
+	<QtCore/qflags.h>
+	<QtCore/qfloat16.h>
+	<QtCore/qhashfunctions.h>
+	<QtCore/qiterable.h>
+	<QtCore/qobjectdefs.h>
+	<QtCore/qscopeguard.h>
+	<QtCore/qttypetraits.h>
+	<array>
+	<new>
+	<vector>
+	<list>
+	<map>
+	<functional>
+	<optional>
+	<QtCore/qxptype_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qdatastream.h
+	<QtCore/qscopedpointer.h>
+	<QtCore/qiodevicebase.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qttypetraits.h>
+	<iterator>
+	<memory>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qiodevicebase.h
+	<QtCore/qglobal.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfloat16.h
+	<QtCore/qcompare.h>
+	<QtCore/qglobal.h>
+	<QtCore/qhashfunctions.h>
+	<QtCore/qmath.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qtconfigmacros.h>
+	<QtCore/qtformat_impl.h>
+	<QtCore/qtypes.h>
+	<limits>
+	<string.h>
+	<type_traits>
+	<immintrin.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qmath.h
+	<QtCore/qglobal.h>
+	<QtCore/qalgorithms.h>
+	<bit>
+	<cmath>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtformat_impl.h
+	<QtCore/qsystemdetection.h>
+	<QtCore/qtconfigmacros.h>
+	<format>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qiterable.h
+	<QtCore/qglobal.h>
+	<QtCore/qtypeinfo.h>
+	<QtCore/qmetacontainer.h>
+	<QtCore/qtaggedpointer.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qmetacontainer.h
+	<QtCore/qcontainerinfo.h>
+	<QtCore/qcompare.h>
+	<QtCore/qflags.h>
+	<QtCore/qglobal.h>
+	<iterator>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcontainerinfo.h
+	<QtCore/qglobal.h>
+	<type_traits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtaggedpointer.h
+	<QtCore/qglobal.h>
+	<QtCore/qalgorithms.h>
+	<QtCore/qmath.h>
+	<QtCore/qtypeinfo.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qscopeguard.h
+	<QtCore/qglobal.h>
+	<type_traits>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qobject_impl.h
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qbindingstorage.h
+	<QtCore/qglobal.h>
+	<QtCore/qnamespace.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qeventloop.h
+	<QtCore/qobject.h>
+	<QtCore/qdeadlinetimer.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qdeadlinetimer.h
+	<QtCore/qelapsedtimer.h>
+	<QtCore/qmetatype.h>
+	<QtCore/qnamespace.h>
+	<limits>
+	<chrono>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qelapsedtimer.h
+	<QtCore/qcompare.h>
+	<QtCore/qglobal.h>
+	<chrono>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qnativeinterface.h
+	<QtCore/qglobal.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcoreapplication_platform.h
+	<QtCore/qglobal.h>
+	<QtCore/qnativeinterface.h>
+	<QtCore/qcoreapplication.h>
+	<QtCore/qjnitypes.h>
+	<QtCore/qfuture.h>
+	<QtCore/qvariant.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfuture.h
+	<QtCore/qglobal.h>
+	<QtCore/qfutureinterface.h>
+	<QtCore/qmetatype.h>
+	<QtCore/qstring.h>
+	<QtCore/qfuture_impl.h>
+	<type_traits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfutureinterface.h
+	<QtCore/qmutex.h>
+	<QtCore/qresultstore.h>
+	<exception>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qmutex.h
+	<QtCore/qglobal.h>
+	<QtCore/qatomic.h>
+	<QtCore/qdeadlinetimer.h>
+	<QtCore/qtsan_impl.h>
+	<chrono>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtsan_impl.h
+	<QtCore/qglobal.h>
+	<sanitizer/tsan_interface.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qresultstore.h
+	<QtCore/qmap.h>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qmap.h
+	<QtCore/qcompare.h>
+	<QtCore/qhashfunctions.h>
+	<QtCore/qiterator.h>
+	<QtCore/qlist.h>
+	<QtCore/qrefcount.h>
+	<QtCore/qpair.h>
+	<QtCore/qshareddata.h>
+	<QtCore/qshareddata_impl.h>
+	<QtCore/qttypetraits.h>
+	<functional>
+	<initializer_list>
+	<map>
+	<algorithm>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qshareddata.h
+	<QtCore/qglobal.h>
+	<QtCore/qatomic.h>
+	<QtCore/qcompare.h>
+	<QtCore/qhashfunctions.h>
+	<functional>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qshareddata_impl.h
+	<QtCore/qcompare.h>
+	<QtCore/qglobal.h>
+	<QtCore/qshareddata.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfuture_impl.h
+	<QtCore/qglobal.h>
+	<QtCore/qfunctionaltools_impl.h>
+	<QtCore/qfutureinterface.h>
+	<QtCore/qthreadpool.h>
+	<QtCore/qexception.h>
+	<QtCore/qpromise.h>
+	<memory>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qthreadpool.h
+	<QtCore/qglobal.h>
+	<QtCore/qthread.h>
+	<QtCore/qrunnable.h>
+	<functional>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qthread.h
+	<QtCore/qobject.h>
+	<QtCore/qdeadlinetimer.h>
+	<future>
+	<functional>
+	<intrin.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qrunnable.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qfunctionaltools_impl.h>
+	<QtCore/qtclasshelpermacros.h>
+	<QtCore/qtcoreexports.h>
+	<functional>
+	<type_traits>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qexception.h
+	<QtCore/qatomic.h>
+	<QtCore/qshareddata.h>
+	<exception>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qpromise.h
+	<QtCore/qglobal.h>
+	<QtCore/qfutureinterface.h>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qvariant.h
+	<QtCore/qatomic.h>
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qmetatype.h>
+	<QtCore/qdebug.h>
+	<memory>
+	<QtCore/q20type_traits.h>
+	<QtCore/q23utility.h>
+	<variant>
+	<QtCore/qlist.h>
+	<QtCore/qstringlist.h>
+	<QtCore/qbytearraylist.h>
+	<QtCore/qhash.h>
+	<QtCore/qmap.h>
+	<QtCore/qobject.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qdebug.h
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qfloat16.h>
+	<QtCore/qtextstream.h>
+	<QtCore/qttypetraits.h>
+	<QtCore/qtypes.h>
+	<QtCore/qstring.h>
+	<QtCore/qcontiguouscache.h>
+	<QtCore/qsharedpointer.h>
+	<array>
+	<chrono>
+	<list>
+	<map>
+	<memory>
+	<optional>
+	<string>
+	<string_view>
+	<set>
+	<tuple>
+	<QtCore/q20type_traits.h>
+	<utility>
+	<unordered_map>
+	<unordered_set>
+	<vector>
+	<QtCore/qlist.h>
+	<QtCore/qmap.h>
+	<QtCore/qset.h>
+	<QtCore/qvarlengtharray.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtextstream.h
+	<QtCore/qiodevicebase.h>
+	<QtCore/qchar.h>
+	<QtCore/qstringconverter_base.h>
+	<memory>
+	<stdio.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcontiguouscache.h
+	<QtCore/qatomic.h>
+	<QtCore/qassert.h>
+	<QtCore/qtclasshelpermacros.h>
+	<QtCore/qtcoreexports.h>
+	<QtCore/qminmax.h>
+	<QtCore/qttypetraits.h>
+	<QtCore/qtypeinfo.h>
+	<climits>
+	<limits>
+	<new>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qsharedpointer.h
+	<QtCore/qglobal.h>
+	<QtCore/qatomic.h>
+	<QtCore/qshareddata.h>
+	<QtCore/qsharedpointer_impl.h>
+	<memory>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qsharedpointer_impl.h
+	<new>
+	<QtCore/qatomic.h>
+	<QtCore/qhashfunctions.h>
+	<QtCore/qmetatype.h>
+	<QtCore/qxptype_traits.h>
+	<memory>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qset.h
+	<QtCore/qhash.h>
+	<QtCore/qcontainertools_impl.h>
+	<QtCore/qttypetraits.h>
+	<initializer_list>
+	<iterator>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qhash.h
+	<QtCore/qalgorithms.h>
+	<QtCore/qcontainertools_impl.h>
+	<QtCore/qhashfunctions.h>
+	<QtCore/qiterator.h>
+	<QtCore/qlist.h>
+	<QtCore/qrefcount.h>
+	<QtCore/qttypetraits.h>
+	<initializer_list>
+	<functional>
+	<QtCore/q20type_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qvarlengtharray.h
+	<QtCore/qcompare.h>
+	<QtCore/qcontainerfwd.h>
+	<QtCore/qglobal.h>
+	<QtCore/qalgorithms.h>
+	<QtCore/qcontainertools_impl.h>
+	<QtCore/qhashfunctions.h>
+	<QtCore/qttypetraits.h>
+	<algorithm>
+	<initializer_list>
+	<iterator>
+	<QtCore/q20memory.h>
+	<new>
+	<string.h>
+	<stdlib.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q23utility.h
+	<QtCore/qtconfigmacros.h>
+	<QtCore/q20utility.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q20utility.h
+	<QtCore/qttypetraits.h>
+	<limits>
+	<utility>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qwindowdefs.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qobjectdefs.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qcontainerfwd.h>
+	<QtGui/qwindowdefs_win.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qwindowdefs_win.h
+	<QtGui/qtguiglobal.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qpoint.h
+	<QtCore/qcompare.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qnumeric.h>
+	<QtCore/q20type_traits.h>
+	<QtCore/q23utility.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qsize.h
+	<QtCore/qnamespace.h>
+	<QtCore/qhashfunctions.h>
+	<QtCore/qmargins.h>
+	<QtCore/q20type_traits.h>
+	<QtCore/q23utility.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qmargins.h
+	<QtCore/qcompare.h>
+	<QtCore/qnamespace.h>
+	<QtCore/q20type_traits.h>
+	<QtCore/q23utility.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qcursor.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qpoint.h>
+	<QtGui/qwindowdefs.h>
+	<QtGui/qbitmap.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qbitmap.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qpixmap.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qpixmap.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qpaintdevice.h>
+	<QtGui/qcolor.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qshareddata.h>
+	<QtCore/qstring.h>
+	<QtGui/qimage.h>
+	<QtGui/qtransform.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qpaintdevice.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qwindowdefs.h>
+	<QtCore/qrect.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qrect.h
+	<QtCore/qhashfunctions.h>
+	<QtCore/qmargins.h>
+	<QtCore/qsize.h>
+	<QtCore/qpoint.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qcolor.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qrgb.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qstringlist.h>
+	<QtGui/qrgba64.h>
+	<limits.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qrgb.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qprocessordetection.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qrgba64.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qprocessordetection.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qimage.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qcolor.h>
+	<QtGui/qrgb.h>
+	<QtGui/qpaintdevice.h>
+	<QtGui/qpixelformat.h>
+	<QtGui/qtransform.h>
+	<QtCore/qbytearray.h>
+	<QtCore/qbytearrayview.h>
+	<QtCore/qrect.h>
+	<QtCore/qstring.h>
+	<QtCore/qcontainerfwd.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qpixelformat.h
+	<QtGui/qtguiglobal.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qtransform.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qpolygon.h>
+	<QtGui/qregion.h>
+	<QtGui/qwindowdefs.h>
+	<QtCore/qline.h>
+	<QtCore/qpoint.h>
+	<QtCore/qrect.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qpolygon.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qlist.h>
+	<QtCore/qpoint.h>
+	<QtCore/qrect.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qregion.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qatomic.h>
+	<QtCore/qrect.h>
+	<QtGui/qwindowdefs.h>
+	<QtCore/qdatastream.h>
+	<QtCore/qspan.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qspan.h
+	<QtCore/qcompilerdetection.h>
+	<QtCore/qtypes.h>
+	<QtCore/qcontainerfwd.h>
+	<array>
+	<cstddef>
+	<cassert>
+	<initializer_list>
+	<QtCore/q20iterator.h>
+	<QtCore/q20memory.h>
+	<span>
+	<QtCore/q20type_traits.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\q20iterator.h
+	<QtCore/qglobal.h>
+	<iterator>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qline.h
+	<QtCore/qpoint.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qguiapplication.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qcoreapplication.h>
+	<QtGui/qwindowdefs.h>
+	<QtGui/qinputmethod.h>
+	<QtCore/qlocale.h>
+	<QtCore/qpoint.h>
+	<QtCore/qsize.h>
+	<QtGui/qguiapplication_platform.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qinputmethod.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qobject.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qlocale.h
+	<QtCore/qvariant.h>
+	<QtCore/qstring.h>
+	<QtCore/qobjectdefs.h>
+	<QtCore/qshareddata.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qguiapplication_platform.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qnativeinterface.h>
+	<QtGui/qguiapplication.h>
+
+1743167454 c:\qt\6.9.0\mingw_64\include\qtwidgets
+
+1743166676 c:\qt\6.9.0\mingw_64\include\qtwidgets\qpushbutton
+	"qpushbutton.h"
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qpushbutton.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtWidgets/qabstractbutton.h>
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qabstractbutton.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtGui/qicon.h>
+	<QtGui/qkeysequence.h>
+	<QtWidgets/qwidget.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qicon.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qsize.h>
+	<QtCore/qlist.h>
+	<QtGui/qpixmap.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qkeysequence.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qstring.h>
+	<QtCore/qobjectdefs.h>
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qwidget.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtGui/qwindowdefs.h>
+	<QtCore/qobject.h>
+	<QtCore/qmargins.h>
+	<QtGui/qaction.h>
+	<QtGui/qpaintdevice.h>
+	<QtGui/qpalette.h>
+	<QtGui/qfont.h>
+	<QtGui/qfontmetrics.h>
+	<QtGui/qfontinfo.h>
+	<QtWidgets/qsizepolicy.h>
+	<QtGui/qregion.h>
+	<QtGui/qbrush.h>
+	<QtGui/qcursor.h>
+	<QtGui/qkeysequence.h>
+	<QtGui/qevent.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qaction.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qkeysequence.h>
+	<QtGui/qicon.h>
+	<QtCore/qstring.h>
+	<QtCore/qvariant.h>
+	<QtCore/qobject.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qpalette.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qwindowdefs.h>
+	<QtGui/qcolor.h>
+	<QtGui/qbrush.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qbrush.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qlist.h>
+	<QtCore/qpoint.h>
+	<QtCore/qscopedpointer.h>
+	<QtGui/qcolor.h>
+	<QtGui/qimage.h>
+	<QtGui/qpixmap.h>
+	<QtGui/qtransform.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qfont.h
+	<QtCore/qcompare.h>
+	<QtCore/qendian.h>
+	<QtCore/qshareddata.h>
+	<QtGui/qtguiglobal.h>
+	<QtGui/qwindowdefs.h>
+	<QtCore/qstring.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qendian.h
+	<QtCore/qfloat16.h>
+	<QtCore/qglobal.h>
+	<limits>
+	<stdlib.h>
+	<string.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qfontmetrics.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qfont.h>
+	<QtCore/qrect.h>
+	<QtCore/qshareddata.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qfontinfo.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qfont.h>
+	<QtGui/qfontvariableaxis.h>
+	<QtCore/qshareddata.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qfontvariableaxis.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qfont.h>
+	<QtCore/qshareddata.h>
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qsizepolicy.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtCore/qobject.h>
+	<QtCore/qalgorithms.h>
+	<QtCore/qhashfunctions.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qevent.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qcoreevent.h>
+	<QtCore/qiodevice.h>
+	<QtCore/qlist.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qstring.h>
+	<QtCore/qurl.h>
+	<QtCore/qvariant.h>
+	<QtGui/qeventpoint.h>
+	<QtGui/qpointingdevice.h>
+	<QtGui/qregion.h>
+	<QtGui/qwindowdefs.h>
+	<QtGui/qkeysequence.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qiodevice.h
+	<QtCore/qglobal.h>
+	<QtCore/qiodevicebase.h>
+	<QtCore/qobject.h>
+	<QtCore/qobjectdefs.h>
+	<QtCore/qscopedpointer.h>
+	<QtCore/qspan.h>
+	<QtCore/qstring.h>
+	<memory>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qurl.h
+	<QtCore/qbytearray.h>
+	<QtCore/qcompare.h>
+	<QtCore/qobjectdefs.h>
+	<QtCore/qstring.h>
+	<QtCore/qlist.h>
+	<QtCore/qglobal.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qeventpoint.h
+	<QtGui/qtguiglobal.h>
+	<QtGui/qvector2d.h>
+	<QtGui/qpointingdevice.h>
+	<QtCore/qshareddata.h>
+	<QtCore/qmetatype.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qvector2d.h
+	<QtGui/qvectornd.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qvectornd.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qpoint.h>
+	<QtCore/qrect.h>
+	<QtCore/qmath.h>
+	<QtCore/q20type_traits.h>
+	<QtCore/q23utility.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qpointingdevice.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qobject.h>
+	<QtGui/qinputdevice.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qinputdevice.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qobject.h>
+	<QtGui/qscreen.h>
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qscreen.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/QList>
+	<QtCore/QObject>
+	<QtCore/QRect>
+	<QtCore/QSize>
+	<QtCore/QSizeF>
+	<QtGui/QTransform>
+	<QtCore/qnamespace.h>
+	<QtCore/qnativeinterface.h>
+	<QtGui/qscreen_platform.h>
+
+1743166420 c:\qt\6.9.0\mingw_64\include\qtcore\qlist
+	"qlist.h"
+
+1743166420 c:\qt\6.9.0\mingw_64\include\qtcore\qobject
+	"qobject.h"
+
+1743166420 c:\qt\6.9.0\mingw_64\include\qtcore\qrect
+	"qrect.h"
+
+1743166420 c:\qt\6.9.0\mingw_64\include\qtcore\qsize
+	"qsize.h"
+
+1743166420 c:\qt\6.9.0\mingw_64\include\qtcore\qsizef
+	"qsize.h"
+
+1743166578 c:\qt\6.9.0\mingw_64\include\qtgui\qtransform
+	"qtransform.h"
+
+1743166330 c:\qt\6.9.0\mingw_64\include\qtgui\qscreen_platform.h
+	<QtGui/qtguiglobal.h>
+	<QtCore/qnativeinterface.h>
+	<QtGui/qguiapplication.h>
+	<QtGui/qwindowdefs_win.h>
+
+1743166676 c:\qt\6.9.0\mingw_64\include\qtwidgets\qfiledialog
+	"qfiledialog.h"
+
+1743166331 c:\qt\6.9.0\mingw_64\include\qtwidgets\qfiledialog.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtCore/qdir.h>
+	<QtCore/qstring.h>
+	<QtCore/qurl.h>
+	<QtWidgets/qdialog.h>
+	<functional>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qdir.h
+	<QtCore/qcompare.h>
+	<QtCore/qstring.h>
+	<QtCore/qdirlisting.h>
+	<QtCore/qfile.h>
+	<QtCore/qfileinfo.h>
+	<QtCore/qstringlist.h>
+	<QtCore/qshareddata.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qdirlisting.h
+	<QtCore/qfiledevice.h>
+	<QtCore/qflags.h>
+	<QtCore/qtclasshelpermacros.h>
+	<QtCore/qtcoreexports.h>
+	<QtCore/qdatetime.h>
+	<iterator>
+	<utility>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfiledevice.h
+	<QtCore/qiodevice.h>
+	<QtCore/qstring.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qdatetime.h
+	<QtCore/qcalendar.h>
+	<QtCore/qcompare.h>
+	<QtCore/qlocale.h>
+	<QtCore/qnamespace.h>
+	<QtCore/qshareddata.h>
+	<QtCore/qstring.h>
+	<limits>
+	<chrono>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qcalendar.h
+	<limits>
+	<QtCore/qglobal.h>
+	<QtCore/qlocale.h>
+	<QtCore/qstring.h>
+	<QtCore/qstringview.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfile.h
+	<QtCore/qfiledevice.h>
+	<QtCore/qstring.h>
+	<stdio.h>
+	<filesystem>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qfileinfo.h
+	<QtCore/qcompare.h>
+	<QtCore/qfile.h>
+	<QtCore/qlist.h>
+	<QtCore/qshareddata.h>
+	<QtCore/qmetatype.h>
+	<QtCore/qdatetime.h>
+	<QtCore/qtimezone.h>
+
+1743166329 c:\qt\6.9.0\mingw_64\include\qtcore\qtimezone.h
+	<QtCore/qcompare.h>
+	<QtCore/qdatetime.h>
+	<QtCore/qlocale.h>
+	<QtCore/qswap.h>
+	<QtCore/qtclasshelpermacros.h>
+	<chrono>
+
+1743166331 c:\qt\6.9.0\mingw_64\include\qtwidgets\qdialog.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtWidgets/qwidget.h>
+
+1747682148 c:\ganymedespectralestimation\ganymedespectralestimation\include\globals.h
+	<memory>
+	"BScan.h"
+
+1751278065 c:\ganymedespectralestimation\ganymedespectralestimation\include\colormaps.h
+	<cmath>
+	<tuple>
+
+1760019370 c:\ganymedespectralestimation\ganymedespectralestimation\include\sidebar.h
+	<QVBoxLayout>
+	<QApplication>
+	<QtWidgets>
+	<QPushButton>
+	"Settings.h"
+	"BScan.h"
+
+1743166676 c:\qt\6.9.0\mingw_64\include\qtwidgets\qvboxlayout
+	"qboxlayout.h"
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qboxlayout.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtWidgets/qlayout.h>
+	<QtWidgets/qwidget.h>
+	<limits.h>
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qlayout.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtCore/qobject.h>
+	<QtWidgets/qlayoutitem.h>
+	<QtWidgets/qsizepolicy.h>
+	<QtCore/qrect.h>
+	<QtCore/qmargins.h>
+	<limits.h>
+	<QtWidgets/qboxlayout.h>
+	<QtWidgets/qgridlayout.h>
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qlayoutitem.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtWidgets/qsizepolicy.h>
+	<QtCore/qrect.h>
+	<limits.h>
+
+1743166332 c:\qt\6.9.0\mingw_64\include\qtwidgets\qgridlayout.h
+	<QtWidgets/qtwidgetsglobal.h>
+	<QtWidgets/qlayout.h>
+	<QtWidgets/qwidget.h>
+	<limits.h>
+
+1751278094 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\colormaps.cpp
+	"ColorMaps.h"
+
+1747682148 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\globals.cpp
+
+1741110628 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\io.cpp
+	"IO.h"
+
+1760888486 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\sidebar.cpp
+	<iostream>
+	"SideBar.h"
+	"Window.h"
+
+1741110628 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\tag.cpp
+	"Tag.h"
+
+1760883958 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\window.cpp
+	"window.h"
+
+1747394955 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\xml_interpreter.cpp
+	"XML_Interpreter.h"
+
+1760888839 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
+	"BScan.h"
+
+1760888713 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\settings.cpp
+	"Settings.h"
+	"IO.h"
+

@@ -2,7 +2,7 @@
 #include "IO.h"
 
 Settings::Settings() {
-    objectiveDispersionData[objectiveLabel] = {1.0};
+    objectiveDispersionData[objectiveLabel] = {0.0};
     return;
 }
 
@@ -78,7 +78,7 @@ return;
 
 Settings::Settings(list<Tag*> tags)  {
 
-
+    objectiveDispersionData[objectiveLabel] = {0.0};
 
     for(Tag* tag : tags) {
         if(tag->label == "DataFile" && tag->content.substr(0,13) == "data/Spectral" && tag->isOpeningTag) {
