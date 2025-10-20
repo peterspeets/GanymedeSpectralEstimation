@@ -48,6 +48,7 @@ public:
     int numberOfIterations = 3;
     int upscalingFactor = 8;
     int NChunksRIAA = 16;
+    int numberOfStoredSpectra = 1;
 
     int spectrumAveraging;
     int numberOfAScans;

@@ -46,7 +46,49 @@ BScan::BScan(const string filePath)
         chirp = fileLoader.loadCalibrationSpectrum(settings->pathChirp);
         referenceSpectrum = fileLoader.loadCalibrationSpectrum(settings->pathApodization);
         intensity = fileLoader.loadCalibrationSpectrum(settings->pathIntensity);
-        spectra = fileLoader.loadSpectrum(0);
+
+        settings->numberOfStoredSpectra = settings->pathsSpectra.size();
+
+        float** singleAScan;
+        spectra = new float*[settings->sizeXSpectrum];
+
+        for(int i = 0; i< settings->sizeXSpectrum; i++) {
+            spectra[i] = new float[settings->sizeZSpectrum];
+        }
+
+
+
+        cout << "paths to spectra" << endl;
+        for (pair<int,string> const& pathSpectraPair : settings->pathsSpectra){
+            if(pathSpectraPair.first  == 0){
+                singleAScan = fileLoader.loadSpectrum(pathSpectraPair.first);
+                for(int i = 0; i< settings->sizeXSpectrum; i++) {
+                    for(int j = 0; j< settings->sizeZSpectrum; j++) {
+                        spectra[i][j] = singleAScan[i][j]/(1.0*settings->numberOfStoredSpectra);
+                    }
+                }
+            }else{
+                singleAScan = fileLoader.loadSpectrum(pathSpectraPair.first);
+
+                for(int i = 0; i< settings->sizeXSpectrum; i++) {
+                    for(int j = 0; j< settings->sizeZSpectrum; j++) {
+                        spectra[i][j] += singleAScan[i][j]/(1.0*settings->numberOfStoredSpectra);
+                    }
+                }
+            }
+
+            cout <<pathSpectraPair.first << " " << pathSpectraPair.second << endl;
+            for(int i = 0; i< settings->sizeXSpectrum; i++) {
+                delete[] singleAScan[i];
+            }
+            delete[] singleAScan;
+        }
+        cout << "..." << endl;
+
+
+
+
+
         if (settings->objectiveDispersionData.count("Native")){
             settings->objectiveDispersionData.erase("Native");
         }
@@ -443,7 +485,6 @@ void BScan::fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex
             }
         }
         scan->fiaa_oct_partitioned(spectra[i],N,K,4,q_i,vt,processedImage[i]);
-        cout << i << endl;
     }
     cout << "ended at " << i-sign << endl;
 }
@@ -695,10 +736,6 @@ pair<float*, float*> BScan::fiaa_oct(const float* x,
         Eta[k] = eta;
 
         fiaaTime += getTime() - startingTime;
-        if(evaluated == 10*1024*4) {
-            cout << "Total time = " << ((1.0*fiaaTime)/evaluated) << " ms" << endl;
-        }
-
     }
 
 
@@ -815,6 +852,5 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
 
 
 BScan::~BScan()
-{
-    //dtor
+{  /*Todo, change class logic such that spectra are deleted here.*/
 }

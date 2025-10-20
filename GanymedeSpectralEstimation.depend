@@ -68,7 +68,7 @@
 	<list>
 	"Tag.h"
 
-1760365602 c:\ganymedespectralestimation\ganymedespectralestimation\include\settings.h
+1760970350 c:\ganymedespectralestimation\ganymedespectralestimation\include\settings.h
 	<iostream>
 	<fstream>
 	<string>
@@ -111,7 +111,7 @@
 	"Settings.h"
 	"IO.tpp"
 
-1759853981 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
+1760970350 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
 	"IO.h"
 	"Settings.h"
 
@@ -1641,7 +1641,7 @@
 1747394955 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\xml_interpreter.cpp
 	"XML_Interpreter.h"
 
-1760888839 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
+1760971531 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
 	"BScan.h"
 
 1760888713 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\settings.cpp

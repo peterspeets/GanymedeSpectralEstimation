@@ -829,6 +829,7 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, T* referenceSpect
     size_t uncomp_size;
     int i, j, k;
     string spectrumFileName = settings->pathsSpectra[spectrumIndex];
+
     int file_index = getFileIndex(spectrumFileName);
     void* p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
     unsigned char* file_contents = static_cast<unsigned char*>(p);
@@ -876,6 +877,8 @@ template <typename T>
 T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
     size_t uncomp_size;
     int i, j, k;
+
+
     string spectrumFileName = settings->pathsSpectra[spectrumIndex];
     int file_index = getFileIndex(spectrumFileName);
     void * p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
