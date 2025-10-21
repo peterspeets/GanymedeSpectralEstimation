@@ -310,10 +310,7 @@ void Window::setImage(float** floatImage,const size_t floatImageWidth, const siz
 void Window::loadFileWithDialog() {
     QString filePath = QFileDialog::getOpenFileName(nullptr,"Open File","C:\\","OCT Files (*.oct);;Text Files (*.txt)");
     loadFile(filePath.toStdString());
-
-
     return;
-
 }
 
 void Window::loadFile(string filePath){
@@ -339,27 +336,33 @@ void Window::loadFile(string filePath){
 
 
 void Window::saveFileWithDialog() {
-    QString filePath = QFileDialog::getOpenFileName(nullptr,"Save PNG","C:\\",";;PNG (*.png)");
+    QString filePath = QFileDialog::getSaveFileName(nullptr,"Save PNG","C:\\","PNG (*.png);;Text file (*.txt)");
     int width, height;
     float** image;
     width = settings->sizeXSpectrum;
     if(settings->useRIAA){
-        width = settings->sizeZSpectrum * settings->upscalingFactor;
+        height = settings->sizeZSpectrum * settings->upscalingFactor;
         image = scan->imageRIAA;
     }else{
-        width = settings->sizeZSpectrum ;
+        height = settings->sizeZSpectrum ;
         image = scan->imageFFT;
     }
 
     if (filePath.isEmpty()) {
         return;
-    }else {
+    }
+    else {
         cout << "Saving " << filePath.toStdString() << endl;
-        IO<float>::savePng(filePath.toStdString(), width ,height, width,height,image, settings->useDecibelColorScale,settings->decibelFloor);
-
-
     }
 
+    if(filePath.right(4).toLower() == ".png"){
+        IO<float>::savePng(filePath.toStdString(),imageWidth,imageHeight,bitMapImage);
+    }
+    else {
+        IO<float>::save2DArrayToFile(image, width,height, filePath.toStdString(),',');
+
+    }
+    cout << "Saved" << endl;
     return;
 
 }

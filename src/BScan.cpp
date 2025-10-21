@@ -56,8 +56,6 @@ BScan::BScan(const string filePath)
             spectra[i] = new float[settings->sizeZSpectrum];
         }
 
-
-
         cout << "paths to spectra" << endl;
         for (pair<int,string> const& pathSpectraPair : settings->pathsSpectra){
             if(pathSpectraPair.first  == 0){
