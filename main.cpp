@@ -37,17 +37,28 @@ class SignalProcessing {
 
 public:
 
-    static double* hannWindow(const int N) {
-        int i;
-        double* window = new double[N];
-        for(i = 0; i< N; i++) {
+    static vector<double> hannWindow(const int N) {
+        /*
+        N: window length
+
+        This function calculates a Hann window and returns the window as a vector of size N.
+        */
+
+        vector<double> window(N);
+        for(int i = 0; i< N; i++) {
             window[i] = sin(M_PI*i/N)*sin(M_PI*i/N);
         }
         return window;
     }
 
-    static double* tukeyWindow(const int N, const double alpha) {
-        double* window = new double[N];
+    static vector<double> tukeyWindow(const int N, const double alpha) {
+        /*
+        N: length of the vector to return
+        alpha: the tapering parameter of the Tukey window, a lower value means a
+        steeper edge, and a higher value means a very smooth window.
+        */
+
+        vector<double> window(N);
         for(int i = 0; i< N/2+1; i++) {
             if(i < alpha*N/2 ) {
                 window[i] = 0.5*(1.0 - cos(2*M_PI*i/(alpha * (N-1))));
@@ -62,6 +73,14 @@ public:
 
     template<typename T>
     static complex<T>* hilbert(const T* signal, const int N ) {
+        /*
+        signal: real valued signal to calculate the Hilbert transform for
+        N: length of the signal.
+
+        Hilbert function for a real function. This function calculates the Hilbert transform
+        by passing it to the complex Hilbert transform.
+        */
+
         complex<T> temp[N] ;
         complex<T>* output;
         for(int i=0; i<N; i++) {
@@ -73,13 +92,20 @@ public:
         output = hilbert(temp,N);
 
         return output;
-
     }
 
     template<typename T>
     static complex<T>* hilbert(const complex<T>* signal, const int N) {
+        /*
+        signal: pointer to an array of complex numbers
+        N: length of the array.
 
-        //cout << "\ntest: " << signal[500] << endl;
+        This function calculates the Hilbert transform of a complex signal.
+        The Hilbert transforms is calculated by Fourier transforming the
+        signal, rotating it 90 degrees in the complex plane, and inverting
+        the sign of the negative frequencies.
+        */
+
         kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
 
         kiss_fft_cpx ft1[N];
@@ -120,19 +146,22 @@ public:
             output[i] = complex<T>(signal[i].real() - ft1[i].i/N,signal[i].imag() + ft1[i].r /N) ;
 
         }
-
-        //cout << "\ntest: " << output[500] << endl;
-
         kiss_fft_free(cfg);
-
-
         return output;
-
-
     }
 
 
     static float* calculateEnvelope(float *spectrum,size_t length) {
+        /*
+        spectrum: pointer to array of the interference spectrum to calculate
+        the envelope for.
+        length: the size of the array spectrum.
+
+        This function calculates the envelope of a function based on a spline
+        interpolation of the peaks in the spectrum. This is good for finding
+        a visually appealing envelope, but for many signal processing applications
+        use the absolute value of the Hilbert transform instead.
+        */
         float* env = new float[length];
         int NChunks = settings->NChunksEnvelopeSubtraction;
         int chunkLength = length/NChunks;
@@ -143,9 +172,7 @@ public:
 
         for(i = 0; i< length; i++) {
             env[i] =  abs(spectrum[i]);
-
         }
-
 
         for(i = 0; i< NChunks; i++) {
             int maxIndex = (i+1)*chunkLength;
@@ -180,7 +207,8 @@ public:
             }
         }
 
-        UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(indexOfMaximumPerChunk,maximumValuesPerChunk,NChunks+2);
+        UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(indexOfMaximumPerChunk,
+                maximumValuesPerChunk,NChunks+2);
         for(i = 0; i < length; i++) {
             env[i] = spline->evaluate(  static_cast<float>( i ) );
             if(env[i] < 0.01*maxValue) {
@@ -197,6 +225,16 @@ public:
 
 
     static void equalizeEnvelopeInPlace(float** spectra,size_t N,size_t M) {
+        /*
+        spectra: 2D array to remove the envelope for
+        N: array length
+        M: array length
+
+        This function overwrites the array it receives with a signal with the envelope
+        removed such that it resembles a block wave. This does work well visually, but
+        do not use for data extraction. For example, a signal with beating will be
+        distorted.
+        */
         int i, j;
         float* env;
 
@@ -207,12 +245,6 @@ public:
 
 
             env = calculateEnvelope(spectra[i],M);
-
-            if(i == 0) {
-
-                IO<float>::saveArrayToFile( spectra[i], M, "D:\\data\\spe0.txt");
-                IO<float>::saveArrayToFile( env, M, "D:\\data\\env0.txt");
-            }
 
             for(j = 0; j< M; j++) {
                 spectra[i][j] /= (0.99*env[j] + 0.01);
@@ -236,14 +268,6 @@ public:
             }
 
 
-
-
-
-            if(i == 0) {
-
-                IO<float>::saveArrayToFile( spectra[i], M, "D:\\data\\spe2.txt");
-                IO<float>::saveArrayToFile( env, M, "D:\\data\\env2.txt");
-            }
             delete[] hb;
             delete[] env;
 
@@ -252,6 +276,21 @@ public:
     }
 
     static void stretchSpectraInPlace(float** spectra, float* referenceSpectrum, float minimumReferencePower) {
+        /*
+        spectra: values that will be replaced with a stretched version.
+        referenceSpectrum: measured reference spectrum
+        minimumReferencePower: minimum fraction of the reference spectrum that need to be present in order to keep the data
+
+
+        The FFT works well over any OCT data, however the RIAA algorithm needs an apodized interference spectum. However,
+        the measured OCT interference is zero or close to zero near the edges. This function takes the reference spectrum,
+        and keeps only all values that are between the edges as given by the minimum reference power.
+
+        In order to keep most information in the data, but also to keep the data in a power of 2 array length, the
+        center data is stretched and interpolated to fit again on the same array shape.
+
+        This function processes in place, and overwrites float** spectra.
+        */
         int minIndex, maxIndex;
         float maximumReference =0.0;
         int indexOfMaximum = 0;
@@ -265,7 +304,8 @@ public:
         }
 
         for(minIndex = indexOfMaximum; referenceSpectrum[minIndex] > minimumReferencePower*maximumReference && minIndex > 0; minIndex--) {}
-        for(maxIndex = indexOfMaximum; referenceSpectrum[maxIndex] > minimumReferencePower*maximumReference && maxIndex < settings->sizeZSpectrum; maxIndex++) {}
+        for(maxIndex = indexOfMaximum; referenceSpectrum[maxIndex] > minimumReferencePower*maximumReference
+                && maxIndex < settings->sizeZSpectrum; maxIndex++) {}
 
         float xrange[settings->sizeZSpectrum];
         for(int i = 0; i < settings->sizeZSpectrum; i++) {
@@ -274,11 +314,11 @@ public:
 
         for(int i = 0; i < settings->sizeXSpectrum; i++) {
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(xrange,spectra[i],settings->sizeZSpectrum);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(xrange,spectra[i],
+                    settings->sizeZSpectrum);
             for(int j = 0; j < settings->sizeZSpectrum; j++) {
                 float x = 1.0*j*( maxIndex - minIndex ) / (settings->sizeZSpectrum*settings->sizeZSpectrum) + (1.0*minIndex)/settings->sizeZSpectrum;
                 spectra[i][j] = spline->evaluate(x);
-                //cout << j << " " << indexOfMaximum << " " << minIndex << "  " << maxIndex << "  "<< x << "  " << spectra[i][j]  << endl;
             }
 
 
@@ -294,6 +334,18 @@ public:
 
 
     static void preprocessSpectrumInPlace(float** spectra, float* offsetSpectrum, float* chirp, float* referenceSpectrum,float* window   ) {
+        /*
+        spectra: data to process
+        offsetSpectrum: offset spectrum that is subtracted from the measured spectrum before processing
+        chirp: nonlinearity of the Ganymede spectrometer.
+        referenceSpectrum: spectrum of the reference arm
+        window: window function
+
+        This function preprocesses the spectra before the FFT or RIAA. The noisy low signal data is
+        removed from the edges based on the reference power. If a reference spectrum is not a nullpointer,
+        this is removed from the envelope. The signal is compensated for dispersion based on the
+        polynomial coefficients stored in the global settings.
+        */
         int i, j;
 
 
@@ -434,8 +486,16 @@ public:
 
 
         if(chirp) {
+            /*
+            This chirp is the chirp caused by the spectrometer of the Ganymede system.
+            The array consists of floating point index numbers of the CCD of the spectrometer, these are the actual
+            index numbers of of the measured data. For example, a number 11.1 on index 11 of the chirp array, would
+            mean that the actual index of the measured spectra is 11.1. You cannot select index 11.1, so an interpolation
+            is done here.
+            */
             for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
-                UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],settings->sizeZSpectrum);
+                UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],
+                        settings->sizeZSpectrum);
                 for(j = 0; j < settings->sizeZSpectrum; j++) {
                     spectra[i][j] = spline->evaluate(  static_cast<float>( j) );
                 }
@@ -458,11 +518,6 @@ public:
             }
         }
 
-
-        IO<float>::saveArrayToFile(spectra[248], settings->sizeZSpectrum, "D:\\data\\248.txt");
-        IO<float>::saveArrayToFile(spectra[249], settings->sizeZSpectrum, "D:\\data\\249.txt");
-        IO<float>::saveArrayToFile(spectra[250], settings->sizeZSpectrum, "D:\\data\\250.txt");
-
     }
 
 
@@ -471,6 +526,9 @@ public:
 
 
     static void preprocessSpectrumInPlaceOud(float** spectra, float* offsetSpectrum, float* chirp, float* referenceSpectrum   ) {
+        /*
+        TODO: remove in next commit.
+        */
         int i, j;
 
 
@@ -584,12 +642,12 @@ public:
         }
 
 
-        //IO<float>::saveArrayToFile(averagePower, settings->sizeXSpectrum, "D:\\data\\power.txt");
 
         equalizeEnvelopeInPlace(spectra, settings->sizeXSpectrum, settings->sizeZSpectrum);
         if(chirp) {
             for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
-                UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],settings->sizeZSpectrum);
+                UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],
+                        settings->sizeZSpectrum);
                 for(j = 0; j < settings->sizeZSpectrum; j++) {
                     spectra[i][j] = spline->evaluate(  static_cast<float>( j) );
                 }
@@ -625,59 +683,21 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
     settings = make_shared<Settings>();
+    //The path is required for the import of the objective settings file.
     settings->pathToExecutable = QCoreApplication::applicationDirPath().toStdString();
+
     map<string, vector<double>> mapFromData;
     mapFromData = IO<double>::loadObjectiveDispersionData(
-        settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
+                      settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
     settings->objectiveDispersionData.insert(mapFromData.begin(), mapFromData.end());
-    for(const pair<string, vector<double>> &objectiveDispersionPair : settings->objectiveDispersionData){
-        cout << objectiveDispersionPair.first << endl;
-    }
 
     Window window;
     window.show();
-
-
-
-
-
-    //string filePath = "C:\\data\\ThorlabsCppTestData\\MicSlideTest\\MicSlideTest_0004_Mode2D.oct";
-    //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0028_Mode2D.oct";
-    //string filePath = "C:\\data\\ThorlabsCppTestData\\MilkTest\\Milk flow measurement_0001_ModeDoppler.oct";
-    //string filePath = "C:\\cpp\\onionBscan\\";
-    //string filePath = "C:\\cpp\\skinBscan\\";
-    string filePath = "C:\\GanymedeSpectralEstimation\\wedgeBscan\\";
-
-
-
-
-    //scan = make_shared<BScan>(filePath);
+    //the scan object contains all data and some non static processing functions.
     scan = make_shared<BScan>();
 
-
-    for(const pair<string, vector<double>> &objectiveDispersionPair : settings->objectiveDispersionData){
-        cout << objectiveDispersionPair.first << endl;
-    }
-
-
+    //set the image. When not debugging, settings->sizeXSpectrum and settings->sizeZSpectrum will be zero.
     window.setImage(scan->fftBScan(),settings->sizeXSpectrum,settings->sizeZSpectrum);
-
-    /*
-
-    cout << "Spectrum size: " << settings->sizeXSpectrum << "x" << settings->sizeZSpectrum  <<endl;
-    cout << "Preprocessing:";
-    scan->preprocessSpectrumInPlace();
-    cout << " done" << endl;
-    scan->fftBScan();
-    scan->processBScan();
-    cout << "get processed scan." << endl;
-    tuple<float**,int,int> result = scan->getProcessedBScan();
-    cout << "Saving png." << endl;
-    IO<float>::savePng("D:/data/test.png", get<1>(result), get<2>(result), get<0>(result));
-
-
-    */
-    //system("pause");
     cout << "end" << endl;
 
     return app.exec();
@@ -686,58 +706,3 @@ int main(int argc, char *argv[]) {
 }
 
 
-
-
-/*
-
-
-    return 0;
-
-
-
-    cout << "Reshaping image." << endl;
-
-
-    if(x_res > z_res) {
-        //x_res poorer,reshape to keep z_res
-        double newXShape_dbl = (settings->sizeXSpectrum - 0)*(x_res/z_res);
-        int newXShape = static_cast<int>(round(newXShape_dbl));
-        cout << "saving image (keeping z shape)" << newXShape << "x" <<  settings->sizeZSpectrum/2 <<  endl;
-        IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0,  settings->sizeZSpectrum/2, 2*newXShape,  2*settings->sizeZSpectrum/2,  image_fft,true );
-        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-1,  K/2, 2*newXShape,  2*settings->sizeZSpectrum/2,  image,true );
-    } else {
-        //z_res poorer,reshape to keep x_res
-        double newZShape_dbl = (settings->sizeZSpectrum/2)*(z_res/x_res);
-        int newZShape = static_cast<int>(round(newZShape_dbl));
-        cout << "saving image (keeping x shape) " << (settings->sizeXSpectrum - 0) << "x" <<  newZShape<<  endl;
-        IO<float>::savePng("D:\\data\\testImageFFT.png", settings->sizeXSpectrum-0, settings->sizeZSpectrum/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image_fft,true );
-        IO<float>::savePng("D:\\data\\testImageRFIAA.png", settings->sizeXSpectrum-1, K/2,  2*settings->sizeXSpectrum-0, 2*newZShape,  image,true );
-    }
-
-
-    cout<<"Saving RIAA data:";
-
-    IO<float>::save2DArrayToFile(image, settings->sizeXSpectrum,K/4,settings->sizeXSpectrum,settings->sizeZSpectrum, "D:\\data\\riaaimage.txt", ',');
-    cout<<" done." << endl;
-
-
-
-
-    double newXShape_dbl = (settings->sizeXSpectrum - 0)*(x_res/z_res);
-    int newXShape = static_cast<int>(round(newXShape_dbl));
-    //cout << "saving image (keeping z shape)" << newXShape << "x" <<  settings->sizeZSpectrum/2 <<  endl;
-
-
-
-
-    for (int i = 0; i < settings->sizeXSpectrum; i++) {
-        delete[] image[i];
-    }
-    delete[] image;
-
-
-
-
-
-
-*/

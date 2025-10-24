@@ -3,6 +3,9 @@
 
 template <typename floatingPointType>
 uint64_t UtilityMathFunctions<floatingPointType>::getTime() {
+    /*
+    timing function for optimizing code.
+    */
     using namespace std::chrono;
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
@@ -10,6 +13,13 @@ uint64_t UtilityMathFunctions<floatingPointType>::getTime() {
 template <typename floatingPointType>
 template <typename T>
 void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const T* array, const int N, const string& filename) {
+    /*
+    array: array to be saved
+    N: length of the aray
+    filename: path of the array to be saved.
+
+    IO function left here for optimization and debugging.
+    */
     ofstream outFile(filename);
 
     if (!outFile) {
@@ -25,6 +35,9 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const T* array, co
 
 template <typename floatingPointType>
 void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename) {
+    /*
+    Save 2D array to file. IO function left here for optimization and bebugging.
+    */
     ofstream outFile(filename);
 
     if (!outFile) {
@@ -52,6 +65,7 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const kiss_fft_cpx
 template <typename floatingPointType>
 template <typename T>
 void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, const string& filename) {
+    /*save a complex array to a file, left here for debugging.*/
     ofstream outFile(filename);
 
     if (!outFile) {
@@ -78,6 +92,7 @@ void UtilityMathFunctions<floatingPointType>::saveArrayToFile(const complex<T>* 
 template <typename floatingPointType>
 void UtilityMathFunctions<floatingPointType>::fiaa_oct_loop(floatingPointType** spectra,int fromIndex, int toIndex,
         size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* startingColumn,floatingPointType** processedImage ) {
+    /*Bscan function temporarily left here for debugging.*/
     int sign = 1;
     if(fromIndex > toIndex) {
         sign = -1;
@@ -99,13 +114,12 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_loop(floatingPointType** 
     }
 }
 
-template <typename floatingPointType>
-void UtilityMathFunctions<floatingPointType>::test() {
-    cout << "test" << endl;
-}
+
 
 template <typename floatingPointType>
-floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init,int q_i, double vt,int NThreads) {
+floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,
+        int q_init,int q_i, double vt,int NThreads) {
+    /*Bscan function temporarily left here for debugging.*/
     int i, j;
     floatingPointType** processedImage = new floatingPointType*[M];
 
@@ -184,7 +198,7 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 template <typename floatingPointType>
 void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatingPointType* x,
         size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
-
+        /*Bscan function temporarily left here for debugging.*/
     //TODO: limit scope of stack intensive arrays, before calling FIAA function.
     kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
     kiss_fft_cpx FT[N];
@@ -263,6 +277,7 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
 template <typename floatingPointType>
 pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointType>::fiaa_oct(const floatingPointType* x,
         size_t N, int K, int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
+    /*Bscan function temporarily left here for debugging.*/
     int i, j;
 
     ostringstream  filename;
@@ -449,7 +464,15 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
 
 template <typename floatingPointType>
-tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<floatingPointType>::levinson(const complex<floatingPointType>* inputVector, size_t N,complex<floatingPointType>* A) {
+tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<floatingPointType>::levinson(
+    const complex<floatingPointType>* inputVector, size_t N,complex<floatingPointType>* A) {
+    /*
+    inputVector: input vector and Toeplitz matrix elements
+    N: length of the vector
+    A: prediction (the vector that is being solved in M\cdot A = inputVector)
+
+    This fuction performs the Levinson-Durbin recursion on the vector inputVector to perform a fast matrix inversion.
+    */
     int i, j,k,kj;
     int khalf;
     static uint64_t levinsonTime = 0;
@@ -516,7 +539,7 @@ tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<float
 
     levinsonTime += getTime() - startingTime;
     if(evaluated == 10*1024*4) {
-        cout << "Levinson time = " << ((1.0*levinsonTime)/evaluated) << " ms" << endl;
+        cout << "time for Levinson algorithm = " << ((1.0*levinsonTime)/evaluated) << " ms" << endl;
     }
 
     return  make_tuple(A,P);
@@ -525,7 +548,14 @@ tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<float
 
 
 template <typename floatingPointType>
-UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(Spline<floatingPointType>** splines, const size_t arraySize) : splines_( new const Spline<floatingPointType>*[arraySize]), N(arraySize) {
+UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(Spline<floatingPointType>** splines,
+        const size_t arraySize) : splines_( new const Spline<floatingPointType>*[arraySize]), N(arraySize) {
+    /*
+    splines: array of splines
+    arraySize: length of the array of splines.
+
+    This constructor creates a new spline interpolation based on the list of splines.
+    */
     int i;
     for (i = 0; i< N; i++) {
         splines_[i] = splines[i];
@@ -534,7 +564,8 @@ UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolatio
 
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const floatingPointType* a,const floatingPointType* x,const size_t N,complex<floatingPointType>* y) {
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const floatingPointType* a,const floatingPointType* x,
+        const size_t N,complex<floatingPointType>* y) {
     complex<floatingPointType> aComplex[N];
     complex<floatingPointType> xComplex[N];
     for(int i = 0; i < N; i++) {
@@ -546,7 +577,8 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 }
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,const floatingPointType* x,const size_t N,complex<floatingPointType>* y) {
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,
+        const floatingPointType* x,const size_t N,complex<floatingPointType>* y) {
     complex<floatingPointType> xComplex[N];
     for(int i = 0; i < N; i++) {
         xComplex[i] = x[i];
@@ -556,7 +588,8 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,const complex<floatingPointType>* x,const size_t N,complex<floatingPointType>* y) {
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,
+        const complex<floatingPointType>* x,const size_t N,complex<floatingPointType>* y) {
     int i, j;
     static uint64_t vectorTime = 0;
     static int evaluated = 0;
@@ -736,7 +769,8 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialEstimation(const complex<floatingPointType>* inputVector, size_t N,complex<floatingPointType>* phi) {
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialEstimation(const complex<floatingPointType>* inputVector,
+        size_t N,complex<floatingPointType>* phi) {
     //Algorithm from: Fast and accurate spectral-estimation axial super-resolution optical coherence tomography, J. de Wit et al. (2021)
     //Matlab code at https://zenodo.org/records/5482794 (J. de Wit)
 
@@ -878,6 +912,11 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
 template <typename floatingPointType>
 floatingPointType UtilityMathFunctions<floatingPointType>::SplineInterpolation::evaluate(floatingPointType x) {
+    /*
+    x: evaluate the spline interpolation on this position
+
+    This function evaluates the splines. It looks for which spline to evaluate. This function assumes the splines are ordered.
+    */
 
     if(x <= splines_[0]->x0) {
         return splines_[0]->evaluate(x);
@@ -922,9 +961,14 @@ UtilityMathFunctions<floatingPointType>::SplineInterpolation::~SplineInterpolati
 }
 
 template <typename floatingPointType>
-typename UtilityMathFunctions<floatingPointType>::SplineInterpolation* UtilityMathFunctions<floatingPointType>::splineInterpolation(const floatingPointType* x,const floatingPointType* y, const size_t arraySize) {
+typename UtilityMathFunctions<floatingPointType>::SplineInterpolation* UtilityMathFunctions<floatingPointType>::splineInterpolation(
+    const floatingPointType* x,const floatingPointType* y, const size_t arraySize) {
     /*
-    Taken from: https://en.wikipedia.org/wiki/Spline_(mathematics) (27-01-2025 17:00);
+    x: array of x positions of the spline interpolation
+    y: array of y positions of the spline interpolation
+    arraySize: length of the array.
+
+    Implemented from pseudocode taken from: https://en.wikipedia.org/wiki/Spline_(mathematics) (27-01-2025 17:00);
     */
     const size_t n = arraySize -1;
     int i;

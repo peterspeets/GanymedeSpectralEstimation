@@ -21,44 +21,43 @@
 
 using namespace std;
 
-class BScan
-{
-    public:
-        BScan();
-        BScan(const string filePath);
-        Settings BScanSettings;
-        void preprocessSpectrumInPlace();
-        float** fftBScan();
-        virtual ~BScan();
-        uint64_t getTime();
-        static void stretchSpectraInPlace(float** spectra, float* referenceSpectrum, float minimumReferencePower);
-        static void fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex,
-        size_t N, int K, int numberOfPartitions,int q_i, double vt, float* startingColumn,float** processedImage );
+class BScan {
+public:
+    BScan();
+    BScan(const string filePath);
+    Settings BScanSettings;
+    void preprocessSpectrumInPlace();
+    float** fftBScan();
+    virtual ~BScan();
+    uint64_t getTime();
+    static void stretchSpectraInPlace(float** spectra, float* referenceSpectrum, float minimumReferencePower);
+    static void fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex,
+                              size_t N, int K, int numberOfPartitions,int q_i, double vt, float* startingColumn,float** processedImage );
 
-        float** processBScan(size_t M,const size_t N, int K,int q_init,int q_i, double vt,int NThreads) ;
-        float** processBScan();
-        void fiaa_oct_partitioned(const float* x, float* diaaf_floatingPoint,int numberOfIterations = settings->numberOfIterations );
-        void fiaa_oct_partitioned(const float* x,
-            size_t N, int K, int numberOfPartitions,int q_i, double vt, float* diaaf_floatingPoint ) ;
-        pair<float*, float*> fiaa_oct(const float* x, size_t N, int K, int q_i, double vt, float* diaaf_floatingPoint = nullptr);
-        tuple<float**,int,int> getProcessedBScan();
-        void calculateLowResBitmap();
-        float** imageRIAA = nullptr;
-        float** imageFFT = nullptr;
-        unsigned char* lowResBitmap = nullptr; //no alpha channel
-
+    float** processBScan(size_t M,const size_t N, int K,int q_init,int q_i, double vt,int NThreads) ;
+    float** processBScan();
+    void fiaa_oct_partitioned(const float* x, float* diaaf_floatingPoint,int numberOfIterations = settings->numberOfIterations );
+    void fiaa_oct_partitioned(const float* x,
+                              size_t N, int K, int numberOfPartitions,int q_i, double vt, float* diaaf_floatingPoint ) ;
+    pair<float*, float*> fiaa_oct(const float* x, size_t N, int K, int q_i, double vt, float* diaaf_floatingPoint = nullptr);
+    tuple<float**,int,int> getProcessedBScan();
+    void calculateLowResBitmap();
+    float** imageRIAA = nullptr;
+    float** imageFFT = nullptr;
+    unsigned char* lowResBitmap = nullptr; //no alpha channel
 
 
-    protected:
 
-    private:
-        float** spectra = nullptr;
-        float* offset = nullptr;
-        float* chirp = nullptr;
-        float* referenceSpectrum = nullptr;
-        float* intensity = nullptr;
-        float* window = nullptr;
-        static void fftPartBSscan(float** spectra, float** image, int Nz,int startXIndex, int stopXIndex) ;
+protected:
+
+private:
+    float** spectra = nullptr;
+    float* offset = nullptr;
+    float* chirp = nullptr;
+    float* referenceSpectrum = nullptr;
+    float* intensity = nullptr;
+    float* window = nullptr;
+    static void fftPartBSscan(float** spectra, float** image, int Nz,int startXIndex, int stopXIndex) ;
 
 };
 

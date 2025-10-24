@@ -6,8 +6,11 @@ using namespace std;
 
 
 Tag::Tag(const string xmlText) {
+    /*
+    xmlText: string that contains the xml tags
 
-    //TODO: enum for these four bools is probably more elegant.
+    This constructor creates a new Tag based on the tag that is entered in in xmlText. Example "<tag property="content">".
+    */
     bool inQuotes = false;
     bool afterEquals = false;
     bool inKeyword = false;
@@ -101,6 +104,7 @@ Tag::Tag(const string xmlText) {
     }
 
     if( selfClosing) {
+        //selfClosing: <tag />
         isClosingTag = true;
         isOpeningTag = true;
     }
@@ -109,6 +113,11 @@ Tag::Tag(const string xmlText) {
 }
 
 string Tag::getStringOfFirstTag(const string xml_string) {
+    /*
+    xml_string: string that contains the tags.
+
+    This function filteres the first tag from a text with many other tags.
+    */
     bool inQuotes = false;
     int i;
     int begin_index = 0;
@@ -134,6 +143,9 @@ string Tag::getStringOfFirstTag(const string xml_string) {
 }
 
 ostream& operator<<(ostream& os, const Tag& self) {
+    /*
+    Stream << operator for easy printing of tags with cout.
+    */
     os << "<";
     if(self.isClosingTag) {
         os << "/";

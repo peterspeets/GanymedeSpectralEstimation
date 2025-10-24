@@ -66,13 +66,13 @@ public:
 
     static map<string, vector<double>> loadObjectiveDispersionData(const string& filename);
 
-    class FileLoader{
-        public:
+    class FileLoader {
+    public:
         FileLoader(const string filePath);
         ~FileLoader();
     };
 
-    class GanymedeFileLoader{
+    class GanymedeFileLoader {
     public:
 
         shared_ptr<Settings> loadSettings() ;
@@ -94,7 +94,7 @@ protected:
 
 private:
 
-            static string trimString(string);
+    static string trimString(string);
 };
 
 

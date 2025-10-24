@@ -2,13 +2,20 @@
 #include "IO.h"
 
 Settings::Settings() {
+    /*
+    Create an empty settings file. The objectiveDispersionData for dispersion correction is set to 0;
+
+    */
     objectiveDispersionData[objectiveLabel] = {0.0};
     return;
 }
 
 
 Settings::Settings(string pathToDirectory) {
-
+    /*
+    pathToDirectory: path to the folder in which th text data files of the test data are stored.
+    When a text file with test data is loaded, the settings are initialized here.
+    */
 
     bytesPerPixelIntensity = 1;
     bytesPerPixelSpectrum = 1;
@@ -70,14 +77,19 @@ Settings::Settings(string pathToDirectory) {
 }
 
 
-void Settings::writeToYAML(string filePath){
+void Settings::writeToYAML(string filePath) {
 
 
-return;
+    return;
 }
 
 Settings::Settings(list<Tag*> tags)  {
+    /*
+    tags: list of tags to load the settings from.
 
+    Initialize the global settings based on a list of tags. These tags are loaded from the xml header file in the
+    Thorlabs .oct file.
+    */
     objectiveDispersionData[objectiveLabel] = {0.0};
 
     for(Tag* tag : tags) {
@@ -207,8 +219,13 @@ Settings::Settings(list<Tag*> tags)  {
     }
 }
 
-void Settings::copyMembers(const Settings& other){
+void Settings::copyMembers(const Settings& other) {
+    /*
+    This is a helper function for the copy constructor.
 
+    TODO: copy the dispersion data, such that the temp code in the Bscan class to
+    copy some parts of the settings can be removed.
+    */
 
     objectiveDispersionData = other.objectiveDispersionData;
     objectiveLabel = other.objectiveLabel;

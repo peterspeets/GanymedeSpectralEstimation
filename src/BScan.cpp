@@ -1,13 +1,16 @@
 #include "BScan.h"
 
-BScan::BScan(){
+BScan::BScan() {
+    /*
+    Constructor for an empty B-scan. The settings are set to default values.
+    */
 
     shared_ptr<Settings> oldSettings = settings;
     settings = make_shared<Settings>();
 
     settings->pathToExecutable = oldSettings->pathToExecutable;
     map<string, vector<double>> mapFromData = IO<double>::loadObjectiveDispersionData(
-        settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
+                                 settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
     settings->objectiveDispersionData.insert(mapFromData.begin(), mapFromData.end());
 
     settings->bytesPerPixelIntensity = 0;
@@ -35,11 +38,17 @@ BScan::BScan(){
 }
 
 
-BScan::BScan(const string filePath)
-{
+BScan::BScan(const string filePath) {
+    /*
+    filePath: path to the spectral data.
+
+    Constructor for a B-scan with a given filename. If the file name ends in .oct, it is assumed to
+    be Thorlabs .oct data, otherwise it is considered test data stored in .txt files.
+    */
     shared_ptr<Settings> oldSettings = settings;
 
     if(filePath.substr(filePath.length() - 4) == ".oct") {
+        //If the file ends in .oct, the file loading is slightly more involved. Use the GanymedeFileLoader.
         IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
         settings = fileLoader.loadSettings() ;
         offset = fileLoader.loadCalibrationSpectrum(settings->pathOffset);
@@ -57,15 +66,15 @@ BScan::BScan(const string filePath)
         }
 
         cout << "paths to spectra" << endl;
-        for (pair<int,string> const& pathSpectraPair : settings->pathsSpectra){
-            if(pathSpectraPair.first  == 0){
+        for (pair<int,string> const& pathSpectraPair : settings->pathsSpectra) {
+            if(pathSpectraPair.first  == 0) {
                 singleAScan = fileLoader.loadSpectrum(pathSpectraPair.first);
                 for(int i = 0; i< settings->sizeXSpectrum; i++) {
                     for(int j = 0; j< settings->sizeZSpectrum; j++) {
                         spectra[i][j] = singleAScan[i][j]/(1.0*settings->numberOfStoredSpectra);
                     }
                 }
-            }else{
+            } else {
                 singleAScan = fileLoader.loadSpectrum(pathSpectraPair.first);
 
                 for(int i = 0; i< settings->sizeXSpectrum; i++) {
@@ -87,7 +96,7 @@ BScan::BScan(const string filePath)
 
 
 
-        if (settings->objectiveDispersionData.count("Native")){
+        if (settings->objectiveDispersionData.count("Native")) {
             settings->objectiveDispersionData.erase("Native");
         }
 
@@ -96,9 +105,9 @@ BScan::BScan(const string filePath)
 
     } else {
         string directoryPath = filePath;
-        if(filePath.substr(filePath.length() - 4) == ".txt"){
-            for(int i = filePath.length()-1; i > 0; i--){
-                if(filePath[i] == '\\' || filePath[i] == '/'){
+        if(filePath.substr(filePath.length() - 4) == ".txt") {
+            for(int i = filePath.length()-1; i > 0; i--) {
+                if(filePath[i] == '\\' || filePath[i] == '/') {
                     directoryPath = filePath.substr(0,i+1);
                     break;
                 }
@@ -115,8 +124,8 @@ BScan::BScan(const string filePath)
 
 
         bool hasNativeDispersionCorrection = false;
-        for(pair<string,vector<double>> const objectiveDispersionDataPair : oldSettings->objectiveDispersionData){
-            if(objectiveDispersionDataPair.first == "Native"){
+        for(pair<string,vector<double>> const objectiveDispersionDataPair : oldSettings->objectiveDispersionData) {
+            if(objectiveDispersionDataPair.first == "Native") {
                 cout << "Found native label." << endl;
                 hasNativeDispersionCorrection = true;
                 break;
@@ -124,14 +133,14 @@ BScan::BScan(const string filePath)
         }
 
         settings->objectiveLabel = oldSettings->objectiveLabel;
-        if(!hasNativeDispersionCorrection){
+        if(!hasNativeDispersionCorrection) {
             cout << "Set to native, only once." << endl;
             settings->objectiveLabel = "Native";
         }
         settings->objectiveDispersionData["Native"] = vector<double>(loadingDispersionPair.first,
-                                                                                     loadingDispersionPair.first + loadingDispersionPair.second);
+                loadingDispersionPair.first + loadingDispersionPair.second);
 
-        if(settings->objectiveLabel == "Native"){
+        if(settings->objectiveLabel == "Native") {
             cout << "Settings already where on native.";
             settings->dispersionCoefficients = loadingDispersionPair.first;
             settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
@@ -150,7 +159,7 @@ BScan::BScan(const string filePath)
 
     settings->pathToExecutable = oldSettings->pathToExecutable;
     map<string, vector<double>> mapFromData = IO<double>::loadObjectiveDispersionData(
-        settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
+                                 settings->pathToExecutable + "\\..\\..\\settings\\objectives.yaml");
     settings->objectiveDispersionData.insert(mapFromData.begin(), mapFromData.end());
     settings->numberOfDispersionCoefficients = settings->objectiveDispersionData[settings->objectiveLabel].size();
 
@@ -167,12 +176,25 @@ BScan::BScan(const string filePath)
 }
 
 uint64_t BScan::getTime() {
+    /*
+    Timing function for code optimization.
+    */
     using namespace std::chrono;
     return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
 
 void BScan::fftPartBSscan(float** spectra, float** image, int Nz,int startXIndex, int stopXIndex) {
+    /*
+    spectra: spectral data
+    image: the absolute value of the FFT data. This means the imaginary part is removed.
+    Nz: the length of each spectrum.
+    startIndex: startIndex of the A-scan. The FFT will be done between startIndex and stopIndex
+    stopIndex: last index of the A-scan. The FFT will be done between startIndex and stopIndex
+
+    Do an FFT of only part of the spectra. This function started by several threads to divide the spectrum up
+    into different chunks to do the FFT of.
+    */
     kiss_fft_cfg icfg = kiss_fft_alloc(Nz, 1, NULL, NULL);
     kiss_fft_cpx in[Nz];
     kiss_fft_cpx out[Nz];
@@ -197,12 +219,17 @@ void BScan::fftPartBSscan(float** spectra, float** image, int Nz,int startXIndex
 }
 
 
-float** BScan::fftBScan(){
-    if(settings->sizeXSpectrum == 0){
+float** BScan::fftBScan() {
+    /*
+    This function Fourier transforms the BScan spectra into an OCT image. This
+    function uses threads and fftPartBSscan to speed up the process.
+
+    */
+    if(settings->sizeXSpectrum == 0) {
         return imageFFT;
     }
 
-    if(!imageFFT ){
+    if(!imageFFT ) {
         imageFFT = new float*[settings->sizeXSpectrum];
         for (int i = 0; i < settings->sizeXSpectrum; i++) {
             imageFFT[i] = new float[settings->sizeZSpectrum];
@@ -261,13 +288,25 @@ float** BScan::fftBScan(){
     return imageFFT;
 }
 
-tuple<float**,int,int> BScan::getProcessedBScan(){
+tuple<float**,int,int> BScan::getProcessedBScan() {
+    /*
+    This function gets the image as calculated with the RIAA algorithm, together with
+    its dimensions and returns it as a tuple.
+    */
     tuple<float**,int,int> output = make_tuple(imageRIAA,settings->sizeXSpectrum,settings->upscalingFactor*settings->sizeZSpectrum);
     return output;
 }
 
 
 void BScan::preprocessSpectrumInPlace() {
+    /*
+    This function preprocesses the B-scan spectra in place. This means that for changes to the dispersion,
+    the spectra need to be reloaded. First the offset is subtracted, then the reference spectrum is compensated,
+    then the dispersion correction is made. After the dispersion correction, the signal is apodized, and the
+    chirp of the spectrometer is removed. Since the RIAA algorithm does not work well with spectra that go to 0, the edges where the signal is not present or
+    very low are removed. Then, in order to continue to have a 2^N bin size, the spectra are interpolated and
+    stretched to fill the old array again.
+    */
     int i, j;
     if(offset) {
         for(j = 0; j < settings->sizeZSpectrum; j++) {
@@ -404,7 +443,8 @@ void BScan::preprocessSpectrumInPlace() {
 
     if(chirp) {
         for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],settings->sizeZSpectrum);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],
+                    settings->sizeZSpectrum);
             for(j = 0; j < settings->sizeZSpectrum; j++) {
                 spectra[i][j] = spline->evaluate(  static_cast<float>( j) );
             }
@@ -431,6 +471,16 @@ void BScan::preprocessSpectrumInPlace() {
 
 
 void BScan::stretchSpectraInPlace(float** spectra, float* referenceSpectrum, float minimumReferencePower) {
+    /*
+    spectra: 2D array that contains the spectra which are to be processed.
+    referenceSpectrum: array that contains the reference spectrum. This is used to identify low and high signal regions
+    minimumReferencePower: cutoff value for the reference. Lower means more signal is retained, but RIAA might fail, higher
+    means less signal is retained, but RIAA works better.
+
+    Since the signal needs to have a box shape for the RIAA to work, the edges with very low signal need to be removed.
+    Since this removal causes the array length to be unequal to a power of 2, the spectrum is interpolated, and placed
+    into the original array.
+    */
     int minIndex, maxIndex;
     float maximumReference =0.0;
     int indexOfMaximum = 0;
@@ -444,7 +494,8 @@ void BScan::stretchSpectraInPlace(float** spectra, float* referenceSpectrum, flo
     }
 
     for(minIndex = indexOfMaximum; referenceSpectrum[minIndex] > minimumReferencePower*maximumReference && minIndex > 0; minIndex--) {}
-    for(maxIndex = indexOfMaximum; referenceSpectrum[maxIndex] > minimumReferencePower*maximumReference && maxIndex < settings->sizeZSpectrum; maxIndex++) {}
+    for(maxIndex = indexOfMaximum; referenceSpectrum[maxIndex] > minimumReferencePower*maximumReference
+            && maxIndex < settings->sizeZSpectrum; maxIndex++) {}
 
     float xrange[settings->sizeZSpectrum];
     for(int i = 0; i < settings->sizeZSpectrum; i++) {
@@ -453,7 +504,8 @@ void BScan::stretchSpectraInPlace(float** spectra, float* referenceSpectrum, flo
 
     for(int i = 0; i < settings->sizeXSpectrum; i++) {
 
-        UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(xrange,spectra[i],settings->sizeZSpectrum);
+        UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(xrange,spectra[i],
+                settings->sizeZSpectrum);
         for(int j = 0; j < settings->sizeZSpectrum; j++) {
             float x = 1.0*j*( maxIndex - minIndex ) / (settings->sizeZSpectrum*settings->sizeZSpectrum) + (1.0*minIndex)/settings->sizeZSpectrum;
             spectra[i][j] = spline->evaluate(x);
@@ -467,7 +519,30 @@ void BScan::stretchSpectraInPlace(float** spectra, float* referenceSpectrum, flo
 }
 
 void BScan::fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex,
-        size_t N, int K, int numberOfPartitions,int q_i, double vt, float* startingColumn,float** processedImage ) {
+                          size_t N, int K, int numberOfPartitions,int q_i, double vt,
+                           float* startingColumn,float** processedImage ) {
+    /*
+    spectra: the spectra that are to be processed
+    scan: the stance that contains all data
+    fromIndex: the starting A-scan index of the chunk
+    toIndex: the stopping A-scan index of the chunk
+    N: the number of A-scans
+    K: The length of the A-scans (the size in the z direction)
+    numberOfPartitions: the chunks over which each A-scan is chopped
+    q_i: Length of the upscaled Ascan
+    vt: noise parameter. Usually set to 1.0.
+    startingColumn: Preprocessed starting column. This is an A-scan that is already processed.
+    processedImage: store here the RIAA processed image.
+
+
+    This function is meant to be used with multiple threads processing the image.
+    The spectra are first divided of chunks such that multiple threads can work simultaneously. This
+    function processes the spectra from fromIndex to toIndex. Since the RIAA algorithm scales quadratically
+    with the length of the A-scan, but longer A-scans do not significantly improve the image, quite a speed-up
+    can be achieved by processing each A-scan in chunks as well.
+
+    */
+
     int sign = 1;
     if(fromIndex > toIndex) {
         sign = -1;
@@ -487,16 +562,31 @@ void BScan::fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex
     cout << "ended at " << i-sign << endl;
 }
 
-void BScan::fiaa_oct_partitioned(const float* x, float* diaaf_floatingPoint,int numberOfIterations){
+void BScan::fiaa_oct_partitioned(const float* x, float* diaaf_floatingPoint,int numberOfIterations) {
+    /*
+
+    Wrapper function that loads some relevant data from the global settings.
+    */
     BScan::fiaa_oct_partitioned(x,
-        settings->sizeZSpectrum, settings->sizeZSpectrum*settings->upscalingFactor,settings->NChunksRIAA ,
-        numberOfIterations, settings->RIAA_NoiseParameter, diaaf_floatingPoint );
+                                settings->sizeZSpectrum, settings->sizeZSpectrum*settings->upscalingFactor,settings->NChunksRIAA,
+                                numberOfIterations, settings->RIAA_NoiseParameter, diaaf_floatingPoint );
 }
 
 void BScan::fiaa_oct_partitioned(const float* x,
-        size_t N, int K, int numberOfPartitions,int q_i, double vt, float* diaaf_floatingPoint ) {
+                                 size_t N, int K, int numberOfPartitions,int q_i, double vt, float* diaaf_floatingPoint ) {
+    /*
+    x: Initial value
+    N: Number of A-scans
+    K: length of the A-scan
+    numberOfPartitions: The number of partitions of the B-scan
+    q_i: number of iterations
+    vt: noise parameter (set to 1.0)
+    diaaf_floatingPoint: initial value for diaaf.
 
-    //TODO: limit scope of stack intensive arrays, before calling FIAA function.
+
+    This function processes the spectra according to the RIAA algorithm
+    */
+
     kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
     kiss_fft_cpx FT[N];
     kiss_fft_cpx signal[N];
@@ -572,7 +662,16 @@ void BScan::fiaa_oct_partitioned(const float* x,
 
 
 pair<float*, float*> BScan::fiaa_oct(const float* x,
-        size_t N, int K, int q_i, double vt, float* diaaf_floatingPoint ) {
+                                     size_t N, int K, int q_i, double vt, float* diaaf_floatingPoint ) {
+    /*
+    x: initial value
+    N: number of A-scans
+    K: length of the A-scan
+    q_i: number of iterations
+    vt: noise parameter (set to 1.0)
+    diaaf_floatingPoint: place the result in this array. If this array exists, use this as initial value
+
+    */
     int i, j;
 
     ostringstream  filename;
@@ -754,7 +853,10 @@ pair<float*, float*> BScan::fiaa_oct(const float* x,
 }
 
 
-float** BScan::processBScan(){
+float** BScan::processBScan() {
+    /*
+    Start the RIAA processing of the BScan with the settings saved in the global settings.
+    */
     return BScan::processBScan(settings->sizeXSpectrum,settings->sizeZSpectrum,
                                settings->upscalingFactor *settings->sizeZSpectrum,
                                settings->initialNumberOfIterations,settings->numberOfIterations,
@@ -762,19 +864,31 @@ float** BScan::processBScan(){
 }
 
 
-calculateLowResBitmap(){
-}
-
-
 
 
 
 float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, double vt,int NThreads) {
+
+    /*
+    M: number of A-scans
+    N: length of A-scan
+    K: length of A-scan including upscaling
+    q_init: number of iterations for the first A-scan (usually about 15)
+    q_i: number of iterations (can be lower than 5)
+    vt: noise parameter, set to about 1.0
+    NThreads: number of threads.
+
+    This function creates a number of threads to process parts of the B-scan. For each chunk, one
+    a-scan is analyzed first with q_init number of iterations. Then the next A-scan in the chunk
+    is analyzed with a much lower number of iterations, but the initial value is the previous A-scan,
+    or, if it is the second A-scan, the A-scan that is iterated over q_init times.
+
+
+    */
     int i, j;
 
-
-    for(i = 0 ; i < M; i++){
-        if(!imageRIAA[i]){
+    for(i = 0 ; i < M; i++) {
+        if(!imageRIAA[i]) {
             delete[] imageRIAA[i];
         }
 
@@ -809,9 +923,9 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
         if(threadIndex % 2 == 0) {
 
 
-            if(threadIndex >= NThreads -1 ){
+            if(threadIndex >= NThreads -1 ) {
                 startIndex = M-1;
-            }else{
+            } else {
                 startIndex = (threadIndex+1) * (M/NThreads);
             }
 
@@ -821,9 +935,9 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
         } else {
             startIndex = (threadIndex) * (M/NThreads);
 
-            if(threadIndex >= NThreads -1 ){
+            if(threadIndex >= NThreads -1 ) {
                 stopIndex =  M-1;
-            }else{
+            } else {
                 stopIndex = (threadIndex+1) * (M/NThreads)-1;
             }
             cout << "forwards " << startIndex << "  " << stopIndex << endl;
@@ -849,6 +963,6 @@ float** BScan::processBScan(size_t M,const size_t N, int K,int q_init,int q_i, d
 
 
 
-BScan::~BScan()
-{  /*Todo, change class logic such that spectra are deleted here.*/
+BScan::~BScan() {
+    /*Todo, change class logic such that spectra are deleted here, or better use vectors.*/
 }

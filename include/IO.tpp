@@ -4,20 +4,30 @@
 
 
 template <typename floatingPointType>
-IO<floatingPointType>::IO()
-{
-    //stor
+IO<floatingPointType>::IO() {
+    //This class contains static functions
 }
 
 
 template<typename T>
 void IO<T>::savePng(const string filename, const int width, const int height, const unsigned char* image) {
+
+    /*
+    filename: path of the file to store the png to.
+    width: width of the image in pixels
+    height: height of the image in pixels
+    image: flattened array of the bitmap, row for row.
+
+    This function saves a bytestring that corresponds to a bitmap image into the PNG format.
+    It uses the LibPNG library, which requires raw pointers.
+    */
+
     FILE *fp = fopen(filename.c_str(), "wb");
     if (!fp) {
         perror("Failed to open file for writing");
         exit(EXIT_FAILURE);
     }
-
+    //The nullpointers are what would usually be the error handling. Setting this as a nullpointer means no error handling.
     png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
     if (!png) {
         perror("Failed to create PNG write struct");
@@ -58,7 +68,23 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
 }
 
 template<typename T>
-void IO<T>::savePng(const string filename, const int width, const int height, const T* const* image, bool decibelColorScale ,double decibelFloor ) {
+void IO<T>::savePng(const string filename, const int width, const int height, const T* const* image,
+                    bool decibelColorScale,double decibelFloor ) {
+
+    /*
+    filename: path of the png file
+    width: width in pixels
+    height: height in pixels
+    image: pointer to 2D bitmap
+    decibelColorScale: if true, then use logarithmic scale, otherwise linear
+    decibelFloor: lowest pixel value in decibel, usually -120. Scale is normalized to maximum pixel value, so this value is negative.
+
+    This is a wrapper function of the IO<T>::savePng(const string filename, const int width, const int height, const unsigned char* image)
+    function. It takes a floating point (templated type T) image, performs scaling, creates a bitmap and passes it to the other savePng
+    overloaded function.
+
+    */
+
     T maxValue = image[0][0];
     T minValue = image[0][0];
     int i, j;
@@ -81,11 +107,12 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
     for(i = 0; i < width; i++) {
         for(j = 0; j < height; j++) {
             if(decibelColorScale) {
-                if(  ((image[i][j] - minValue)/(maxValue - minValue)) <= absoluteFloor ){
+                if(  ((image[i][j] - minValue)/(maxValue - minValue)) <= absoluteFloor ) {
                     pixelValue = 0.0;
 
-                }else{
-                    pixelValue = static_cast<unsigned char>( 255*(10*log10(((image[i][j] - minValue)/(maxValue - minValue))) -decibelFloor )/abs(decibelFloor) );
+                } else {
+                    pixelValue = static_cast<unsigned char>( 255*(10*log10(((image[i][j] - minValue)/(maxValue - minValue))) -decibelFloor )/abs(
+                                     decibelFloor) );
                 }
 
             } else {
@@ -105,14 +132,12 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
     savePng(filename, width, height, image_png);
     delete[] image_png;
 }
-/*
+
+
+
 template<typename T>
-void IO<T>::test(T a){
-    cout << "Test function. " << a << endl;
-    return;
-}*/
-template<typename T>
-void IO<T>::testa(float a){
+void IO<T>::testa(float a) {
+    //remove next commit
     cout << "Test function. " << a << endl;
     return;
 }
@@ -120,12 +145,26 @@ void IO<T>::testa(float a){
 
 template<typename T>
 void IO<T>::savePng(const string filename, const int width, const int height, const int imageWidth, const int imageHeight,
-             const T* const* image, bool decibelColorScale,double decibelFloor ) {
+                    const T* const* image, bool decibelColorScale,double decibelFloor ) {
+    /*
+    filename: path of file to save to
+    width: width in pixels of the original data
+    height: height in pixels of the original data
+    imageWidth: width in pixels of the image that will be saved.
+    imageHeight: height in pixels of the image that will be saved.
+    image: 2D array oft the data
+    decibelColorScale: if true, then use decibel scale
+    decibelFloor: lowest pixel value in decibel, if decibelColorScale is true. Usually this is -120. The decibel is scaled to the maximum pixel value
+
+    This function is a wrapper function for the other overloaded savePng functions. This function interpolates the image
+    with a spline interpolation to match the new image size, and passes the result to lower level savePng() overloads.
+
+    */
     int i, j;
     double minValue = image[0][0];
     double maxValue = image[0][0];
 
-    if(decibelColorScale){
+    if(decibelColorScale) {
         T** logImage = new T*[width ];
         for(i = 0; i < width; i++) {
             logImage[i] = new T[height];
@@ -147,10 +186,10 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
         for(i = 0; i < width; i++) {
             for(j = 0; j < height; j++) {
 
-                if(  ((image[i][j] - minValue)/(maxValue - minValue)) <= absoluteFloor ){
+                if(  ((image[i][j] - minValue)/(maxValue - minValue)) <= absoluteFloor ) {
                     pixelValue = 0.0;
 
-                }else{
+                } else {
                     pixelValue =  255*(10*log10(((image[i][j] - minValue)/(maxValue - minValue))) -decibelFloor )/abs(decibelFloor) ;
                 }
 
@@ -172,10 +211,11 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
         return;
     }
 
-
-    if(width == imageWidth && height == imageHeight){
+    //If the desired width and height already as desired, no rescaling is needed.
+    if(width == imageWidth && height == imageHeight) {
         savePng(filename, width, height,  image, decibelColorScale,decibelFloor);
-    }else if(width == imageWidth && height != imageHeight){
+
+    } else if(width == imageWidth && height != imageHeight) {//otherwise, rescale:
 
         float** resizedImage = new float*[imageWidth];
         float* zLinspace = new float[height];
@@ -188,7 +228,7 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
         }
         for(i = 0; i < width ; i++) {
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(zLinspace ,image[i],height);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(zLinspace,image[i],height);
             for(j = 0; j < imageHeight; j++) {
                 resizedImage[i][j] = spline->evaluate(  static_cast<float>( j)/imageHeight );
             }
@@ -201,7 +241,7 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
         }
         delete[] resizedImage;
         delete[] zLinspace ;
-    }else if(width != imageWidth && height == imageHeight){
+    } else if(width != imageWidth && height == imageHeight) {
 
         float** resizedImage = new float*[imageWidth];
         float* xLinspace = new float[width];
@@ -231,7 +271,7 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
         delete[] resizedImage;
         delete[] xLinspace;
         delete[] xProfile;
-    }else if(width != imageWidth && height != imageHeight){
+    } else if(width != imageWidth && height != imageHeight) {
         float** shorterImage = new float*[width];
         float** resizedImage = new float*[imageWidth];
         float* zLinspace = new float[height];
@@ -253,7 +293,7 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
 
         for(i = 0; i < width ; i++) {
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(zLinspace ,image[i],height);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(zLinspace,image[i],height);
             for(j = 0; j < imageHeight; j++) {
                 shorterImage[i][j] = spline->evaluate(  static_cast<float>( j)/imageHeight);
             }
@@ -295,12 +335,19 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
 }
 
 template <typename T>
-map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& filename){
+map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& filename) {
+    /*
+    filename: path to the dispersion data file.
+
+    This function loads the dispersion data YAML file. This file should contain the polynomial
+    coefficients of the dispersion calibration. The x-axis of the polynomial is not the wavenumber,
+    but the index, after chirp (the chirp of the spectrometer.) correction. This is objective
+    dependent.
+    */
     ifstream file(filename);
     if (!file) {
         cout << "Cannot open: " << filename << endl;
-    }
-    else{
+    } else {
 
         cout << "opening " << filename << endl;
     }
@@ -314,7 +361,7 @@ map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& fil
 
     while(getline(file,line)) {
         for(int i = 0; i < line.size(); i++) {
-            if(line[i] == ':'){
+            if(line[i] == ':') {
                 keyword = line.substr(0,i);
                 stringOfDoubles = line.substr(i+1,line.size());
                 break;
@@ -326,7 +373,7 @@ map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& fil
         for(int i = 0; i < stringOfDoubles.size(); i++) {
 
 
-            if(stringOfDoubles[i] == ','){
+            if(stringOfDoubles[i] == ',') {
                 tempString = stringOfDoubles.substr(previousIndex,i-previousIndex);
 
                 previousIndex = i+1;
@@ -338,7 +385,7 @@ map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& fil
 
         tempString = stringOfDoubles.substr(previousIndex,stringOfDoubles.size()-previousIndex);
 
-        if(tempString.size() > 0 &&  ((tempString[0] >= 48 && tempString[0] < 58) || tempString[0] == ' ' || tempString[0] == '-') ){
+        if(tempString.size() > 0 &&  ((tempString[0] >= 48 && tempString[0] < 58) || tempString[0] == ' ' || tempString[0] == '-') ) {
             objectiveLensSettings[keyword].push_back(stod(tempString));
         }
 
@@ -354,16 +401,22 @@ map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& fil
 
 
 template <typename T>
-string IO<T>::trimString(string inputString){
+string IO<T>::trimString(string inputString) {
+    /*
+    inputString: string to trim
+
+    This utility function removes leading and trailing spaces from a string.
+    It does not do so in place, but creates a new string.
+    */
     string outputString;
-    for(int i = 0; i < inputString.size();i++){
-        if( (inputString[i] >= 48 && inputString[i] < 58) || inputString[i] == '.'  ){
+    for(int i = 0; i < inputString.size(); i++) {
+        if( (inputString[i] >= 48 && inputString[i] < 58) || inputString[i] == '.'  ) {
             outputString = inputString.substr(i,inputString.size());
             break;
         }
     }
-    for(int i = outputString.size()-1; i > 0; i--){
-        if( (outputString[i] >= 48 && outputString[i] < 58) || outputString[i] == '.'  ){
+    for(int i = outputString.size()-1; i > 0; i--) {
+        if( (outputString[i] >= 48 && outputString[i] < 58) || outputString[i] == '.'  ) {
             outputString = outputString.substr(0,i+1);
             break;
         }
@@ -374,6 +427,12 @@ string IO<T>::trimString(string inputString){
 
 template <typename T>
 tuple<T**, int, int> IO<T>::load2DArrayFromFile(const string& filename) {
+    /*
+    filename: path to the text file that contains a 2D array.
+
+    This function takes a path to a 2D text file and stores it in a 2D array.
+    The rows are the first dimension, the columns the second: array[row][column].
+    */
     ifstream file(filename);
     if (!file) {
         cout << "Cannot open: " << filename << endl;
@@ -445,6 +504,11 @@ tuple<T**, int, int> IO<T>::load2DArrayFromFile(const string& filename) {
 
 template <typename T>
 pair<T*, int> IO<T>::loadArrayFromFile(const string& filename) {
+    /*
+    filename: path to the text file
+
+    This function loads an array from a text file.
+    */
     ifstream file(filename);
     if (!file) {
         cout << "Cannot open: " << filename << endl;
@@ -507,6 +571,13 @@ pair<T*, int> IO<T>::loadArrayFromFile(const string& filename) {
 template<typename floatingPointType>
 template <typename T>
 void IO<floatingPointType>::saveArrayToFile(const T* array, const int N, const string& filename) {
+    /*
+    array: array to save
+    N: number of elements
+    filename: path to the text file
+
+    This function saves an array to a text file. It is saved with a line break separation (\n).
+    */
     ofstream outFile(filename);
 
     if (!outFile) {
@@ -522,6 +593,14 @@ void IO<floatingPointType>::saveArrayToFile(const T* array, const int N, const s
 
 template <typename T>
 void IO<T>::saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename) {
+    /*
+    array: array to save
+    N: number of elements
+    filename: path to the text file
+
+    This function saves an array to a text file. It is saved with a line break separation (\n).
+    Overloaded function to work with complex numbers. It uses the kiss_fft struct complex numbers.
+    */
     ofstream outFile(filename);
 
     if (!outFile) {
@@ -547,7 +626,15 @@ void IO<T>::saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& 
 
 template <typename floatingPointType>
 template <typename T>
-void IO<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, const string& filename){
+void IO<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, const string& filename) {
+    /*
+    array: array to save
+    N: number of elements
+    filename: path to the text file
+
+    This function saves an array to a text file. It is saved with a line break separation (\n).
+    Overloaded function to work with complex numbers. It uses the standard library complex numbers.
+    */
     ofstream outFile(filename);
 
     if (!outFile) {
@@ -577,22 +664,29 @@ template<typename floatingPointType>
 template <typename T>
 void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N, const string& filename,char separator) {
 
+    /*
+    array: pointer to a 2D array
+    M: number of rows
+    N: number of columns
+    filename: path to the file
+    separator: column separator.
+
+    This function saves a 2D array to a text file.
+    */
+
     ofstream outFile(filename);
-
-
-
     if (!outFile) {
         cout << "Cannot open: " << filename << endl;
         return;
     }
-    for(int i = 0; i < M; i++){
+    for(int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             outFile << array[i][j];
-            if(j != N-1){
+            if(j != N-1) {
                 outFile << separator;
             }
         }
-        if(i != M-1){
+        if(i != M-1) {
             outFile  << endl;
         }
     }
@@ -604,15 +698,29 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
 
 template<typename floatingPointType>
 template <typename T>
-void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N, const int newM, const int newN ,const string& filename,char separator) {
+void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N, const int newM, const int newN,const string& filename,
+        char separator) {
+    /*
+    array: 2D array
+    M: number of rows
+    N: number of columns
+    newM: the new number of colunms
+    newN: the new number of rows
+    filename: the path of the file
+    separator: the column separation character
+
+    This function saves an interpolated array. The original uninterpolated array is stored with size M,N,
+    and a new array shape is interpolated such that it has a new shape (newM,newN). This function is written
+    for a quick debug comparison between RIAA optimized images and smaller FFT images.
+    */
     T** newArray = new T*[M];
-    for(int i = 0; i < newM; i++){
+    for(int i = 0; i < newM; i++) {
         newArray[i] = new T[N];
     }
 
-    if(newM == M && newN == N){
+    if(newM == M && newN == N) {
         save2DArrayToFile(array, M, N,  filename, separator);
-    }else if(newM == M && newN != N){
+    } else if(newM == M && newN != N) {
         T** newArray = new T*[M];
         T* zLinspace = new T[N];
         for (int i = 0; i < N; i++) {
@@ -626,7 +734,7 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
 
         for(int i = 0; i < M ; i++) {
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(zLinspace ,array[i],N);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(zLinspace,array[i],N);
 
 
             for(int j = 0; j < newN; j++) {
@@ -643,7 +751,7 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
         delete[] newArray;
         delete[] zLinspace ;
         return;
-    }else if(newM != M && newN==N){
+    } else if(newM != M && newN==N) {
 
         T** newArray = new T*[newM];
         T* xLinspace = new T[M];
@@ -660,7 +768,7 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
                 column[j] = array[j][i];
             }
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(xLinspace,column ,M);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(xLinspace,column,M);
             for(int j = 0; j < newM; j++) {
                 newArray[j][i] = spline->evaluate(  static_cast<T>( j)/newM);
             }
@@ -674,7 +782,7 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
         delete[] xLinspace;
         delete[] column;
         return;
-    }else if(M != newM && N != newN){
+    } else if(M != newM && N != newN) {
         T** shorterArray = new T*[M];
         T** newArray = new T*[newM];
         T* zLinspace = new T[N];
@@ -696,7 +804,7 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
 
         for(int i = 0; i < M ; i++) {
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(zLinspace ,array[i],N);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<T>::splineInterpolation(zLinspace,array[i],N);
             for(int j = 0; j < newN; j++) {
                 shorterArray[i][j] = spline->evaluate(  static_cast<T>( j)/newN);
             }
@@ -743,20 +851,30 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
 
 template <typename T>
 void save2DArrayToFile(const T* array, const int M,const int N, const string& filename, char separator = ',') {
-    ofstream outFile(filename);
 
+    /*
+    array: 2D array to save
+    M: number of rows
+    N: number of columns
+    filename: path of the file to save.
+    separator: column separation character.
+
+    This function saves a 2D array.
+    */
+
+    ofstream outFile(filename);
     if (!outFile) {
         cout << "Cannot open: " << filename << endl;
         return;
     }
-    for(int i = 0; i < M; i++){
+    for(int i = 0; i < M; i++) {
         for (int j = 0; j < N; j++) {
             outFile << array[i][j];
-            if(j != N-1){
+            if(j != N-1) {
                 outFile << separator;
             }
         }
-        if(i != M-1){
+        if(i != M-1) {
             outFile  << endl;
         }
     }
@@ -774,6 +892,10 @@ void save2DArrayToFile(const T* array, const int M,const int N, const string& fi
 
 template <typename T>
 char* IO<T>::GanymedeFileLoader::loadHeader() {
+    /*
+    This function loads the header from the header from the headerFileName as stored in the GanymedeFileLoader object.
+    It returns the file contents as a byte string.
+    */
     string headerFileName= "header.xml";
     size_t uncomp_size;
     int file_index = mz_zip_reader_locate_file(&OCTArchive, headerFileName.c_str(), NULL, MZ_ZIP_FLAG_IGNORE_PATH);
@@ -786,6 +908,12 @@ char* IO<T>::GanymedeFileLoader::loadHeader() {
 
 template <typename T>
 int IO<T>::GanymedeFileLoader::getFileIndex( string fileName) {
+    /*
+    fileName: path to the file to load.
+
+    The minizip library indices every file from a zip file. This function returns that index
+    of the file name given. The zip file itself is already loaded in the GanymedeFileLoader object.
+    */
     int i;
     int file_index = mz_zip_reader_locate_file(&OCTArchive, fileName.c_str(), NULL, MZ_ZIP_FLAG_IGNORE_PATH);
 
@@ -826,6 +954,14 @@ int IO<T>::GanymedeFileLoader::getFileIndex( string fileName) {
 
 template <typename T>
 T** IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, T* referenceSpectrum) {
+    /*
+    spectrumIndex: index of the file that contains the spectrum
+    referenceSpectrum: pointer to the reference spectrum
+
+    This function loads the B scan data from the file given by spectrumIndex. Since each
+    B scan (unless disabled in the settings file of the Ganymede software) has a reference spectrum,
+    this spectrum is loaded and stored into referenceSpectrum.
+    */
     size_t uncomp_size;
     int i, j, k;
     string spectrumFileName = settings->pathsSpectra[spectrumIndex];
@@ -844,7 +980,8 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, T* referenceSpect
         for(j = 0; j < settings->sizeZSpectrum; j++) {
             spectrum[i-settings->scanStartIndices[spectrumIndex]][j] = 0.0;
             for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
-                spectrum[i-settings->scanStartIndices[spectrumIndex]][j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeXSpectrum+j)+k]<<(8*k));
+                spectrum[i-settings->scanStartIndices[spectrumIndex]][j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*
+                        (i*settings->sizeXSpectrum+j)+k]<<(8*k));
 
             }
         }
@@ -854,7 +991,8 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, T* referenceSpect
         for(j = 0; j < settings->sizeZSpectrum; j++) {
             referenceSpectrum[0] = 0.0;
             for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
-                referenceSpectrum[j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeXSpectrum+j)+k]<<(8*k));
+                referenceSpectrum[j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeXSpectrum+j)+k]<<
+                                        (8*k));
             }
         }
     }
@@ -875,6 +1013,11 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, T* referenceSpect
 
 template <typename T>
 T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
+    /*
+    spectrumIndex: index of the B-scan file to load.
+
+    This function loads a 2D array of B-scan spectral data.
+    */
     size_t uncomp_size;
     int i, j, k;
 
@@ -894,7 +1037,7 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
             for(k = settings->bytesPerPixelSpectrum-1; k >= 0; k--) { //most significant bit in back
                 spectrum[i-settings->scanStartIndices[spectrumIndex]][j] += (settings->electronCountScaling*
                         (file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeZSpectrum+j)+k  ]<<(8*k))
-                                                                           );
+                                                                            );
             }
         }
 
@@ -902,15 +1045,9 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
 
 
 
-    IO<T>::saveArrayToFile( spectrum[0], settings->sizeZSpectrum, "D:\\data\\rawSpectruma.txt");
-
-
-
-
     /*
     miniz uses malloc to allocate memory, not new.
     */
-    //delete[] file_contents;
     free(file_contents);
     return spectrum;
 
@@ -919,6 +1056,12 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
 
 template <typename T>
 T* IO<T>::GanymedeFileLoader::loadCalibrationSpectrum( string spectrumFileName,int arrayLength, int bytesPerPixel  ) {
+    /*
+    spectrumFileName: file name of the B-scan file to load.
+    arrayLength: length of the calibration spectrum.
+    bytesPerPixel: the number of bytes of the spectrum. usually 2 for bulk B-scan data, and 4 for
+    all other (reference,offset) spectra
+    */
     int i;
     size_t uncomp_size;
     int file_index = getFileIndex(spectrumFileName);
@@ -929,6 +1072,10 @@ T* IO<T>::GanymedeFileLoader::loadCalibrationSpectrum( string spectrumFileName,i
 
 template <typename T>
 shared_ptr<Settings> IO<T>::GanymedeFileLoader::loadSettings() {
+    /*
+    This function loads the settings from the Thorlabs Ganymede .oct file and creates
+    a new settings object.
+    */
     char* file_contents = loadHeader();
     XML_Interpreter interpreter = XML_Interpreter(file_contents);
     //settings = new Settings(interpreter.tags);
@@ -941,6 +1088,13 @@ shared_ptr<Settings> IO<T>::GanymedeFileLoader::loadSettings() {
 
 template <typename T>
 IO<T>::GanymedeFileLoader::GanymedeFileLoader(const string filePath) {
+    /*
+    filePath: path of the .oct file to load.
+
+    This function loads the Thorlabs .oct file. A Thorlabs .oct file is a zip file that contains files with
+    the spectra for the B-scan, the offset spectrum, the reference spectrum, the spectrometer nonlinearity and
+    the metadata.
+    */
     mz_bool status;
     int i;
     memset(&OCTArchive, 0, sizeof(OCTArchive)); //when OCTArchive is not zeroed out, mz_zip_reader_init_mem() fails.

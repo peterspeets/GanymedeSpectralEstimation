@@ -20,13 +20,13 @@
 
 using namespace std;
 
-class ObjectiveSettingsWindow : public QDialog{
+class ObjectiveSettingsWindow : public QDialog {
     Q_OBJECT
-    public:
-        ObjectiveSettingsWindow(QMainWindow*);
-    private:
-        QVBoxLayout mainLayout;
-        QWidget centralWidget;
+public:
+    ObjectiveSettingsWindow(QMainWindow*);
+private:
+    QVBoxLayout mainLayout;
+    QWidget centralWidget;
 
 };
 

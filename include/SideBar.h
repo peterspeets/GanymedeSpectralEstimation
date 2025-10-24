@@ -23,56 +23,56 @@ extern shared_ptr<Settings> settings;
 
 class SideBar : public QVBoxLayout  {
     Q_OBJECT
-    public:
+public:
 
-        SideBar(Window* parent);
-        ~SideBar();
-        void populateObjectiveSelectionComboBox();
-    private slots:
-        void startButtonClicked();
-        void selectAlgorithmRadioButtonClicked(QAbstractButton*);
-        void useDecibelColorScaleCheckBoxToggled();
-        void selectColorMapComboBoxToggled(int index);
-        void upscalingFactorComboBoxChanged(int index);
-        void floorPixelValueSpinBoxChanged(double newValue);
-        void ceilPixelValueSpinBoxChanged(double newValue);
-        void objectiveSelectionComboBoxChanged(int index);
-        void redoPreprocessingCheckBoxToggled();
-    private:
-        Window* parentWindow = nullptr;
-        void setColorScalingSpinboxes();
+    SideBar(Window* parent);
+    ~SideBar();
+    void populateObjectiveSelectionComboBox();
+private slots:
+    void startButtonClicked();
+    void selectAlgorithmRadioButtonClicked(QAbstractButton*);
+    void useDecibelColorScaleCheckBoxToggled();
+    void selectColorMapComboBoxToggled(int index);
+    void upscalingFactorComboBoxChanged(int index);
+    void floorPixelValueSpinBoxChanged(double newValue);
+    void ceilPixelValueSpinBoxChanged(double newValue);
+    void objectiveSelectionComboBoxChanged(int index);
+    void redoPreprocessingCheckBoxToggled();
+private:
+    Window* parentWindow = nullptr;
+    void setColorScalingSpinboxes();
 
-        QLabel* selectNumberComboBoxLabel;
-        QComboBox* selectNumberComboBox;
+    QLabel* selectNumberComboBoxLabel;
+    QComboBox* selectNumberComboBox;
 
-        QLabel* selectColorMapComboBoxLabel;
-        QComboBox* selectColorMapComboBox;
+    QLabel* selectColorMapComboBoxLabel;
+    QComboBox* selectColorMapComboBox;
 
 
 
-        QRadioButton* selectFFTRadioButton;
-        QRadioButton* selectRIAARadioButton;
+    QRadioButton* selectFFTRadioButton;
+    QRadioButton* selectRIAARadioButton;
 
-        QLabel* upscalingFactorComboBoxLabel;
-        QComboBox* upscalingFactorComboBox;
-        QVBoxLayout* upscalingFactorComboBoxLayout;
+    QLabel* upscalingFactorComboBoxLabel;
+    QComboBox* upscalingFactorComboBox;
+    QVBoxLayout* upscalingFactorComboBoxLayout;
 
-        QLabel* floorPixelValueSpinBoxLabel;
-        QDoubleSpinBox* floorPixelValueSpinBox;
-        QVBoxLayout* floorPixelValueSpinBoxLayout;
-        QLabel* ceilPixelValueSpinBoxLabel;
-        QDoubleSpinBox* ceilPixelValueSpinBox;
-        QVBoxLayout* ceilPixelValueSpinBoxLayout;
+    QLabel* floorPixelValueSpinBoxLabel;
+    QDoubleSpinBox* floorPixelValueSpinBox;
+    QVBoxLayout* floorPixelValueSpinBoxLayout;
+    QLabel* ceilPixelValueSpinBoxLabel;
+    QDoubleSpinBox* ceilPixelValueSpinBox;
+    QVBoxLayout* ceilPixelValueSpinBoxLayout;
 
-        QVBoxLayout* objectiveSelectionComboBoxLayout;
-        QLabel* objectiveSelectionComboBoxLabel;
-        QComboBox* objectiveSelectionComboBox;
+    QVBoxLayout* objectiveSelectionComboBoxLayout;
+    QLabel* objectiveSelectionComboBoxLabel;
+    QComboBox* objectiveSelectionComboBox;
 
-        QCheckBox* redoPreprocessingCheckBox;
+    QCheckBox* redoPreprocessingCheckBox;
 
-        QPushButton* startButton;
-        QDoubleSpinBox* decibelFloorSpinBox;
-        QCheckBox* useDecibelColorScaleCheckBox;
+    QPushButton* startButton;
+    QDoubleSpinBox* decibelFloorSpinBox;
+    QCheckBox* useDecibelColorScaleCheckBox;
 
 };
 

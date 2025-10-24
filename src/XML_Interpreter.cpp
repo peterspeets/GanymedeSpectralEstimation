@@ -1,6 +1,12 @@
 #include "XML_Interpreter.h"
 
 XML_Interpreter::XML_Interpreter(const string xml_text) {
+    /*
+    xml_text: a string that is divided into tags.
+
+    The XML_Interpreter object contains the information from a text in the XML format. A hierarchy of tags is
+    constructed.
+    */
     list<Tag*> activeTags;
     string tag_string;
     int index = 0;
@@ -70,9 +76,6 @@ XML_Interpreter::XML_Interpreter(const string xml_text) {
 
             index++;
         }
-
-
-
     }
 
 
