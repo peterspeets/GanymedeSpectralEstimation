@@ -891,17 +891,21 @@ void save2DArrayToFile(const T* array, const int M,const int N, const string& fi
 
 
 template <typename T>
-char* IO<T>::GanymedeFileLoader::loadHeader() {
+string IO<T>::GanymedeFileLoader::loadHeader() {
     /*
     This function loads the header from the header from the headerFileName as stored in the GanymedeFileLoader object.
-    It returns the file contents as a byte string.
+    It returns the file contents as a string.
     */
     string headerFileName= "header.xml";
+    string fileContents;
     size_t uncomp_size;
     int file_index = mz_zip_reader_locate_file(&OCTArchive, headerFileName.c_str(), NULL, MZ_ZIP_FLAG_IGNORE_PATH);
-    void * p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
-    char* file_contents = static_cast<char*>(p);
-    return file_contents;
+    void* p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
+    if (p != nullptr) {
+        fileContents = string(static_cast<char*>(p), uncomp_size);
+        mz_free(p);
+    }
+    return fileContents;
 }
 
 
@@ -1025,7 +1029,7 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
     string spectrumFileName = settings->pathsSpectra[spectrumIndex];
     int file_index = getFileIndex(spectrumFileName);
     void * p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
-    unsigned  char* file_contents = static_cast<unsigned char*>(p);
+    unsigned char* file_contents = static_cast<unsigned char*>(p);
     T** spectrum = new T*[settings->sizeXSpectrum];
 
     for(i = 0; i< settings->sizeXSpectrum; i++) {
@@ -1076,11 +1080,9 @@ shared_ptr<Settings> IO<T>::GanymedeFileLoader::loadSettings() {
     This function loads the settings from the Thorlabs Ganymede .oct file and creates
     a new settings object.
     */
-    char* file_contents = loadHeader();
-    XML_Interpreter interpreter = XML_Interpreter(file_contents);
-    //settings = new Settings(interpreter.tags);
+    string fileContents = loadHeader();
+    XML_Interpreter interpreter = XML_Interpreter(fileContents);
     shared_ptr<Settings> settings = make_shared<Settings>(interpreter.tags);
-    free(file_contents);
     return settings;
 }
 

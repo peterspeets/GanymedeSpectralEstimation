@@ -91,11 +91,6 @@ BScan::BScan(const string filePath) {
             delete[] singleAScan;
         }
         cout << "..." << endl;
-
-
-
-
-
         if (settings->objectiveDispersionData.count("Native")) {
             settings->objectiveDispersionData.erase("Native");
         }
@@ -390,18 +385,17 @@ void BScan::preprocessSpectrumInPlace() {
 
         for(j = 0; j < settings->sizeZSpectrum ; j++) {
 
-            double dispersionPhase = j*settings->dispersionCoefficients[0];
-            //cout << "dispersionPhase 0 "<<dispersionPhase  <<endl;
+            double dispersionPhase = j*settings->objectiveDispersionData[settings->objectiveLabel][0];
 
-            for(int k = 1; k < settings->numberOfDispersionCoefficients-1; k++) {
-                dispersionPhase = j*(settings->dispersionCoefficients[k] + dispersionPhase);
+
+            for(int k = 1; k < settings->objectiveDispersionData[settings->objectiveLabel].size()-1; k++) {
+                dispersionPhase = j*(settings->objectiveDispersionData[settings->objectiveLabel][k] + dispersionPhase);
             }
-            //cout << "dispersionPhase 1 "<<dispersionPhase  <<endl;
-            if(settings->numberOfDispersionCoefficients > 1) {
-                dispersionPhase += settings->dispersionCoefficients[settings->numberOfDispersionCoefficients-1];
+
+            if(settings->objectiveDispersionData[settings->objectiveLabel].size() > 1) {
+                dispersionPhase += settings->objectiveDispersionData[settings->objectiveLabel][settings->objectiveDispersionData[settings->objectiveLabel].size()-1];
             }
-            //cout << "dispersionPhase 2 "<<dispersionPhase  <<endl;
-            //cout << "dispersion phase: " << dispersionPhase <<endl;
+
 
             dispersionPhase  *= 2*M_PI;
             positiveSignal[j].r = positiveSignal[j].r  * cos(dispersionPhase ) + positiveSignal[j].i*sin(dispersionPhase) ;

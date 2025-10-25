@@ -84,7 +84,7 @@ public:
 
     private:
         mz_zip_archive OCTArchive;
-        char* loadHeader();
+        string loadHeader();
         int getFileIndex( string fileName);
 
     };
