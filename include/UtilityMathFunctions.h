@@ -44,11 +44,11 @@ private:
 
 
 public:
-    static complex<floatingPointType>* tvec_gs_i(const floatingPointType* a,const floatingPointType* x,const size_t N,
+    static complex<floatingPointType>* gohberg(const floatingPointType* a,const floatingPointType* x,const size_t N,
             complex<floatingPointType>* y = nullptr);
-    static complex<floatingPointType>* tvec_gs_i(const complex<floatingPointType>* a,const floatingPointType* x,const size_t N,
+    static complex<floatingPointType>* gohberg(const complex<floatingPointType>* a,const floatingPointType* x,const size_t N,
             complex<floatingPointType>* y = nullptr);
-    static complex<floatingPointType>* tvec_gs_i(const complex<floatingPointType>* a,const complex<floatingPointType>* x,const size_t N,
+    static complex<floatingPointType>* gohberg(const complex<floatingPointType>* a,const complex<floatingPointType>* x,const size_t N,
             complex<floatingPointType>* y = nullptr);
     static floatingPointType** processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init, int q_i, double vt,
                                             int NThreads =1);

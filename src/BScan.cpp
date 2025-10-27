@@ -761,7 +761,7 @@ pair<float*, float*> BScan::fiaa_oct(const float* x,
             A[i] /= af;
         }
 
-        UtilityMathFunctions<float>::tvec_gs_i(A,x,N,y);
+        UtilityMathFunctions<float>::gohberg(A,x,N,y);
 
 
 

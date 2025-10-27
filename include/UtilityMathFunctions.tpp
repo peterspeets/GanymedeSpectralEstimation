@@ -377,7 +377,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
             A[i] /= af;
         }
 
-        tvec_gs_i(A,x,N,y);
+        gohberg(A,x,N,y);
 
 
 
@@ -564,7 +564,7 @@ UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolatio
 
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const floatingPointType* a,const floatingPointType* x,
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(const floatingPointType* a,const floatingPointType* x,
         const size_t N,complex<floatingPointType>* y) {
     complex<floatingPointType> aComplex[N];
     complex<floatingPointType> xComplex[N];
@@ -573,27 +573,34 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
         xComplex[i] = x[i];
     }
 
-    return UtilityMathFunctions<floatingPointType>::tvec_gs_i(aComplex,xComplex,N,y);
+    return UtilityMathFunctions<floatingPointType>::gohberg(aComplex,xComplex,N,y);
 }
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(const complex<floatingPointType>* a,
         const floatingPointType* x,const size_t N,complex<floatingPointType>* y) {
     complex<floatingPointType> xComplex[N];
     for(int i = 0; i < N; i++) {
         xComplex[i] = x[i];
     }
-    return UtilityMathFunctions<floatingPointType>::tvec_gs_i(a,xComplex,N,y);
+    return UtilityMathFunctions<floatingPointType>::gohberg(a,xComplex,N,y);
 }
 
 
 template <typename floatingPointType>
-complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(const complex<floatingPointType>* a,
+complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(const complex<floatingPointType>* A,
         const complex<floatingPointType>* x,const size_t N,complex<floatingPointType>* y) {
+
+    /*
+    A: first column of the Toeplitz matrix
+    x: vector to apply the matrix A on
+    y: vector to write the result to.
+
+    This function calculates the matrix product y = A·x using the Gohberg–Semencul formula. Since A is a Toeplitz matrix, only the first column of the matrix (that fully determined the rest of the matrix).
+
+    The vector y is part of the input, since in the iteration, this vector is often overwritten.
+    */
     int i, j;
-    static uint64_t vectorTime = 0;
-    static int evaluated = 0;
-    evaluated++;
     uint64_t startingTime = getTime();
 
 
@@ -622,13 +629,13 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     kiss_fft_cfg icfg = kiss_fft_alloc(2*N, 1, NULL, NULL);
 
     for(i = 0; i < N; i++) {
-        t1[i].r = a[i].real();
-        t1[i].i = a[i].imag();
+        t1[i].r = A[i].real();
+        t1[i].i = A[i].imag();
         w[i].r = x[i].real();
         w[i].i = x[i].imag();
     }
-    t1[N].r = a[0].real();
-    t1[N].i = a[0].imag();
+    t1[N].r = A[0].real();
+    t1[N].i = A[0].imag();
     w[N].r = 0.0;
     w[N].i = 0.0;
     for(i = N+1; i < 2*N; i++) {
@@ -638,17 +645,17 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
         w[i].i = 0.0;
     }
 
-    t1t[0].r = a[0].real();
-    t1t[0].i = -a[0].imag();
+    t1t[0].r = A[0].real();
+    t1t[0].i = -A[0].imag();
     for(i = 1; i < N; i++) {
         t1t[i].r = 0.0;
         t1t[i].i = 0.0;
     }
-    t1t[N].r = a[0].real();
-    t1t[N].i = -a[0].imag();
+    t1t[N].r = A[0].real();
+    t1t[N].i = -A[0].imag();
     for(i = N+1; i < 2*N; i++) {
-        t1t[i].r = a[ 2*N-i ].real();
-        t1t[i].i = a[ 2*N-i ].imag();
+        t1t[i].r = A[ 2*N-i ].real();
+        t1t[i].i = A[ 2*N-i ].imag();
     }
 
 
@@ -683,7 +690,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
 
     z[0] = 0.0;
     for(i = 1; i < N; i++) {
-        z[i] = a[N-i];
+        z[i] = A[N-i];
     }
 
 
@@ -735,9 +742,6 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
         w[i].r = 0.0;
         w[i].i = 0.0;
     }
-
-
-
     kiss_fft( cfg, w, W);
 
     for(i = 0; i < 2*N; i++) {
@@ -753,14 +757,6 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::tvec_gs_i(c
     for(i = 0; i < N; i++) {
         y[i] =complex<floatingPointType>(tmp1[i].r/(4*N*N) - tmp2[i].r/(4*N*N), tmp1[i].i/(4*N*N) - tmp2[i].i/(4*N*N));
     }
-
-
-    vectorTime += getTime() - startingTime;
-
-    if(evaluated == 10*1024*4) {
-        cout << "Vector time = " << ((1.0*vectorTime)/evaluated) << " ms" << endl;
-    }
-
     return y;
 
 }
