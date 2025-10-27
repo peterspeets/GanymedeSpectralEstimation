@@ -135,11 +135,7 @@ BScan::BScan(const string filePath) {
         settings->objectiveDispersionData["Native"] = vector<double>(loadingDispersionPair.first,
                 loadingDispersionPair.first + loadingDispersionPair.second);
 
-        if(settings->objectiveLabel == "Native") {
-            cout << "Settings already where on native.";
-            settings->dispersionCoefficients = loadingDispersionPair.first;
-            settings->numberOfDispersionCoefficients = loadingDispersionPair.second;
-        }
+
 
         /*
         Settings is now overwritten by all variables that are loaded by the BScan constructor.However,

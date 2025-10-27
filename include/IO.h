@@ -35,17 +35,16 @@ public:
     virtual ~IO();
     template <typename T>
     static void saveArrayToFile(const T* array, const int N, const string& filename);
-
     template <typename T>
     static void saveArrayToFile(const complex<T>* cpx, const int N, const string& filename);
-
-    //template <typename T>
-    //static void test(T a);
-
-    static void testa(float a);
-
     static void saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename);
 
+    template <typename T>
+    static void saveVectorToFile(const vector<T>& vectorToSave,const string& filePath);
+    template <typename T>
+    static void saveVectorToFile(const vector<complex<T>>& vectorToSave,const string& filePath);
+    template <typename T>
+    static void save2DVectorToFile(const vector<vector<T>>& vectorToSave,const string& filePath, char separator = ',');
 
     template <typename T>
     static void save2DArrayToFile(T** array, const int M, const int N, const std::string& filename, char separator = ',');
@@ -63,8 +62,11 @@ public:
 
     static pair<floatingPointType*, int> loadArrayFromFile(const string& filename);
     static tuple<floatingPointType**, int, int> load2DArrayFromFile(const string& filename);
-
     static map<string, vector<double>> loadObjectiveDispersionData(const string& filename);
+
+    static vector<floatingPointType> loadVectorFromFile(const string& filePath);
+    static vector<vector<floatingPointType>> load2DVectorFromFile(const string& filePath);
+
 
     class FileLoader {
     public:

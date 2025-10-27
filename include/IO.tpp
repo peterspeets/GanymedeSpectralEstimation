@@ -134,15 +134,6 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
 }
 
 
-
-template<typename T>
-void IO<T>::testa(float a) {
-    //remove next commit
-    cout << "Test function. " << a << endl;
-    return;
-}
-
-
 template<typename T>
 void IO<T>::savePng(const string filename, const int width, const int height, const int imageWidth, const int imageHeight,
                     const T* const* image, bool decibelColorScale,double decibelFloor ) {
@@ -502,6 +493,127 @@ tuple<T**, int, int> IO<T>::load2DArrayFromFile(const string& filename) {
     return make_tuple(array, M,N);
 }
 
+
+template<typename T>
+vector<vector<T>> IO<T>::load2DVectorFromFile(const string& filePath){
+    /*
+    filePath: path to the text file that contains a 2D array.
+
+    This function takes a path to a 2D text file and stores it in a 2D array.
+    The rows are the first dimension, the columns the second: array[row][column].
+    */
+    ifstream file(filePath);
+
+
+    if (!file) {
+        cout << "Cannot open: " << filePath << endl;
+    }
+    string line;
+    int N = 1;
+    int M = 1;
+    char separationCharacter = ',';
+    vector<vector<T>> newVector;
+
+
+    getline(file,line);
+    for(int i = 0; i < line.size(); i++) {
+        if(line[i] == ',') {
+            separationCharacter = ',';
+            break;
+        } else if(line[i] == '\t') {
+            separationCharacter = '\t';
+            break;
+            // Spaces may be added for readability. This 30 size offset is  a (temporary ?) heuristic to see if no other separation character has been found.
+        } else if(line[i] == ' ' && i > 30) {
+            separationCharacter = ' ';
+            break;
+        }
+    }
+
+    vector<T> row;
+    int previousIndex = 0;
+
+
+    for (int i = 0; i < line.size(); i++) {
+        if(line[i] == separationCharacter) {
+            row.push_back(stof(line.substr(previousIndex,i-previousIndex)));
+            N++;
+            previousIndex = i;
+        }
+    }
+
+    newVector.push_back(row);
+
+    while(getline(file,line)) {
+        row.clear();
+        previousIndex = 0;
+        for (int i = 0; i < line.size(); i++) {
+            if(line[i] == separationCharacter) {
+                row.push_back(stof(line.substr(previousIndex,i-previousIndex)));
+                previousIndex = i;
+            }
+        }
+        newVector.push_back(row);
+        M++;
+    }
+
+    return newVector;
+}
+
+
+
+
+template<typename T>
+vector<T> IO<T>::loadVectorFromFile(const string& filePath){
+    /*
+    filePath: path to the text file
+
+    This function loads a vector from a text file.
+    */
+    ifstream file(filePath);
+    if (!file) {
+        cout << "Cannot open: " << filePath << endl;
+    }
+
+    string line;
+    char separationCharacter = '\n';
+
+
+    getline(file,line);
+    for(int i = 0; i < line.size(); i++) {
+        if(line[i] == ',') {
+            separationCharacter = ',';
+            break;
+        } else if(line[i] == '\t') {
+            separationCharacter = '\t';
+            break;
+            // Spaces may be added for readability. This 25 size offset is  a (temporary ?) heuristic to see if no other separation character has been found.
+        } else if(line[i] == ' ' && i > 25) {
+            separationCharacter = ' ';
+            break;
+        }
+    }
+
+    vector<T> newVector;
+    if(separationCharacter == '\n') {
+        newVector.push_back( stof(line));
+        while(getline(file,line)) {
+            newVector.push_back( stof(line));
+        }
+    } else {
+        int Nindex = 0;
+        int previousIndex = 0;
+        for (int i = 0; i < line.size(); i++) {
+            if(line[i] == separationCharacter) {
+                newVector.push_back( stof(line.substr(previousIndex,i-previousIndex)));
+                Nindex++;
+                previousIndex = i;
+            }
+        }
+    }
+    return newVector;
+}
+
 template <typename T>
 pair<T*, int> IO<T>::loadArrayFromFile(const string& filename) {
     /*
@@ -591,6 +703,30 @@ void IO<floatingPointType>::saveArrayToFile(const T* array, const int N, const s
     outFile.close();
 }
 
+
+template<typename floatingPointType>
+template <typename T>
+void IO<floatingPointType>::saveVectorToFile(const vector<T>& vectorToSave, const string& filePath) {
+    /*
+    vectorToSave: vector to save
+    filePath: path to the text file
+
+    This function saves a vector to a text file. It is saved with a line break separation (\n).
+    */
+    ofstream outFile(filePath);
+
+    if (!outFile) {
+        cout << "Cannot open: " << filePath << endl;
+        return;
+    }
+
+    for (int i = 0; i < vectorToSave.size(); i++) {
+        outFile << vectorToSave[i] << endl;
+    }
+    outFile.close();
+}
+
+
 template <typename T>
 void IO<T>::saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& filename) {
     /*
@@ -660,6 +796,41 @@ void IO<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, 
 }
 
 
+template <typename floatingPointType>
+template <typename T>
+void IO<floatingPointType>::saveVectorToFile(const vector<complex<T>>& vectorToSave, const string& filePath) {
+    /*
+    vectorToSave: vector to save
+    filePath: path to the text file
+
+    This function saves an array to a text file. First the real numbers, then the imaginary numbers.
+    Overloaded function to work with complex numbers. It uses the standard library complex numbers.
+    */
+    ofstream outFile(filePath);
+
+    if (!outFile) {
+        cout << "Cannot open: " << filePath << endl;
+        return;
+    }
+
+    for (int i = 0; i < vectorToSave.size(); ++i) {
+        outFile << vectorToSave[i].real() ;
+        if(i < vectorToSave.size()-1) {
+            outFile << ",";
+        }
+    }
+    outFile << endl;
+    for (int i = 0; i < vectorToSave.size(); ++i) {
+        outFile << vectorToSave[i].imag() ;
+        if(i < vectorToSave.size()-1) {
+            outFile << ",";
+        }
+    }
+    outFile.close();
+
+}
+
+
 template<typename floatingPointType>
 template <typename T>
 void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N, const string& filename,char separator) {
@@ -693,6 +864,41 @@ void IO<floatingPointType>::save2DArrayToFile(T** array, const int M,const int N
 
     outFile.close();
 }
+
+
+
+template<typename floatingPointType>
+template <typename T>
+void IO<floatingPointType>::save2DVectorToFile(const vector<vector<T>>& vectorToSave, const string& filePath,char separator) {
+
+    /*
+    vectorToSave: pointer to a 2D vector
+    filePath: path to the file
+    separator: column separator.
+
+    This function saves a 2D vector to a text file.
+    */
+
+    ofstream outFile(filePath);
+    if (!outFile) {
+        cout << "Cannot open: " << filePath << endl;
+        return;
+    }
+    for(int i = 0; i < vectorToSave.size(); i++) {
+        for (int j = 0; j < vectorToSave[i].size(); j++) {
+            outFile << vectorToSave[i][j];
+            if(j != vectorToSave[i].size()-1) {
+                outFile << separator;
+            }
+        }
+        if(i != vectorToSave.size()-1) {
+            outFile  << endl;
+        }
+    }
+
+    outFile.close();
+}
+
 
 
 
