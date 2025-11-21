@@ -46,9 +46,6 @@ public:
     pair<vector<float>,vector<float>> FIAA(const vector<float>& x, int K, int numberOfIterations, double vt);
     tuple<vector<vector<float>>,int,int> getProcessedBScan();
     void calculateLowResBitmap();
-    //float** imageRIAA = nullptr;
-    //float** imageFFT = nullptr;
-
     vector<vector<float>> imageRIAA;
     vector<vector<float>> imageFFT;
 

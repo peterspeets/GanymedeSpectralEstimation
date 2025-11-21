@@ -1390,19 +1390,17 @@ vector<vector<T>> IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, opt
     unsigned char* file_contents = static_cast<unsigned char*>(p);
 
 
-    vector<vector<T>> spectrum;
-    spectrum.reserve(settings->sizeXSpectrum);
+    //vector<vector<T>> spectrum;
+    vector<vector<T>> spectrum(settings->sizeXSpectrum, vector<T>(settings->sizeZSpectrum,0.0));
 
     for(i = settings->scanStartIndices[spectrumIndex]; i < settings->sizeXSpectrumRaw; i++) {
-        vector<T> row(settings->sizeZSpectrum, 0.0);
         for(j = 0; j < settings->sizeZSpectrum; j++) {
-            for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
-                row[j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*
-                        (i*settings->sizeXSpectrum+j)+k]<<(8*k));
-
+            spectrum[i-settings->scanStartIndices[spectrumIndex]][j] = 0.0;
+            for(k = settings->bytesPerPixelSpectrum-1; k >= 0; k--) { //most significant bit in back
+                spectrum[i-settings->scanStartIndices[spectrumIndex]][j] += (settings->electronCountScaling*
+                        (file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeZSpectrum+j)+k  ]<<(8*k)));
             }
         }
-        spectrum.emplace_back(row);
     }
     if(referenceSpectrum.has_value()){
         referenceSpectrum.value().assign(settings->sizeZSpectrum, 0.0);
@@ -1430,74 +1428,6 @@ vector<vector<T>> IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, opt
     return spectrum;
 }
 
-//template <typename T>
-//T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
-//    /*
-//    spectrumIndex: index of the B-scan file to load.
-//
-//    This function loads a 2D array of B-scan spectral data.
-//    */
-//   size_t uncomp_size;
-//    int i, j, k;
-//    string spectrumFileName = settings->pathsSpectra[spectrumIndex];
-//
-//    int file_index = getFileIndex(spectrumFileName);
-//    void* p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
-//    unsigned char* file_contents = static_cast<unsigned char*>(p);
-//
-//
-//    vector<vector<T>> spectrum;
-//    spectrum.reserve(settings->sizeXSpectrum);
-//
-//    for(i = settings->scanStartIndices[spectrumIndex]; i < settings->sizeXSpectrumRaw; i++) {
-//        vector<T> row(settings->sizeZSpectrum, 0.0);
-//        for(j = 0; j < settings->sizeZSpectrum; j++) {
-//            for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
-//                row += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*
-//                        (i*settings->sizeXSpectrum+j)+k]<<(8*k));
-//
-//            }
-//        }
-//        spectrum.emplace_back(row);
-//    }
-//    /*
-//    miniz uses malloc to allocate memory, not new.
-//    */
-//
-//    free(file_contents);
-//
-//    return spectrum;
-//}
-
-
-//
-//
-//template <typename T>
-//vector<T> IO<T>::GanymedeFileLoader::loadCalibrationSpectrum( string spectrumFileName,int arrayLength, int bytesPerPixel  ) {
-//
-//    Old function. When used with IO<float> this function works, since the spectra are stored in floats in the .oct files.
-//
-//    /*
-//    spectrumFileName: file name of the B-scan file to load.
-//    arrayLength: length of the calibration spectrum.
-//    bytesPerPixel: the number of bytes of the spectrum. usually 2 for bulk B-scan data, and 32? for
-//    all other (reference,offset) spectra
-//    */
-//
-//    size_t uncomp_size;
-//    int file_index = getFileIndex(spectrumFileName);
-//    void * p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
-//    T* fileData = reinterpret_cast<T*>(p);
-//
-//    vector<T> spectrum;
-//    spectrum.reserve(arrayLength);
-//    for(int i = 0; i < arrayLength; i++){
-//        spectrum.emplace_back(fileData[i]);
-//    }
-//
-//
-//    return spectrum;
-//}
 
 
 template <typename T>
@@ -1514,16 +1444,22 @@ IO<T>::GanymedeFileLoader::loadCalibrationSpectrum(string spectrumFileName,int a
 
     // Cast to unsigned char for byte-wise access
     unsigned char* file_contents = static_cast<unsigned char*>(p);
-
     vector<T> spectrum(arrayLength, 0);
 
-    for (int i = 0; i < arrayLength; i++) {
-        T value = 0;
-        for (int k = 0; k < bytesPerPixel; k++) {
-            spectrum[i]+= static_cast<T>( static_cast<int>(file_contents[i * bytesPerPixel + k]) << (8 * k) );
-        }
+    if(bytesPerPixel <= 0){
+        bytesPerPixel = uncomp_size/arrayLength;
+        cout << "Set bytes per pixel to " << bytesPerPixel << endl;
     }
 
+    for (int i = 0; i < arrayLength; i++) {
+        T value;
+        memcpy(&value, file_contents + i * bytesPerPixel, bytesPerPixel);
+        spectrum[i] = value;
+    }
+
+    //string fileName = "D:\\data\\ThorlabsCppTestData\\";
+    //fileName = fileName + spectrumFileName.substr(5,spectrumFileName.size()-5);
+    //IO<float>::saveVectorToFile(spectrum, fileName);
     free(file_contents);
 
     return spectrum;

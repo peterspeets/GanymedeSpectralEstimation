@@ -691,43 +691,7 @@ int main(int argc, char *argv[]) {
     Window window;
     window.show();
     //the scan object contains all data and some non static processing functions.
-
-
     string filePath = "D:\\data\\ThorlabsCppTestData\\wedgeBscan\\sk.txt";
-    /*
-
-
-    tuple<float**, int, int> ctuple = IO<float>::load2DArrayFromFile("D:\\data\\ThorlabsCppTestData\\cLevinson.txt");
-    int N = get<2>(ctuple);
-    complex<float>* carray = new complex<float>[N];
-
-
-    cout << N <<" " <<get<1>(ctuple ) << " " << get<2>(ctuple) << endl;
-
-    for(int i = 0; i < N;i++){
-        carray[i] = complex<float>(get<0>(ctuple)[0][i] , get<0>(ctuple)[1][i]);
-    }
-
-
-    complex<float>* Aarray = new complex<float>[N];
-
-    vector<complex<float>> cvector = vector<complex<float>>(N);
-    vector<complex<float>> Avector = vector<complex<float>>(N);
-    for(int i = 0; i< N; i++){
-        cvector[i] = carray[i];
-    }
-
-
-    UtilityMathFunctions<float>::levinson(carray,N,Aarray);
-    UtilityMathFunctions<float>::levinson(cvector,Avector);
-
-    for(int i = 0; i < N;i++){
-        cout << i << " " << Aarray[i] << " " << Avector[i] << endl;
-    }
-
-    */
-
-
 
     scan = make_shared<BScan>();
 

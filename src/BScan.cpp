@@ -49,18 +49,27 @@ BScan::BScan(const string filePath) {
 
     if(filePath.substr(filePath.length() - 4) == ".oct") {
         //If the file ends in .oct, the file loading is slightly more involved. Use the GanymedeFileLoader.
+
+        cout << "file loader" << endl;
+
         IO<float>::GanymedeFileLoader fileLoader =  IO<float>::GanymedeFileLoader(filePath);
+        cout << "load settigns" << endl;
         settings = fileLoader.loadSettings() ;
+        cout << "load calibratio spectra:" << endl;
+        cout << "offset" << endl;
         offset = fileLoader.loadCalibrationSpectrum(settings->pathOffset);
+        cout << "chirp" << endl;
         chirp = fileLoader.loadCalibrationSpectrum(settings->pathChirp);
+        cout << "reference" << endl;
         referenceSpectrum = fileLoader.loadCalibrationSpectrum(settings->pathApodization);
-        intensity = fileLoader.loadCalibrationSpectrum(settings->pathIntensity);
+        cout << "intensity" << endl;
+        intensity = fileLoader.loadCalibrationSpectrum(settings->pathIntensity,2048,4);
 
         settings->numberOfStoredSpectra = settings->pathsSpectra.size();
 
         vector<vector<float>> singleAScan;
-
-        spectra.reserve(settings->sizeXSpectrum);
+        cout << "Reserve mem for spectra." << endl;
+        spectra = vector<vector<float>>(settings->sizeXSpectrum, vector<float>(settings->sizeZSpectrum, 0));
 
         cout << "paths to spectra" << endl;
         for (pair<int,string> const& pathSpectraPair : settings->pathsSpectra) {
@@ -68,7 +77,7 @@ BScan::BScan(const string filePath) {
                 singleAScan = fileLoader.loadSpectrum(pathSpectraPair.first);
                 for(int i = 0; i< settings->sizeXSpectrum; i++) {
                     for(int j = 0; j< settings->sizeZSpectrum; j++) {
-                        spectra[i].emplace_back(singleAScan[i][j]/(1.0*settings->numberOfStoredSpectra));
+                        spectra[i][j] = singleAScan[i][j]/(1.0*settings->numberOfStoredSpectra);
                     }
                 }
             } else {
@@ -718,201 +727,6 @@ void BScan::FIAAPartitioned(const vector<float>& x,
 
     kiss_fft_free(icfg);
 }
-
-
-
-
-//pair<float*, float*> BScan::FIAA(const float* x,
-//                                     size_t N, int K, int numberOfIterations, double vt, float* powerSpectrum ) {
-//    /*
-//    x: initial value
-//    N: number of A-scans
-//    K: length of the A-scan
-//    numberOfIterations: number of iterations
-//    vt: noise parameter (set to 1.0)
-//    powerSpectrum: place the result in this array. If this array exists, use this as initial value
-//
-//    */
-//    int i, j;
-//
-//    ostringstream  filename;
-//    static int evaluated = 0;
-//    static uint64_t fiaaTime = 0;
-//    static uint64_t startingTime = getTime();
-//
-//
-//
-//    float* Eta = new float[numberOfIterations+1];
-//    float eta = 0.0;
-//    float af;
-//    for(i = 0; i < N; i++) {
-//        eta += abs(x[i]*x[i]);
-//    }
-//    eta /= N;
-//
-//
-//    Eta[0] = eta;
-//    kiss_fft_cpx powerSpectrumLocal[K];
-//
-//
-//
-//    kiss_fft_cpx temp[K];
-//    kiss_fft_cpx temp2[K];
-//    kiss_fft_cpx q[K];
-//    kiss_fft_cpx Fa1[K];
-//
-//
-//
-//    complex<float> c[N];
-//    kiss_fft_cpx diaa_num[K];
-//    complex<float> diaa_den[K];
-//    float diag_a[N];
-//    complex<float>* A = new complex<float>[N];
-//    complex<float>* y = new complex<float>[N];
-//    complex<float>* fa1 = new complex<float>[2*N-1] ;
-//
-//
-//
-//    uint64_t time0;
-//    uint64_t time1;
-//    uint64_t time3;
-//    uint64_t time4;
-//
-//
-//    kiss_fft_cfg cfg = kiss_fft_alloc(K, 0, NULL, NULL);
-//    kiss_fft_cfg icfg = kiss_fft_alloc(K, 1, NULL, NULL);
-//
-//
-//    if(!powerSpectrum ) {
-//
-//        powerSpectrum = new float[K];
-//
-//        for(i = 0; i<N; i++) {
-//            temp[i].r = x[i];
-//            temp[i].i = 0.0;
-//        }
-//        for(i = N; i<K; i++) {
-//            temp[i].r = 0.0;
-//            temp[i].i = 0.0;
-//        }
-//        kiss_fft( cfg, temp, powerSpectrumLocal);
-//        for(i = 0; i<K; i++) {
-//            powerSpectrumLocal[i].r = (powerSpectrumLocal[i].r *powerSpectrumLocal[i].r  + powerSpectrumLocal[i].i *powerSpectrumLocal[i].i)/(N*N);
-//            powerSpectrumLocal[i].i=0;
-//        }
-//
-//    } else {
-//
-//        for(i = 0; i<K; i++) {
-//            powerSpectrumLocal[i].r = powerSpectrum[i];
-//            powerSpectrumLocal[i].i=0;
-//        }
-//    }
-//
-//
-//
-//
-//    for(int k = 0; k < numberOfIterations; k++) {
-//        evaluated++;
-//        startingTime = getTime();
-//
-//        kiss_fft(icfg,powerSpectrumLocal,q);
-//
-//
-//        for(i = 0; i<N; i++) {
-//            c[i] = complex<float>(q[i].r, 0.0*q[i].i);
-//        }
-//        c[0] += vt*eta;
-//
-//        tuple<complex<float>*, float> levinsonOut = UtilityMathFunctions<float>::levinson(c,N,A);
-//
-//        af = sqrt(get<1>(levinsonOut));
-//
-//        for(i = 0; i < N; i++) {
-//            A[i] /= af;
-//        }
-//
-//        UtilityMathFunctions<float>::gohberg(A,x,N,y);
-//
-//
-//
-//        for(i = 0; i<N; i++) {
-//            temp[i].r = y[i].real();
-//            temp[i].i = y[i].imag();
-//        }
-//        for(i =  N; i<K; i++) {
-//            temp[i].r = 0;
-//            temp[i].i = 0;
-//        }
-//        kiss_fft(cfg,temp,diaa_num);
-//
-//
-//
-//        UtilityMathFunctions<float>::polynomialEstimation(A,N,fa1);//fa1 has size 2*N-1
-//
-//
-//        for(i = 0; i < 2*N-1; i++) {
-//            temp[i].r = fa1[i].real();
-//            temp[i].i = fa1[i].imag();
-//        }
-//
-//
-//        kiss_fft(cfg,temp,Fa1);
-//
-//
-//        diaa_den[0] = complex<float>(Fa1[0].r, Fa1[0].i);
-//
-//        for(i = 1; i<K; i++) {
-//            diaa_den[i] = complex<float>(Fa1[ K - i ].r, Fa1[K - i  ].i);
-//        }
-//
-//        for(i = 0; i<K; i++) {
-//            powerSpectrumLocal[i].r  = abs( (diaa_num[i].r*diaa_num[i].r + diaa_num[i].i*diaa_num[i].i  )  /(diaa_den[i]*conj(diaa_den[i])) );
-//            powerSpectrumLocal[i].i = 0.0;
-//        }
-//
-//
-//        for(i = 1; i < N; i++) {
-//            temp[i].r = A[N-i].real();
-//            temp[i].i = -A[N-i].imag();
-//        }
-//        temp[0].r = 0.0;
-//        temp[0].i = 0.0;
-//
-//        diag_a[0] = A[0].real()*A[0].real() + A[0].imag()*A[0].imag()  -(temp[0].r * temp[0].r +  temp[0].i*temp[0].i);
-//
-//        for(i = 1; i < N; i++) {
-//            diag_a[i] = diag_a[i-1] +  A[i].real()*A[i].real() + A[i].imag()*A[i].imag()  -(temp[i].r * temp[i].r +  temp[i].i*temp[i].i);
-//        }
-//
-//
-//        eta = 0.0;
-//        for(i = 0; i < N; i++) {
-//            eta +=  abs(y[i]*y[i] / (diag_a[i]*diag_a[i])) ;
-//        }
-//        eta /= N;
-//        Eta[k] = eta;
-//
-//        fiaaTime += getTime() - startingTime;
-//    }
-//
-//
-//    kiss_fft_free(cfg);
-//    kiss_fft_free(icfg);
-//    delete[] A;
-//    delete[] y;
-//    delete[] fa1;
-//    pair<float*, float*> result;
-//
-//    for(i = 0; i < K; i++) {
-//        powerSpectrum[i] = powerSpectrumLocal[i].r;
-//    }
-//
-//    result.first = powerSpectrum;
-//    result.second = Eta;
-//    return result;
-//}
-
 
 pair<vector<float>,vector<float>> BScan::FIAA(const vector<float>& x, int K, int numberOfIterations, double vt) {
 

@@ -86,12 +86,12 @@ public:
         shared_ptr<Settings> loadSettings() ;
         //floatingPointType** loadSpectrum(int spectrumIndex, floatingPointType* referenceSpectrum) ;
         //floatingPointType** loadSpectrum(int spectrumIndex) ;
-        //floatingPointType* loadCalibrationSpectrum( string spectrumFileName,int arrayLength = 2048,int bytesPerPixel = 32 );
+        //floatingPointType* loadCalibrationSpectrum( string spectrumFileName,int arrayLength = 2048,int bytesPerPixel = 4 );
         //GanymedeFileLoader(const string filePath);
 
         vector<vector<floatingPointType>> loadSpectrum(int spectrumIndex,  optional<vector<floatingPointType>> referenceSpectrum = nullopt) ;
         //vector<vector<floatingPointType>> loadSpectrum(int spectrumIndex) ;
-        vector<floatingPointType> loadCalibrationSpectrum( string spectrumFileName,int arrayLength = 2048,int bytesPerPixel = 32 );
+        vector<floatingPointType> loadCalibrationSpectrum( string spectrumFileName,int arrayLength = 2048,int bytesPerPixel = -1 );
         GanymedeFileLoader(const string filePath);
 
 
