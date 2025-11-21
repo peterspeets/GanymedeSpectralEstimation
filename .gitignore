@@ -27,10 +27,12 @@
 *.lib
 
 # Executables
-*.exe
 *.out
 *.app
+*.exe
 
 #Codeblocs settings:
 *.layout
 
+#Debug folder
+bin/Debug/
