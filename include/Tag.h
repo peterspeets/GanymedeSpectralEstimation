@@ -24,7 +24,7 @@ public:
     bool isClosingTag = false;
     bool isOpeningTag = true;
 
-    friend std::ostream& operator<<(std::ostream&, const Tag&);
+    friend ostream& operator<<(ostream&, const Tag&);
 
 protected:
 

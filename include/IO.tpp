@@ -67,6 +67,75 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
     png_destroy_write_struct(&png, &info);
 }
 
+
+template<typename T>
+void IO<T>::savePng(const string filename,const vector<vector<T>> image,
+                    bool decibelColorScale,double decibelFloor ) {
+
+    /*
+    filename: path of the png file
+    image: pointer to 2D bitmap
+    decibelColorScale: if true, then use logarithmic scale, otherwise linear
+    decibelFloor: lowest pixel value in decibel, usually -120. Scale is normalized to maximum pixel value, so this value is negative.
+
+    This is a wrapper function of the IO<T>::savePng(const string filename, const int width, const int height, const unsigned char* image)
+    function. It takes a floating point (templated type T) image, performs scaling, creates a bitmap and passes it to the other savePng
+    overloaded function.
+
+    */
+    size_t width = image.size();
+    size_t height = image[0].size();
+
+    T maxValue = image[0][0];
+    T minValue = image[0][0];
+    int i, j;
+    //get the min and max value for scaling.
+    for(i = 0; i < width; i++) {
+        for(j = 0; j < height; j++) {
+            if(image[i][j] > maxValue) {
+                maxValue = image[i][j];
+            } else if(image[i][j] < minValue) {
+                minValue = image[i][j];
+            }
+        }
+    }
+
+    unsigned char* image_png = new unsigned char[(width * height * 3)];
+
+
+    double absoluteFloor = pow(10,0.1*decibelFloor);
+    unsigned char pixelValue = 0;
+    for(i = 0; i < width; i++) {
+        for(j = 0; j < height; j++) {
+            if(decibelColorScale) {
+                if(  ((image[i][j] - minValue)/(maxValue - minValue)) <= absoluteFloor ) {
+                    pixelValue = 0.0;
+
+                } else {
+                    pixelValue = static_cast<unsigned char>( 255*(10*log10(((image[i][j] - minValue)/(maxValue - minValue))) -decibelFloor )/abs(
+                                     decibelFloor) );
+                }
+
+            } else {
+                pixelValue = static_cast<unsigned char>( 255*(((image[i][j] - minValue)/(maxValue - minValue)) ));
+            }
+            if(image[i][j] >= maxValue) {
+                pixelValue = 255;
+            }
+            image_png[(j * width + i) * 3] = pixelValue;
+            image_png[(j * width + i) * 3+1] = pixelValue;
+            image_png[(j * width + i) * 3+2] = pixelValue;
+
+        }
+
+    }
+
+    savePng(filename, width, height, image_png);
+    delete[] image_png;
+}
+
+
+
 template<typename T>
 void IO<T>::savePng(const string filename, const int width, const int height, const T* const* image,
                     bool decibelColorScale,double decibelFloor ) {
@@ -219,7 +288,7 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
         }
         for(i = 0; i < width ; i++) {
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(zLinspace,image[i],height);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::SplineInterpolation(zLinspace,image[i],height);
             for(j = 0; j < imageHeight; j++) {
                 resizedImage[i][j] = spline->evaluate(  static_cast<float>( j)/imageHeight );
             }
@@ -249,13 +318,14 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
                 xProfile[j] = image[j][i];
             }
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(xLinspace,xProfile,width);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::SplineInterpolation(xLinspace,xProfile,width);
             for(j = 0; j < imageWidth; j++) {
                 resizedImage[j][i] = spline->evaluate(  static_cast<float>( j)/imageWidth);
             }
             delete spline;
         }
         savePng(filename, imageWidth, imageHeight,  resizedImage, decibelColorScale,decibelFloor);
+
         for (int i = 0; i < imageWidth; i++) {
             delete[] resizedImage[i];
         }
@@ -284,7 +354,7 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
 
         for(i = 0; i < width ; i++) {
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(zLinspace,image[i],height);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::SplineInterpolation(zLinspace,image[i],height);
             for(j = 0; j < imageHeight; j++) {
                 shorterImage[i][j] = spline->evaluate(  static_cast<float>( j)/imageHeight);
             }
@@ -297,7 +367,7 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
                 xProfile[j] = shorterImage[j][i];
             }
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(xLinspace,xProfile,width);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::SplineInterpolation(xLinspace,xProfile,width);
             for(j = 0; j < imageWidth; j++) {
                 resizedImage[j][i] = spline->evaluate(  static_cast<float>( j)/imageWidth);
             }
@@ -323,7 +393,144 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
         delete[] xProfile;
 
     }
+                    }
+
+template<typename T>
+void IO<T>::savePng(const string filename,const vector<vector<T>> image, const int imageWidth, const int imageHeight,
+                    bool decibelColorScale,double decibelFloor ) {
+    /*
+    filename: path of file to save to
+    width: width in pixels of the original data
+    height: height in pixels of the original data
+    imageWidth: width in pixels of the image that will be saved.
+    imageHeight: height in pixels of the image that will be saved.
+    image: 2D array oft the data
+    decibelColorScale: if true, then use decibel scale
+    decibelFloor: lowest pixel value in decibel, if decibelColorScale is true. Usually this is -120. The decibel is scaled to the maximum pixel value
+
+    This function is a wrapper function for the other overloaded savePng functions. This function interpolates the image
+    with a spline interpolation to match the new image size, and passes the result to lower level savePng() overloads.
+
+    */
+    int i, j;
+    size_t width = image.size();
+    size_t height = image[0].size();
+
+    double minValue = image[0][0];
+    double maxValue = image[0][0];
+
+    if(decibelColorScale) {
+        vector<vector<T>> logImage;
+        logImage.reserve(width);
+
+        for(i = 0; i < width; i++) {
+            for(j = 0; j < height; j++) {
+                if(image[i][j] > maxValue) {
+                    maxValue = image[i][j];
+                } else if(image[i][j] < minValue) {
+                    minValue = image[i][j];
+                }
+            }
+        }
+
+
+        double absoluteFloor = pow(10,0.1*decibelFloor);
+        T pixelValue = 0;
+        for(i = 0; i < width; i++) {
+            vector<T> row;
+            row.reverve(height);
+            for(j = 0; j < height; j++) {
+
+                if(  ((image[i][j] - minValue)/(maxValue - minValue)) <= absoluteFloor ) {
+                    pixelValue = 0.0;
+
+                } else {
+                    pixelValue =  255*(10*log10(((image[i][j] - minValue)/(maxValue - minValue))) -decibelFloor )/abs(decibelFloor) ;
+                }
+
+
+                if(image[i][j] >= maxValue) {
+                    pixelValue = 255;
+                }
+                row.emplace_back(pixelValue);
+            }
+            logImage.emplace_back(row);
+        }
+        savePng(filename,logImage,imageWidth,imageHeight,false);
+
+
+        return;
+    }
+
+    //If the desired width and height already as desired, no rescaling is needed.
+    if(width == imageWidth && height == imageHeight) {
+        savePng(filename, image, decibelColorScale,decibelFloor);
+
+    } else if(width == imageWidth && height != imageHeight) {//otherwise, rescale:
+
+        vector<vector<float>> resizedImage;
+        resizedImage.reserve(imageWidth);
+        vector<float> zLinspace;
+        zLinspace.reserve(height);
+        for (int i = 0; i < height; i++) {
+            zLinspace.emplace_back(1.0*i/height);
+        }
+        for(i = 0; i < width ; i++) {
+
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::SplineInterpolation(zLinspace,image[i],height);
+            for(j = 0; j < imageHeight; j++) {
+                resizedImage[i].emplace_back( spline->evaluate(  static_cast<float>( j)/imageHeight ));
+
+            }
+            delete spline;
+        }
+        savePng(filename, resizedImage, decibelColorScale,decibelFloor);
+    } else if (width != imageWidth && height == imageHeight) {
+
+        vector<float> xLinspace(width);
+        for (int i = 0; i < width; ++i) {
+            xLinspace[i] = 1.0*i / width;
+        }
+        /*
+        This creates an array full of zeros, but the performance hit will be
+        low compared to saving the PNG to disk.
+        */
+        vector<vector<float>> resizedImage(imageWidth, vector<float>(imageHeight));
+        vector<float> xProfile(width);
+
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                xProfile[j] = image[j][i];
+            }
+
+            UtilityMathFunctions<float>::SplineInterpolation* spline = new UtilityMathFunctions<float>::SplineInterpolation(xLinspace.data(), xProfile.data(), width);
+            for (int j = 0; j < imageWidth; j++) {
+                resizedImage[j][i] = spline->evaluate(1.0*j / imageWidth);
+            }
+            delete spline;
+        }
+        savePng(filename, resizedImage, decibelColorScale, decibelFloor);
+    }else if(width != imageWidth && height != imageHeight) {
+        vector<vector<float>> resizedImage;
+        resizedImage.reserve(imageHeight);
+        vector<float> zLinspace;
+        zLinspace.reserve(height);
+        for (int i = 0; i < height; i++) {
+            zLinspace.emplace_back(1.0*i/height);
+        }
+        for(i = 0; i < width ; i++) {
+
+            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::SplineInterpolation(zLinspace,image[i],height);
+            for(j = 0; j < imageHeight; j++) {
+                resizedImage[i].emplace_back( spline->evaluate(  static_cast<float>( j)/imageHeight ));
+
+            }
+            delete spline;
+        }
+        savePng(filename, resizedImage, imageWidth, imageHeight, decibelColorScale,decibelFloor);
+    }
 }
+
 
 template <typename T>
 map<string, vector<double>> IO<T>::loadObjectiveDispersionData(const string& filename) {
@@ -458,7 +665,7 @@ tuple<T**, int, int> IO<T>::load2DArrayFromFile(const string& filename) {
         if(line[i] == separationCharacter) {
             row.push_back(stof(line.substr(previousIndex,i-previousIndex)));
             N++;
-            previousIndex = i;
+            previousIndex = i+1;
         }
     }
 
@@ -470,7 +677,7 @@ tuple<T**, int, int> IO<T>::load2DArrayFromFile(const string& filename) {
         for (int i = 0; i < line.size(); i++) {
             if(line[i] == separationCharacter) {
                 row.push_back(stof(line.substr(previousIndex,i-previousIndex)));
-                previousIndex = i;
+                previousIndex = i+1;
             }
         }
         tempVector.push_back(row);
@@ -744,14 +951,14 @@ void IO<T>::saveArrayToFile(const kiss_fft_cpx* cpx, const int N, const string& 
         return;
     }
 
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < N; i++) {
         outFile << cpx[i].r ;
         if(i < N-1) {
             outFile << ",";
         }
     }
     outFile << endl;
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < N; i++) {
         outFile << cpx[i].i ;
         if(i < N-1) {
             outFile << ",";
@@ -778,14 +985,14 @@ void IO<floatingPointType>::saveArrayToFile(const complex<T>* cpx, const int N, 
         return;
     }
 
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < N; i++) {
         outFile << cpx[i].real() ;
         if(i < N-1) {
             outFile << ",";
         }
     }
     outFile << endl;
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < N; i++) {
         outFile << cpx[i].imag() ;
         if(i < N-1) {
             outFile << ",";
@@ -1162,11 +1369,13 @@ int IO<T>::GanymedeFileLoader::getFileIndex( string fileName) {
 }
 
 
+
+
 template <typename T>
-T** IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, T* referenceSpectrum) {
+vector<vector<T>> IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, optional<vector<T>> referenceSpectrum) {
     /*
     spectrumIndex: index of the file that contains the spectrum
-    referenceSpectrum: pointer to the reference spectrum
+    referenceSpectrum: vector of the reference spectrum. This vector will be overwritten.
 
     This function loads the B scan data from the file given by spectrumIndex. Since each
     B scan (unless disabled in the settings file of the Ganymede software) has a reference spectrum,
@@ -1181,34 +1390,34 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, T* referenceSpect
     unsigned char* file_contents = static_cast<unsigned char*>(p);
 
 
-    T** spectrum = new T*[settings->sizeXSpectrum];
-    for(i = 0; i< settings->sizeXSpectrum; i++) {
-        spectrum[i] = new T[settings->sizeZSpectrum];
-    }
+    vector<vector<T>> spectrum;
+    spectrum.reserve(settings->sizeXSpectrum);
 
     for(i = settings->scanStartIndices[spectrumIndex]; i < settings->sizeXSpectrumRaw; i++) {
+        vector<T> row(settings->sizeZSpectrum, 0.0);
         for(j = 0; j < settings->sizeZSpectrum; j++) {
-            spectrum[i-settings->scanStartIndices[spectrumIndex]][j] = 0.0;
             for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
-                spectrum[i-settings->scanStartIndices[spectrumIndex]][j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*
+                row[j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*
                         (i*settings->sizeXSpectrum+j)+k]<<(8*k));
 
             }
         }
+        spectrum.emplace_back(row);
     }
-
-    for(i = 0; i < settings->scanStartIndices[spectrumIndex]; i++) {
-        for(j = 0; j < settings->sizeZSpectrum; j++) {
-            referenceSpectrum[0] = 0.0;
-            for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
-                referenceSpectrum[j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeXSpectrum+j)+k]<<
-                                        (8*k));
+    if(referenceSpectrum.has_value()){
+        referenceSpectrum.value().assign(settings->sizeZSpectrum, 0.0);
+        for(i = 0; i < settings->scanStartIndices[spectrumIndex]; i++) {
+            for(j = 0; j < settings->sizeZSpectrum; j++) {
+                for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
+                    referenceSpectrum.value()[j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeXSpectrum+j)+k]<<
+                                            (8*k));
+                }
             }
         }
-    }
 
-    for(j = 0; j < settings->sizeZSpectrum; j++) {
-        referenceSpectrum[j] /= settings->scanStartIndices[spectrumIndex];
+        for(j = 0; j < settings->sizeZSpectrum; j++) {
+            referenceSpectrum.value()[j] /= settings->scanStartIndices[spectrumIndex];
+        }
     }
 
     /*
@@ -1221,62 +1430,102 @@ T** IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, T* referenceSpect
     return spectrum;
 }
 
+//template <typename T>
+//T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
+//    /*
+//    spectrumIndex: index of the B-scan file to load.
+//
+//    This function loads a 2D array of B-scan spectral data.
+//    */
+//   size_t uncomp_size;
+//    int i, j, k;
+//    string spectrumFileName = settings->pathsSpectra[spectrumIndex];
+//
+//    int file_index = getFileIndex(spectrumFileName);
+//    void* p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
+//    unsigned char* file_contents = static_cast<unsigned char*>(p);
+//
+//
+//    vector<vector<T>> spectrum;
+//    spectrum.reserve(settings->sizeXSpectrum);
+//
+//    for(i = settings->scanStartIndices[spectrumIndex]; i < settings->sizeXSpectrumRaw; i++) {
+//        vector<T> row(settings->sizeZSpectrum, 0.0);
+//        for(j = 0; j < settings->sizeZSpectrum; j++) {
+//            for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
+//                row += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*
+//                        (i*settings->sizeXSpectrum+j)+k]<<(8*k));
+//
+//            }
+//        }
+//        spectrum.emplace_back(row);
+//    }
+//    /*
+//    miniz uses malloc to allocate memory, not new.
+//    */
+//
+//    free(file_contents);
+//
+//    return spectrum;
+//}
+
+
+//
+//
+//template <typename T>
+//vector<T> IO<T>::GanymedeFileLoader::loadCalibrationSpectrum( string spectrumFileName,int arrayLength, int bytesPerPixel  ) {
+//
+//    Old function. When used with IO<float> this function works, since the spectra are stored in floats in the .oct files.
+//
+//    /*
+//    spectrumFileName: file name of the B-scan file to load.
+//    arrayLength: length of the calibration spectrum.
+//    bytesPerPixel: the number of bytes of the spectrum. usually 2 for bulk B-scan data, and 32? for
+//    all other (reference,offset) spectra
+//    */
+//
+//    size_t uncomp_size;
+//    int file_index = getFileIndex(spectrumFileName);
+//    void * p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
+//    T* fileData = reinterpret_cast<T*>(p);
+//
+//    vector<T> spectrum;
+//    spectrum.reserve(arrayLength);
+//    for(int i = 0; i < arrayLength; i++){
+//        spectrum.emplace_back(fileData[i]);
+//    }
+//
+//
+//    return spectrum;
+//}
+
+
 template <typename T>
-T** IO<T>::GanymedeFileLoader::loadSpectrum( int spectrumIndex) {
-    /*
-    spectrumIndex: index of the B-scan file to load.
-
-    This function loads a 2D array of B-scan spectral data.
-    */
-    size_t uncomp_size;
-    int i, j, k;
-
-
-    string spectrumFileName = settings->pathsSpectra[spectrumIndex];
-    int file_index = getFileIndex(spectrumFileName);
-    void * p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
-    unsigned char* file_contents = static_cast<unsigned char*>(p);
-    T** spectrum = new T*[settings->sizeXSpectrum];
-
-    for(i = 0; i< settings->sizeXSpectrum; i++) {
-        spectrum[i] = new T[settings->sizeZSpectrum];
-    }
-    for(i = settings->scanStartIndices[spectrumIndex]; i < settings->sizeXSpectrumRaw; i++) {
-        for(j = 0; j < settings->sizeZSpectrum; j++) {
-            spectrum[i-settings->scanStartIndices[spectrumIndex]][j] = 0.0;
-            for(k = settings->bytesPerPixelSpectrum-1; k >= 0; k--) { //most significant bit in back
-                spectrum[i-settings->scanStartIndices[spectrumIndex]][j] += (settings->electronCountScaling*
-                        (file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeZSpectrum+j)+k  ]<<(8*k))
-                                                                            );
-            }
-        }
-
-    }
-
-
-
-    /*
-    miniz uses malloc to allocate memory, not new.
-    */
-    free(file_contents);
-    return spectrum;
-
-}
-
-
-template <typename T>
-T* IO<T>::GanymedeFileLoader::loadCalibrationSpectrum( string spectrumFileName,int arrayLength, int bytesPerPixel  ) {
+std::vector<T>
+IO<T>::GanymedeFileLoader::loadCalibrationSpectrum(string spectrumFileName,int arrayLength,int bytesPerPixel) {
     /*
     spectrumFileName: file name of the B-scan file to load.
     arrayLength: length of the calibration spectrum.
-    bytesPerPixel: the number of bytes of the spectrum. usually 2 for bulk B-scan data, and 4 for
-    all other (reference,offset) spectra
+    bytesPerPixel: number of bytes per pixel (usually 2 for bulk B-scan data, 4 for reference/offset spectra).
     */
-    int i;
     size_t uncomp_size;
     int file_index = getFileIndex(spectrumFileName);
-    void * p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
-    T* spectrum = reinterpret_cast<T*>(p);
+    void* p = mz_zip_reader_extract_to_heap(&OCTArchive, file_index, &uncomp_size, NULL);
+
+    // Cast to unsigned char for byte-wise access
+    unsigned char* file_contents = static_cast<unsigned char*>(p);
+
+    vector<T> spectrum(arrayLength, 0);
+
+    for (int i = 0; i < arrayLength; i++) {
+        T value = 0;
+        for (int k = 0; k < bytesPerPixel; k++) {
+            spectrum[i]+= static_cast<T>( static_cast<int>(file_contents[i * bytesPerPixel + k]) << (8 * k) );
+        }
+    }
+
+    free(file_contents);
+
     return spectrum;
 }
 

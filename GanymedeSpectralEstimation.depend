@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1761310815 source:c:\ganymedespectralestimation\ganymedespectralestimation\main.cpp
+1763730457 source:c:\ganymedespectralestimation\ganymedespectralestimation\main.cpp
 	<iostream>
 	<fstream>
 	<string>
@@ -56,7 +56,7 @@
 	<string.h>
 	<assert.h>
 
-1747391352 c:\ganymedespectralestimation\ganymedespectralestimation\include\tag.h
+1762959029 c:\ganymedespectralestimation\ganymedespectralestimation\include\tag.h
 	<iostream>
 	<string>
 	<list>
@@ -78,7 +78,7 @@
 	<thread>
 	"Tag.h"
 
-1761572805 c:\ganymedespectralestimation\ganymedespectralestimation\include\utilitymathfunctions.h
+1763657976 c:\ganymedespectralestimation\ganymedespectralestimation\include\utilitymathfunctions.h
 	<cmath>
 	<algorithm>
 	<complex>
@@ -88,14 +88,15 @@
 	<thread>
 	<sstream>
 	<vector>
+	<optional>
 	<kiss_fft.h>
 	<kiss_fftr.h>
 	"UtilityMathFunctions.tpp"
 
-1761572853 c:\ganymedespectralestimation\ganymedespectralestimation\include\utilitymathfunctions.tpp
+1763657976 c:\ganymedespectralestimation\ganymedespectralestimation\include\utilitymathfunctions.tpp
 	"UtilityMathFunctions.h"
 
-1761569862 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.h
+1763468378 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.h
 	<iostream>
 	<fstream>
 	<memory>
@@ -111,11 +112,11 @@
 	"Settings.h"
 	"IO.tpp"
 
-1761570170 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
+1763657198 c:\ganymedespectralestimation\ganymedespectralestimation\include\io.tpp
 	"IO.h"
 	"Settings.h"
 
-1761214380 c:\ganymedespectralestimation\ganymedespectralestimation\include\bscan.h
+1763563902 c:\ganymedespectralestimation\ganymedespectralestimation\include\bscan.h
 	<cmath>
 	<algorithm>
 	<complex>
@@ -125,12 +126,13 @@
 	<thread>
 	<sstream>
 	<vector>
+	<optional>
 	<kiss_fft.h>
 	"Settings.h"
 	"UtilityMathFunctions.h"
 	"IO.h"
 
-1761214380 c:\ganymedespectralestimation\ganymedespectralestimation\include\window.h
+1763555892 c:\ganymedespectralestimation\ganymedespectralestimation\include\window.h
 	<iostream>
 	<QApplication>
 	<QtWidgets>
@@ -1575,7 +1577,7 @@
 	<memory>
 	"BScan.h"
 
-1761214380 c:\ganymedespectralestimation\ganymedespectralestimation\include\colormaps.h
+1762959103 c:\ganymedespectralestimation\ganymedespectralestimation\include\colormaps.h
 	<cmath>
 	<tuple>
 
@@ -1619,7 +1621,7 @@
 	<QtWidgets/qwidget.h>
 	<limits.h>
 
-1761214380 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\colormaps.cpp
+1762959103 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\colormaps.cpp
 	"ColorMaps.h"
 
 1747678548 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\globals.cpp
@@ -1627,7 +1629,7 @@
 1741107028 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\io.cpp
 	"IO.h"
 
-1761315433 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\sidebar.cpp
+1763481467 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\sidebar.cpp
 	<iostream>
 	"SideBar.h"
 	"Window.h"
@@ -1635,13 +1637,13 @@
 1761317570 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\tag.cpp
 	"Tag.h"
 
-1761314552 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\window.cpp
+1763561925 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\window.cpp
 	"window.h"
 
 1761317829 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\xml_interpreter.cpp
 	"XML_Interpreter.h"
 
-1761405315 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
+1763658275 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\bscan.cpp
 	"BScan.h"
 
 1761313736 source:c:\ganymedespectralestimation\ganymedespectralestimation\src\settings.cpp

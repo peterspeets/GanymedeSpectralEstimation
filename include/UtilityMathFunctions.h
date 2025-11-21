@@ -10,6 +10,7 @@
 #include <thread>
 #include <sstream>
 #include <vector>
+#include <optional>
 
 #include <kiss_fft.h>
 #include <kiss_fftr.h>
@@ -31,13 +32,10 @@ private:
 
     template <typename T>
     struct Spline {
-        T a;
-        T b;
-        T c;
-        T d;
-        T x0;
+        T a, b, c, d, x0;
+        Spline(T a_, T b_, T c_, T d_, T x0_) : a(a_), b(b_), c(c_), d(d_), x0(x0_) {}//This dummy constructor makes the Spline stuct compatible with vector<>.emplace_back()
         T evaluate(T x) const {
-            return a + b*(x - x0)+ c*(x - x0)*(x - x0)+ d*(x - x0)*(x - x0)*(x - x0);
+            return a + b*(x - x0) + c*(x - x0)*(x - x0) + d*(x - x0)*(x - x0)*(x - x0);
         }
     };
 
@@ -50,34 +48,45 @@ public:
             complex<floatingPointType>* y = nullptr);
     static complex<floatingPointType>* gohberg(const complex<floatingPointType>* a,const complex<floatingPointType>* x,const size_t N,
             complex<floatingPointType>* y = nullptr);
-    static floatingPointType** processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init, int q_i, double vt,
-                                            int NThreads =1);
+
+    static vector<complex<floatingPointType>> gohberg(const vector<floatingPointType>& a,const vector<floatingPointType>& x,
+            vector<complex<floatingPointType>>& y = nullopt);
+    static vector<complex<floatingPointType>> gohberg(const vector<complex<floatingPointType>>& a,const vector<floatingPointType>& x,
+            vector<complex<floatingPointType>>& y = nullopt);
+    static vector<complex<floatingPointType>> gohberg(const vector<complex<floatingPointType>>& a,const vector<complex<floatingPointType>>& x,
+            vector<complex<floatingPointType>>& y = nullopt);
+
+
     static tuple<complex<floatingPointType>*, floatingPointType> levinson(const complex<floatingPointType>*, size_t N,
             complex<floatingPointType>* = nullptr );
+    static tuple<vector<complex<floatingPointType>>, floatingPointType> levinson(const vector<complex<floatingPointType>>&,
+            vector<complex<floatingPointType>>& = nullopt );
     static complex<floatingPointType>* polynomialEstimation(const complex<floatingPointType>*, size_t N,
-            complex<floatingPointType>* fa1 = nullptr);
+            complex<floatingPointType>* phi = nullptr);
+    static vector<complex<floatingPointType>> polynomialEstimation(const vector<complex<floatingPointType>>& inputVector,
+            vector<complex<floatingPointType>>& phi = nullopt);
+
+    static floatingPointType** processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init, int q_i, double vt,
+                                            int NThreads =1);
     static pair<floatingPointType*, floatingPointType*> fiaa_oct(const floatingPointType* x, size_t N, int K, int q_i, double vt,
-            floatingPointType* diaaf_floatingPoint = nullptr);
+            floatingPointType* powerSpectrum = nullptr);
     static void fiaa_oct_partitioned(const floatingPointType* x, size_t N, int K, int numberOfPartitions,int q_i, double vt,
-                                     floatingPointType* diaaf_floatingPoint = nullptr);
+                                     floatingPointType* powerSpectrum = nullptr);
     static void fiaa_oct_loop(floatingPointType** x, int fromIndex, int toIndex,size_t N, int K, int numberOfPartitions,int q_i,
-                              double vt,floatingPointType* startingColumn,floatingPointType** diaaf_floatingPoint);
+                              double vt,floatingPointType* startingColumn,floatingPointType** powerSpectrum);
     static void test();
 
 
     class SplineInterpolation {
     public:
-        SplineInterpolation(Spline<floatingPointType>** splines, const size_t arraySize );
+        SplineInterpolation(const vector<floatingPointType>& x, const vector<floatingPointType>& y );
+        SplineInterpolation(floatingPointType* x, floatingPointType* y, int arrayLength );
         floatingPointType evaluate(floatingPointType x);
-        //virtual:
         ~SplineInterpolation();
     private:
         const size_t N;
-        const Spline<floatingPointType>** splines_ ;
+        vector<Spline<floatingPointType>> splines ;
     };
-
-
-    static SplineInterpolation* splineInterpolation(const floatingPointType*,const floatingPointType*, const size_t);
 
 protected:
 

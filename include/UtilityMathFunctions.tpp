@@ -197,7 +197,7 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 
 template <typename floatingPointType>
 void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatingPointType* x,
-        size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
+        size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* powerSpectrum ) {
         /*Bscan function temporarily left here for debugging.*/
     //TODO: limit scope of stack intensive arrays, before calling FIAA function.
     kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
@@ -215,12 +215,12 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
     floatingPointType partialSignalReal[N/numberOfPartitions];
     kiss_fft_cpx partialFT[N/numberOfPartitions];
 
-    if(!diaaf_floatingPoint ) {
+    if(!powerSpectrum ) {
         cout << "Creating new OPL array." << endl;
         cfg = kiss_fft_alloc(K, 0, NULL, NULL);
         kiss_fft_cpx temp[K];
-        kiss_fft_cpx diaaf[K];
-        diaaf_floatingPoint = new floatingPointType[K];
+        kiss_fft_cpx localPowerSpectrum[K];
+        powerSpectrum = new floatingPointType[K];
 
         for(int i = 0; i<N; i++) {
             temp[i].r = x[i];
@@ -230,10 +230,10 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
             temp[i].r = 0.0;
             temp[i].i = 0.0;
         }
-        kiss_fft( cfg, temp, diaaf);
+        kiss_fft( cfg, temp, localPowerSpectrum);
         for(int i = 0; i<K; i++) {
-            diaaf[i].r = diaaf_floatingPoint[i] = (diaaf[i].r *diaaf[i].r  + diaaf[i].i *diaaf[i].i)/(N*N);
-            diaaf[i].i=0;
+            localPowerSpectrum[i].r = powerSpectrum[i] = (localPowerSpectrum[i].r *localPowerSpectrum[i].r  + localPowerSpectrum[i].i *localPowerSpectrum[i].i)/(N*N);
+            localPowerSpectrum[i].i=0;
         }
         kiss_fft_free(cfg);
     }
@@ -259,11 +259,11 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
 
         if(chunkIndex != -1) {
             fiaa_output = fiaa_oct(partialSignalReal, N/numberOfPartitions,  K/numberOfPartitions,q_i,
-                                   vt,&diaaf_floatingPoint[chunkIndex*K/(2*numberOfPartitions)] );
+                                   vt,&powerSpectrum[chunkIndex*K/(2*numberOfPartitions)] );
             delete[] fiaa_output.second;
         } else {
             for(int i = chunkIndex*K/(numberOfPartitions*2); i < K; i++) {
-                diaaf_floatingPoint[i] = 0.0;
+                powerSpectrum[i] = 0.0;
             }
         }
     }
@@ -276,7 +276,7 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
 
 template <typename floatingPointType>
 pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointType>::fiaa_oct(const floatingPointType* x,
-        size_t N, int K, int q_i, double vt, floatingPointType* diaaf_floatingPoint ) {
+        size_t N, int K, int q_i, double vt, floatingPointType* powerSpectrum ) {
     /*Bscan function temporarily left here for debugging.*/
     int i, j;
 
@@ -297,7 +297,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
 
 
     Eta[0] = eta;
-    kiss_fft_cpx diaaf[K];
+    kiss_fft_cpx localPowerSpectrum[K];
 
 
 
@@ -328,9 +328,9 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
     kiss_fft_cfg icfg = kiss_fft_alloc(K, 1, NULL, NULL);
 
 
-    if(!diaaf_floatingPoint ) {
+    if(!powerSpectrum ) {
 
-        diaaf_floatingPoint = new floatingPointType[K];
+        powerSpectrum = new floatingPointType[K];
 
         for(i = 0; i<N; i++) {
             temp[i].r = x[i];
@@ -340,17 +340,17 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
             temp[i].r = 0.0;
             temp[i].i = 0.0;
         }
-        kiss_fft( cfg, temp, diaaf);
+        kiss_fft( cfg, temp, localPowerSpectrum);
         for(i = 0; i<K; i++) {
-            diaaf[i].r = (diaaf[i].r *diaaf[i].r  + diaaf[i].i *diaaf[i].i)/(N*N);
-            diaaf[i].i=0;
+            localPowerSpectrum[i].r = (localPowerSpectrum[i].r *localPowerSpectrum[i].r  + localPowerSpectrum[i].i *localPowerSpectrum[i].i)/(N*N);
+            localPowerSpectrum[i].i=0;
         }
 
     } else {
 
         for(i = 0; i<K; i++) {
-            diaaf[i].r = diaaf_floatingPoint[i];
-            diaaf[i].i=0;
+            localPowerSpectrum[i].r = powerSpectrum[i];
+            localPowerSpectrum[i].i=0;
         }
     }
 
@@ -361,7 +361,7 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         evaluated++;
         startingTime = getTime();
 
-        kiss_fft(icfg,diaaf,q);
+        kiss_fft(icfg,localPowerSpectrum,q);
 
 
         for(i = 0; i<N; i++) {
@@ -412,8 +412,8 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
         }
 
         for(i = 0; i<K; i++) {
-            diaaf[i].r  = abs( (diaa_num[i].r*diaa_num[i].r + diaa_num[i].i*diaa_num[i].i  )  /(diaa_den[i]*conj(diaa_den[i])) );
-            diaaf[i].i = 0.0;
+            localPowerSpectrum[i].r  = abs( (diaa_num[i].r*diaa_num[i].r + diaa_num[i].i*diaa_num[i].i  )  /(diaa_den[i]*conj(diaa_den[i])) );
+            localPowerSpectrum[i].i = 0.0;
         }
 
 
@@ -454,10 +454,10 @@ pair<floatingPointType*, floatingPointType*> UtilityMathFunctions<floatingPointT
     pair<floatingPointType*, floatingPointType*> result;
 
     for(i = 0; i < K; i++) {
-        diaaf_floatingPoint[i] = diaaf[i].r;
+        powerSpectrum[i] = localPowerSpectrum[i].r;
     }
 
-    result.first = diaaf_floatingPoint;
+    result.first = powerSpectrum;
     result.second = Eta;
     return result;
 }
@@ -548,19 +548,84 @@ tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<float
 
 
 template <typename floatingPointType>
-UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(Spline<floatingPointType>** splines,
-        const size_t arraySize) : splines_( new const Spline<floatingPointType>*[arraySize]), N(arraySize) {
+tuple<vector<complex<floatingPointType>>, floatingPointType> UtilityMathFunctions<floatingPointType>::levinson(
+    const vector<complex<floatingPointType>>& inputVector, vector<complex<floatingPointType>>& A) {
     /*
-    splines: array of splines
-    arraySize: length of the array of splines.
+    inputVector: input vector and Toeplitz matrix elements
+    N: length of the vector
+    A: prediction (the vector that is being solved in M\cdot A = inputVector)
 
-    This constructor creates a new spline interpolation based on the list of splines.
+    This fuction performs the Levinson-Durbin recursion on the vector inputVector to perform a fast matrix inversion.
     */
-    int i;
-    for (i = 0; i< N; i++) {
-        splines_[i] = splines[i];
+    int i, j,k,kj;
+    int khalf;
+    static uint64_t levinsonTime = 0;
+    uint64_t startingTime = getTime();
+    size_t N = inputVector.size();
+
+    static int evaluated = 0;
+    evaluated++;
+
+    complex<floatingPointType> r[N];
+
+    floatingPointType T0 = inputVector[0].real();
+
+    int M = N - 1;
+    if(A.empty()) {
+        A = vector<complex<floatingPointType>>(N);
     }
+
+
+    A[0] = 1.0;
+    for(i = 0; i < M; i++) {
+        A[i+1] = 0;
+    }
+
+    floatingPointType P = T0;
+    complex<floatingPointType> save;
+    complex<floatingPointType> temp;
+
+    bool warnedSingularMatrix = false;
+
+    for(k = 0; k < M; k++) {
+        save = inputVector[k+1];
+        if(k == 0) {
+            temp = -save/P;
+        } else {
+            for(j = 0; j < k; j++) {
+                save = save + A[j+1]*inputVector[k-j];
+            }
+            temp = -save/P;
+        }
+        P = P*(1.0 - (temp.real()*temp.real() + temp.imag()*temp.imag() ));
+        if(P < 0 && !warnedSingularMatrix) {
+            warnedSingularMatrix = true;
+            cout << "Singular matrix " << endl;
+        }
+        A[k+1] = temp;
+        if(k == 0) {
+            continue;
+        }
+        khalf = (k+1)/2;
+        for(j = 0; j < khalf; j++) {
+            kj = k - j - 1;
+            save = A[j+1];
+            A[j+1] = save + temp*A[kj+1];
+            if(j != kj) {
+                A[kj+1] += temp*save;
+            }
+        }
+    }
+
+
+    levinsonTime += getTime() - startingTime;
+
+
+    return  make_tuple(A,P);
 }
+
+
+
 
 
 template <typename floatingPointType>
@@ -576,6 +641,21 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(con
     return UtilityMathFunctions<floatingPointType>::gohberg(aComplex,xComplex,N,y);
 }
 
+
+template <typename floatingPointType>
+vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::gohberg(const vector<floatingPointType>& a,const vector<floatingPointType>& x,
+       vector<complex<floatingPointType>>& y) {
+    vector<complex<floatingPointType>> aComplex(a.size());
+    vector<complex<floatingPointType>> xComplex(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        aComplex[i] = a[i];
+        xComplex[i] = x[i];
+    }
+
+    return UtilityMathFunctions<floatingPointType>::gohberg(aComplex,xComplex,y);
+}
+
+
 template <typename floatingPointType>
 complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(const complex<floatingPointType>* a,
         const floatingPointType* x,const size_t N,complex<floatingPointType>* y) {
@@ -584,6 +664,16 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(con
         xComplex[i] = x[i];
     }
     return UtilityMathFunctions<floatingPointType>::gohberg(a,xComplex,N,y);
+}
+
+template <typename floatingPointType>
+vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::gohberg(const vector<complex<floatingPointType>>& a,
+        const vector<floatingPointType>& x,vector<complex<floatingPointType>>& y) {
+    vector<complex<floatingPointType>> xComplex(a.size());
+    for(int i = 0; i < a.size(); i++) {
+        xComplex[i] = x[i];
+    }
+    return UtilityMathFunctions<floatingPointType>::gohberg(a,xComplex,y);
 }
 
 
@@ -762,6 +852,173 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(con
 }
 
 
+template <typename floatingPointType>
+vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::gohberg(const vector<complex<floatingPointType>>& A,
+        const vector<complex<floatingPointType>>& x, vector<complex<floatingPointType>>& y) {
+
+    /*
+    A: first column of the Toeplitz matrix
+    x: vector to apply the matrix A on
+    y: vector to write the result to.
+
+    This function calculates the matrix product y = A·x using the Gohberg–Semencul formula. Since A is a Toeplitz matrix, only the first column of the matrix (that fully determined the rest of the matrix).
+
+    The vector y is part of the input, since in the iteration, this vector is often overwritten.
+    */
+    int i, j;
+    int N = A.size();
+    uint64_t startingTime = getTime();
+
+    kiss_fft_cpx t1t[2*N];
+    kiss_fft_cpx t1[2*N];
+    kiss_fft_cpx w[2*N];
+
+    kiss_fft_cpx T1t[2*N];
+    kiss_fft_cpx T1[2*N];
+    kiss_fft_cpx W[2*N];
+
+    kiss_fft_cpx tmp1[2*N];
+    kiss_fft_cpx tmp2[2*N];
+    kiss_fft_cpx ftmp[2*N];
+
+    if(y.empty()) {
+        y = vector<complex<floatingPointType>>(N);
+    }
+
+
+    complex<floatingPointType> z[N];
+
+    kiss_fft_cfg cfg = kiss_fft_alloc(2*N, 0, NULL, NULL);
+    kiss_fft_cfg icfg = kiss_fft_alloc(2*N, 1, NULL, NULL);
+
+    for(i = 0; i < N; i++) {
+        t1[i].r = A[i].real();
+        t1[i].i = A[i].imag();
+        w[i].r = x[i].real();
+        w[i].i = x[i].imag();
+    }
+    t1[N].r = A[0].real();
+    t1[N].i = A[0].imag();
+    w[N].r = 0.0;
+    w[N].i = 0.0;
+    for(i = N+1; i < 2*N; i++) {
+        t1[i].r = 0.0;
+        t1[i].i = 0.0;
+        w[i].r = 0.0;
+        w[i].i = 0.0;
+    }
+    t1t[0].r = A[0].real();
+    t1t[0].i = -A[0].imag();
+    for(i = 1; i < N; i++) {
+        t1t[i].r = 0.0;
+        t1t[i].i = 0.0;
+    }
+    t1t[N].r = A[0].real();
+    t1t[N].i = -A[0].imag();
+
+    for(i = N+1; i < 2*N; i++) {
+        t1t[i].r = A[ 2*N-i ].real();
+        t1t[i].i = A[ 2*N-i ].imag();
+    }
+
+    kiss_fft( cfg, t1, T1);
+    kiss_fft( cfg, t1t, T1t);
+    kiss_fft( cfg, w, W);
+
+    for(i = 0; i < 2*N; i++) {
+        ftmp[i].r = T1t[i].r*W[i].r - T1t[i].i*W[i].i  ;
+        ftmp[i].i = T1t[i].r*W[i].i + T1t[i].i*W[i].r  ;
+    }
+    kiss_fft( icfg, ftmp, w);
+
+
+
+    for(i = N; i < 2*N; i++) {
+        w[i].r = 0.0;
+        w[i].i = 0.0;
+    }
+
+    kiss_fft( cfg, w, W);
+    for(i = 0; i < 2*N; i++) {
+        ftmp[i].r = T1[i].r*W[i].r - T1[i].i*W[i].i  ;
+        ftmp[i].i = T1[i].r*W[i].i + T1[i].i*W[i].r  ;
+    }
+
+    kiss_fft( icfg, ftmp, tmp1);
+    z[0] = 0.0;
+    for(i = 1; i < N; i++) {
+        z[i] = A[N-i];
+    }
+
+
+    for(i = 0; i < N; i++) {
+        t1[i].r = z[i].real();
+        t1[i].i = z[i].imag();
+        w[i].r = x[i].real();
+        w[i].i = x[i].imag();
+    }
+    t1[N].r = z[0].real();
+    t1[N].i = z[0].imag();
+    w[N].r = 0.0;
+    w[N].i = 0.0;
+    for(i = N+1; i < 2*N; i++) {
+        t1[i].r = 0.0;
+        t1[i].i = 0.0;
+        w[i].r = 0.0;
+        w[i].i = 0.0;
+    }
+
+    t1t[0].r = z[0].real();
+    t1t[0].i = -z[0].imag();
+    for(i = 1; i < N; i++) {
+        t1t[i].r = 0.0;
+        t1t[i].i = 0.0;
+    }
+    t1t[N].r = z[0].real();
+    t1t[N].i = -z[0].imag();
+    for(i = N+1; i < 2*N; i++) {
+        t1t[i].r = z[ 2*N-i ].real();
+        t1t[i].i = z[ 2*N-i ].imag();
+    }
+
+
+
+    kiss_fft( cfg, t1, T1);
+    kiss_fft( cfg, t1t, T1t);
+    kiss_fft( cfg, w, W);
+
+
+
+    for(i = 0; i < 2*N; i++) {
+        ftmp[i].r = T1t[i].r*W[i].r - T1t[i].i*W[i].i  ;
+        ftmp[i].i = T1t[i].r*W[i].i + T1t[i].i*W[i].r  ;
+    }
+
+    kiss_fft( icfg, ftmp, w);
+    for(i = N; i < 2*N; i++) {
+        w[i].r = 0.0;
+        w[i].i = 0.0;
+    }
+    kiss_fft( cfg, w, W);
+
+    for(i = 0; i < 2*N; i++) {
+        ftmp[i].r = T1[i].r*W[i].r - T1[i].i*W[i].i  ;
+        ftmp[i].i = T1[i].r*W[i].i + T1[i].i*W[i].r  ;
+    }
+
+    kiss_fft( icfg, ftmp, tmp2);
+    kiss_fft_free(cfg);
+    kiss_fft_free(icfg);
+
+    for(i = 0; i < N; i++) {
+        y[i] = complex<floatingPointType>(tmp1[i].r/(4*N*N) - tmp2[i].r/(4*N*N), tmp1[i].i/(4*N*N) - tmp2[i].i/(4*N*N));
+    }
+    return y;
+
+}
+
+
+
 
 
 template <typename floatingPointType>
@@ -905,6 +1162,150 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
 
 
+template <typename floatingPointType>
+vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::polynomialEstimation(const vector<complex<floatingPointType>>& inputVector,
+        vector<complex<floatingPointType>>& phi) {
+    //Algorithm from: Fast and accurate spectral-estimation axial super-resolution optical coherence tomography, J. de Wit et al. (2021)
+    //Matlab code at https://zenodo.org/records/5482794 (J. de Wit)
+
+    static uint64_t polyTime = 0;
+    uint64_t startingTime = getTime();
+    static int evaluated = 0;
+    size_t N = inputVector.size();
+    evaluated++;
+
+    complex<floatingPointType> t[N];
+    complex<floatingPointType> s[N];
+
+
+    kiss_fft_cpx w[2*N];
+    kiss_fft_cpx tx[2*N];
+
+    kiss_fft_cfg cfg = kiss_fft_alloc(2*N, 0, NULL, NULL);
+
+    for(int i = 0; i < N; i++) {
+        t[i] = inputVector[i];
+    }
+
+
+    for(int i = 0; i < N; i++) {
+        s[i] = conj(t[N-i-1])*static_cast<floatingPointType>(i+1);
+    }
+
+
+    for(int i = 0; i < N; i++) {
+        w[i].r = s[i].real();
+        w[i].i = s[i].imag();
+        tx[i].r = t[i].real();
+        tx[i].i = t[i].imag();
+    }
+
+
+    for(int i = N; i < 2*N; i++) {
+        w[i].r = 0.0;
+        tx[i].r = 0.0;
+        w[i].i = 0.0;
+        tx[i].i = 0.0;
+    }
+
+
+    tx[N].r = t[0].real();
+    tx[N].i = t[0].imag();
+
+
+
+
+    kiss_fft_cpx TX[2*N];
+    kiss_fft_cpx W[2*N];
+
+    kiss_fft_cpx fft1[2*N];
+    kiss_fft(cfg, tx, TX);
+    kiss_fft(cfg, w, W);
+
+
+    for(int i = 0; i < 2*N; i++) {
+        fft1[i].r = TX[i].r * W[i].r - TX[i].i * W[i].i;
+        fft1[i].i = TX[i].r * W[i].i + TX[i].i * W[i].r;
+    }
+
+
+
+    t[0] = 0.0;
+    for(int i = 1; i < N; i++) {
+        t[i] = conj(inputVector[N - i]);
+    }
+    for(int i = 0; i < N; i++) {
+        s[i] = conj(t[N-i-1])*static_cast<floatingPointType>(i+1);
+    }
+    for(int i = 0; i < N; i++) {
+        w[i].r = s[i].real();
+        w[i].i = s[i].imag();
+        tx[i].r = t[i].real();
+        tx[i].i = t[i].imag();
+    }
+    for(int i = N; i < 2*N; i++) {
+        w[i].r = 0.0;
+        tx[i].r = 0.0;
+        w[i].i = 0.0;
+        tx[i].i = 0.0;
+    }
+
+
+
+    kiss_fft_cpx fft2[2*N];
+    kiss_fft(cfg, tx, TX);
+    kiss_fft(cfg, w, W);
+
+
+    tx[N].r = t[0].real();
+    tx[N].i = t[0].imag();
+
+
+    for(int i = 0; i < 2*N; i++) {
+        fft2[i].r = TX[i].r * W[i].r - TX[i].i * W[i].i;
+        fft2[i].i = TX[i].r * W[i].i + TX[i].i * W[i].r;
+    }
+
+    kiss_fft_free(cfg);
+    cfg = kiss_fft_alloc(2*N, 1, NULL, NULL);
+
+    kiss_fft_cpx tmp1[2*N];
+    kiss_fft_cpx tmp2[2*N];
+    kiss_fft(cfg, fft1,tmp1);
+    kiss_fft(cfg, fft2,tmp2);
+
+
+    kiss_fft_free(cfg);
+
+
+
+    if(!phi.empty()) {
+        /*
+        To prevent repeating allocation and deallocation of memory, the old value can be overwritten.
+        */
+        phi = vector<complex<floatingPointType>>(2*N-1);
+    }
+
+
+    for(int i = 0; i < N; i++) {
+        phi[i] = complex<floatingPointType>( (tmp1[i].r - tmp2[i].r)/(2*N), ( -tmp1[i].i + tmp2[i].i)/(2*N)    );
+    }
+    for(int i = 0; i < N-2; i++) {
+        phi[N+i] = conj( phi[N-i-2 ] );
+    }
+
+
+    polyTime += getTime()-startingTime;
+
+    if(evaluated == 10*1024*4) {
+        cout << "Poly evaluated " << evaluated << " times.  time = " << ((1.0*polyTime)/evaluated) << " ms" << endl;
+    }
+
+    return phi;
+}
+
+
+
 
 template <typename floatingPointType>
 floatingPointType UtilityMathFunctions<floatingPointType>::SplineInterpolation::evaluate(floatingPointType x) {
@@ -914,29 +1315,30 @@ floatingPointType UtilityMathFunctions<floatingPointType>::SplineInterpolation::
     This function evaluates the splines. It looks for which spline to evaluate. This function assumes the splines are ordered.
     */
 
-    if(x <= splines_[0]->x0) {
-        return splines_[0]->evaluate(x);
-    } else if(x >= splines_[N-1]->x0) {
-        return splines_[N-1]->evaluate(x);
+    if(x <= splines[0].x0) {
+        return splines[0].evaluate(x);
+    } else if(x >= splines[splines.size()-1].x0) {
+        return splines[splines.size()-1].evaluate(x);
     }
 
     floatingPointType dx;
-    int initialIndex = static_cast<int>(N*x/(splines_[N-1]->x0-splines_[0]->x0));
-    if(splines_[initialIndex]->x0 > x) {
+    int initialIndex = static_cast<int>(splines.size()*x/(splines[splines.size()-1].x0-splines[0].x0));
+
+    if(splines[initialIndex].x0 > x) {
         //go left
         for(int i = initialIndex; i>0; i--) {
-            dx = fabs(splines_[i]->x0 - splines_[i-1]->x0);
-            if( fabs(splines_[i]->x0 - x ) <= dx  ) {
-                return splines_[i-1]->evaluate(x);
+            dx = fabs(splines[i].x0 - splines[i-1].x0);
+            if( fabs(splines[i].x0 - x ) <= dx  ) {
+                return splines[i-1].evaluate(x);
             }
         }
 
     } else {
         //go right
-        for(int i = initialIndex; i<N-1; i++) {
-            dx = fabs(splines_[i]->x0 - splines_[i+1]->x0);
-            if( fabs(splines_[i]->x0 - x ) <= dx  ) {
-                return splines_[i]->evaluate(x);
+        for(int i = initialIndex; i<splines.size()-1; i++) {
+            dx = fabs(splines[i].x0 - splines[i+1].x0);
+            if( fabs(splines[i].x0 - x ) <= dx  ) {
+                return splines[i].evaluate(x);
             }
         }
     }
@@ -948,46 +1350,34 @@ floatingPointType UtilityMathFunctions<floatingPointType>::SplineInterpolation::
 
 
 template <typename floatingPointType>
-UtilityMathFunctions<floatingPointType>::SplineInterpolation::~SplineInterpolation() {
-    int i;
-    for(i = 0; i < N; i++) {
-        delete splines_[i];
-    }
-    delete splines_;
-}
+UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(const vector<floatingPointType>& x,const vector<floatingPointType>& y) : N(x.size()){
 
-template <typename floatingPointType>
-typename UtilityMathFunctions<floatingPointType>::SplineInterpolation* UtilityMathFunctions<floatingPointType>::splineInterpolation(
-    const floatingPointType* x,const floatingPointType* y, const size_t arraySize) {
     /*
     x: array of x positions of the spline interpolation
     y: array of y positions of the spline interpolation
-    arraySize: length of the array.
 
     Implemented from pseudocode taken from: https://en.wikipedia.org/wiki/Spline_(mathematics) (27-01-2025 17:00);
     */
-    const size_t n = arraySize -1;
+    const size_t n = x.size() -1;
     int i;
 
-    floatingPointType a[arraySize];
-    for (i = 0; i < arraySize; i++) {
+    floatingPointType a[x.size()];
+    for (i = 0; i < x.size(); i++) {
         a[i] = y[i];
     }
-    Spline<floatingPointType>* splines[n];
-
 
     floatingPointType b[n];
-    floatingPointType c[arraySize];
+    floatingPointType c[x.size()];
     floatingPointType d[n];
     floatingPointType h[n];
     floatingPointType alpha[n];
-    floatingPointType l[arraySize];
+    floatingPointType l[x.size()];
     l[0] = 1;
     l[n] = 1;
-    floatingPointType mu[arraySize];
+    floatingPointType mu[x.size()];
     mu[0] = 0;
     mu[1] = 0;
-    floatingPointType z[arraySize];
+    floatingPointType z[x.size()];
     z[0] = 0;
     z[n] = 0;
     for(i = 0; i < n; i++) {
@@ -1010,16 +1400,86 @@ typename UtilityMathFunctions<floatingPointType>::SplineInterpolation* UtilityMa
     }
 
 
-    for(i = 0; i<n; i++) {
-        splines[i] = new Spline<floatingPointType> {a[i],b[i],c[i],d[i],x[i]};
+    splines.reserve(n);
+    for (int i = 0; i < n; ++i) {
+        splines.emplace_back(a[i], b[i], c[i], d[i], x[i]);
+    }
+}
+
+
+
+template <typename floatingPointType>
+UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(floatingPointType* x,floatingPointType* y,int arrayLength): N(arrayLength){
+
+    /*
+    x: array of x positions of the spline interpolation
+    y: array of y positions of the spline interpolation
+
+    Implemented from pseudocode taken from: https://en.wikipedia.org/wiki/Spline_(mathematics) (27-01-2025 17:00);
+    */
+    int n = arrayLength -1;
+    int i;
+
+    floatingPointType a[arrayLength];
+    for (i = 0; i < arrayLength; i++) {
+        a[i] = y[i];
+    }
+
+    floatingPointType b[n];
+    floatingPointType c[arrayLength];
+    floatingPointType d[n];
+    floatingPointType h[n];
+    floatingPointType alpha[n];
+    floatingPointType l[arrayLength];
+    l[0] = 1;
+    l[n] = 1;
+    floatingPointType mu[arrayLength];
+    mu[0] = 0;
+    mu[1] = 0;
+    floatingPointType z[arrayLength];
+    z[0] = 0;
+    z[n] = 0;
+    for(i = 0; i < n; i++) {
+        h[i] = x[i+1] - x[i];
+    }
+
+    for(i = 1; i < n; i++) {
+        alpha[i] = (3 / h[i] * (a[i + 1] - a[i]) - 3 / h[i - 1] * (a[i] - a[i - 1]));
+    }
+    for(i = 1; i < n; i++) {
+        l[i] = 2 * (x[i + 1] - x[i - 1]) - h[i - 1] * mu[i - 1];
+        mu[i] = h[i] / l[i];
+        z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
+    }
+
+    for(i = n-1; i>=0; i--) {
+        c[i] = z[i] - mu[i] * c[i + 1];
+        b[i] = (a[i + 1] - a[i]) / h[i] - h[i] * (c[i + 1] + 2 * c[i]) / 3;
+        d[i] = (c[i + 1] - c[i]) / (3 * h[i]);
     }
 
 
-    SplineInterpolation* interp = new SplineInterpolation(splines,n);
-
-
-    return  interp;
+    splines.reserve(n);
+    for (int i = 0; i < n; ++i) {
+        splines.emplace_back(a[i], b[i], c[i], d[i], x[i]);
+    }
 }
+
+
+
+template <typename floatingPointType>
+UtilityMathFunctions<floatingPointType>::SplineInterpolation::~SplineInterpolation() {
+
+}
+
+
+
+
+
+
+
+
+
 
 
 

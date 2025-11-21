@@ -244,7 +244,7 @@ void SideBar::floorPixelValueSpinBoxChanged(double newValue) {
         settings->percentageFloor = newValue;
         ceilPixelValueSpinBox->setRange(settings->percentageFloor, 100);
     }
-    if(scan && scan->imageFFT) {
+    if(scan && !scan->imageFFT.empty()) {
         if(settings->useRIAA) {
             parentWindow->setImage(scan->imageRIAA,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum*settings->upscalingFactor);
         } else {
@@ -270,9 +270,9 @@ void SideBar::ceilPixelValueSpinBoxChanged(double newValue) {
         floorPixelValueSpinBox->setRange(0, settings->percentageCeil);
     }
     if(scan) {
-        if(settings->useRIAA && scan->imageRIAA) {
+        if(settings->useRIAA && !scan->imageRIAA.empty()) {
             parentWindow->setImage(scan->imageRIAA,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum*settings->upscalingFactor);
-        } else if(scan->imageFFT) {
+        } else if(!scan->imageFFT.empty()) {
             parentWindow->setImage(scan->imageFFT,scan->BScanSettings.sizeXSpectrum, scan->BScanSettings.sizeZSpectrum);
         }
     }

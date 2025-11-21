@@ -11,6 +11,7 @@
 #include <thread>
 #include <sstream>
 #include <vector>
+#include <optional>
 
 #include <kiss_fft.h>
 
@@ -27,23 +28,30 @@ public:
     BScan(const string filePath);
     Settings BScanSettings;
     void preprocessSpectrumInPlace();
-    float** fftBScan();
+    vector<vector<float>> fftBScan();
     virtual ~BScan();
     uint64_t getTime();
-    static void stretchSpectraInPlace(float** spectra, float* referenceSpectrum, float minimumReferencePower);
-    static void fiaa_oct_loop(float** spectra,BScan* scan,int fromIndex, int toIndex,
-                              size_t N, int K, int numberOfPartitions,int q_i, double vt, float* startingColumn,float** processedImage );
+    static void stretchSpectraInPlace(float** spectra, float* referenceSpectrum, float minimumReferencePower); //old function
 
-    float** processBScan(size_t M,const size_t N, int K,int q_init,int q_i, double vt,int NThreads) ;
-    float** processBScan();
-    void fiaa_oct_partitioned(const float* x, float* diaaf_floatingPoint,int numberOfIterations = settings->numberOfIterations );
-    void fiaa_oct_partitioned(const float* x,
-                              size_t N, int K, int numberOfPartitions,int q_i, double vt, float* diaaf_floatingPoint ) ;
-    pair<float*, float*> fiaa_oct(const float* x, size_t N, int K, int q_i, double vt, float* diaaf_floatingPoint = nullptr);
-    tuple<float**,int,int> getProcessedBScan();
+    void stretchSpectraInPlace(float minimumReferencePower);
+    static void FIAALoop(vector<vector<float>>& spectra,BScan* scan,int fromIndex, int toIndex,
+                              size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt, vector<float>& startingColumn,vector<vector<float>>& processedImage );
+
+    vector<vector<float>> processBScan(size_t M,const size_t N, int K,int numberOfIterationsFirstColumn,int numberOfIterations, double vt,int NThreads) ;
+    vector<vector<float>> processBScan();
+    void FIAAPartitioned(const vector<float>& x, vector<float>& powerSpectrum,int numberOfIterations = settings->numberOfIterations );
+    void FIAAPartitioned(const vector<float>& x,
+                              size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt, vector<float>& powerSpectrum ) ;
+    pair<vector<float>,vector<float>> FIAA(const vector<float>& x, int K, int numberOfIterations, double vt, vector<float>& powerSpectrum, int powerSpectrumIndex);
+    pair<vector<float>,vector<float>> FIAA(const vector<float>& x, int K, int numberOfIterations, double vt);
+    tuple<vector<vector<float>>,int,int> getProcessedBScan();
     void calculateLowResBitmap();
-    float** imageRIAA = nullptr;
-    float** imageFFT = nullptr;
+    //float** imageRIAA = nullptr;
+    //float** imageFFT = nullptr;
+
+    vector<vector<float>> imageRIAA;
+    vector<vector<float>> imageFFT;
+
     unsigned char* lowResBitmap = nullptr; //no alpha channel
 
 
@@ -51,13 +59,16 @@ public:
 protected:
 
 private:
-    float** spectra = nullptr;
-    float* offset = nullptr;
-    float* chirp = nullptr;
-    float* referenceSpectrum = nullptr;
-    float* intensity = nullptr;
-    float* window = nullptr;
-    static void fftPartBSscan(float** spectra, float** image, int Nz,int startXIndex, int stopXIndex) ;
+    vector<vector<float>> spectra;
+    vector<float> offset;
+    vector<float> chirp;
+    vector<float> referenceSpectrum;
+    vector<float> intensity;
+    vector<float> window;
+
+    static void fftPartBScan(float** spectra, float** image, int Nz,const int startXIndex, const int stopXIndex);
+    static void fftPartBScan(vector<vector<float>>& spectra, vector<vector<float>>& image, const int startXIndex, const int stopXIndex);
+
 
 };
 

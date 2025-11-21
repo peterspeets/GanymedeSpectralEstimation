@@ -60,6 +60,12 @@ public:
     static void savePng(const string filename, const int width, const int height, const int imageWidth,
                         const int imageHeight, const floatingPointType* const* image, bool decibelColorScale = false,double decibelFloor = -120 );
 
+
+    static void savePng(const string filename, const vector<vector<floatingPointType>> image, bool decibelColorScale = false,double decibelFloor = -120 );
+    static void savePng(const string filename, const vector<vector<floatingPointType>> image, const int imageWidth,
+                        const int imageHeight, bool decibelColorScale = false,double decibelFloor = -120 );
+
+
     static pair<floatingPointType*, int> loadArrayFromFile(const string& filename);
     static tuple<floatingPointType**, int, int> load2DArrayFromFile(const string& filename);
     static map<string, vector<double>> loadObjectiveDispersionData(const string& filename);
@@ -78,10 +84,17 @@ public:
     public:
 
         shared_ptr<Settings> loadSettings() ;
-        floatingPointType** loadSpectrum(int spectrumIndex, floatingPointType* referenceSpectrum) ;
-        floatingPointType** loadSpectrum(int spectrumIndex) ;
-        floatingPointType* loadCalibrationSpectrum( string spectrumFileName,int arrayLength = 2048,int bytesPerPixel = 4 );
+        //floatingPointType** loadSpectrum(int spectrumIndex, floatingPointType* referenceSpectrum) ;
+        //floatingPointType** loadSpectrum(int spectrumIndex) ;
+        //floatingPointType* loadCalibrationSpectrum( string spectrumFileName,int arrayLength = 2048,int bytesPerPixel = 32 );
+        //GanymedeFileLoader(const string filePath);
+
+        vector<vector<floatingPointType>> loadSpectrum(int spectrumIndex,  optional<vector<floatingPointType>> referenceSpectrum = nullopt) ;
+        //vector<vector<floatingPointType>> loadSpectrum(int spectrumIndex) ;
+        vector<floatingPointType> loadCalibrationSpectrum( string spectrumFileName,int arrayLength = 2048,int bytesPerPixel = 32 );
         GanymedeFileLoader(const string filePath);
+
+
         ~GanymedeFileLoader();
 
     private:

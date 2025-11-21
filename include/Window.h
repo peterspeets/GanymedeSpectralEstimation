@@ -36,7 +36,8 @@ class Window : public QMainWindow {
 public:
     Window();
     void displayImage(unsigned char*,size_t width,size_t height);
-    void setImage(float** floatImage,const size_t floatImagewidth, const size_t floatImageheight_);
+    void setImage(const float* const* floatImage,const size_t floatImagewidth, const size_t floatImageheight_);
+    void setImage(const vector<vector<float>>& floatImage,const size_t floatImagewidth, const size_t floatImageheight_);
     void loadFile(string);
     virtual ~Window();
 

@@ -4,7 +4,7 @@ ColorMaps::ColorMaps() {
     //ctor
 }
 
-tuple<unsigned char,unsigned char,unsigned char> ColorMaps::greyScale(double pixelValue) {
+tuple<unsigned char,unsigned char,unsigned char> ColorMaps::greyScale(const double pixelValue) {
     /*
      pixelValue is assumed to be between 0 and 1.
     */
@@ -13,7 +13,7 @@ tuple<unsigned char,unsigned char,unsigned char> ColorMaps::greyScale(double pix
     return RGBValue;
 }
 
-tuple<unsigned char,unsigned char,unsigned char> ColorMaps::viridis(double pixelValue) {
+tuple<unsigned char,unsigned char,unsigned char> ColorMaps::viridis(const double pixelValue) {
     /*
     pixelValue is assumed to be between 0 and 1.
     */
@@ -37,7 +37,7 @@ tuple<unsigned char,unsigned char,unsigned char> ColorMaps::viridis(double pixel
 }
 
 
-tuple<unsigned char,unsigned char,unsigned char> ColorMaps::plasma(double pixelValue) {
+tuple<unsigned char,unsigned char,unsigned char> ColorMaps::plasma(const double pixelValue) {
     /*
     pixelValue is assumed to be between 0 and 1.
     */
@@ -61,7 +61,7 @@ tuple<unsigned char,unsigned char,unsigned char> ColorMaps::plasma(double pixelV
 }
 
 
-tuple<unsigned char,unsigned char,unsigned char> ColorMaps::inferno(double pixelValue) {
+tuple<unsigned char,unsigned char,unsigned char> ColorMaps::inferno(const double pixelValue) {
     /*
     pixelValue is assumed to be between 0 and 1.
     */
@@ -84,7 +84,7 @@ tuple<unsigned char,unsigned char,unsigned char> ColorMaps::inferno(double pixel
     return RGBValue;
 }
 
-tuple<unsigned char,unsigned char,unsigned char> ColorMaps::magma(double pixelValue) {
+tuple<unsigned char,unsigned char,unsigned char> ColorMaps::magma(const double pixelValue) {
     /*
     pixelValue is assumed to be between 0 and 1.
     */
@@ -109,7 +109,7 @@ tuple<unsigned char,unsigned char,unsigned char> ColorMaps::magma(double pixelVa
 
 
 
-tuple<unsigned char,unsigned char,unsigned char> ColorMaps::cividis(double pixelValue) {
+tuple<unsigned char,unsigned char,unsigned char> ColorMaps::cividis(const double pixelValue) {
     /*
     pixelValue is assumed to be between 0 and 1.
     */
@@ -132,7 +132,7 @@ tuple<unsigned char,unsigned char,unsigned char> ColorMaps::cividis(double pixel
     return RGBValue;
 }
 
-tuple<unsigned char,unsigned char,unsigned char> ColorMaps::jet(double pixelValue) {
+tuple<unsigned char,unsigned char,unsigned char> ColorMaps::jet(const double pixelValue) {
     /*
     pixelValue is assumed to be between 0 and 1.
     */

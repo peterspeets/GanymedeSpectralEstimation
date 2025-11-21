@@ -207,15 +207,17 @@ public:
             }
         }
 
-        UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(indexOfMaximumPerChunk,
+        UtilityMathFunctions<float>::SplineInterpolation spline = UtilityMathFunctions<float>::SplineInterpolation(indexOfMaximumPerChunk,
                 maximumValuesPerChunk,NChunks+2);
+
+
         for(i = 0; i < length; i++) {
-            env[i] = spline->evaluate(  static_cast<float>( i ) );
+            env[i] = spline.evaluate(  static_cast<float>( i ) );
             if(env[i] < 0.01*maxValue) {
                 env[i] = 0.01*maxValue;
             }
         }
-        delete spline;
+        //delete spline;
         return env;
     }
 
@@ -314,15 +316,15 @@ public:
 
         for(int i = 0; i < settings->sizeXSpectrum; i++) {
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(xrange,spectra[i],
+            UtilityMathFunctions<float>::SplineInterpolation spline = UtilityMathFunctions<float>::SplineInterpolation(xrange,spectra[i],
                     settings->sizeZSpectrum);
             for(int j = 0; j < settings->sizeZSpectrum; j++) {
                 float x = 1.0*j*( maxIndex - minIndex ) / (settings->sizeZSpectrum*settings->sizeZSpectrum) + (1.0*minIndex)/settings->sizeZSpectrum;
-                spectra[i][j] = spline->evaluate(x);
+                spectra[i][j] = spline.evaluate(x);
             }
 
 
-            delete spline;
+            //delete spline;
         }
 
         return;
@@ -494,12 +496,12 @@ public:
             is done here.
             */
             for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
-                UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],
+                UtilityMathFunctions<float>::SplineInterpolation spline = UtilityMathFunctions<float>::SplineInterpolation(chirp,spectra[i],
                         settings->sizeZSpectrum);
                 for(j = 0; j < settings->sizeZSpectrum; j++) {
-                    spectra[i][j] = spline->evaluate(  static_cast<float>( j) );
+                    spectra[i][j] = spline.evaluate(  static_cast<float>( j) );
                 }
-                delete spline;
+                //delete spline;
             }
         }
 
@@ -621,12 +623,7 @@ public:
             for(j = 0; j < settings->sizeZSpectrum ; j++) {
                 spectra[i][j] = positiveSignal[j].r + negativeSignal[j].r;
             }
-
-
         }
-
-
-
 
         kiss_fft_free(cfg);
         kiss_fft_free(icfg);
@@ -646,12 +643,12 @@ public:
         equalizeEnvelopeInPlace(spectra, settings->sizeXSpectrum, settings->sizeZSpectrum);
         if(chirp) {
             for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
-                UtilityMathFunctions<float>::SplineInterpolation* spline = UtilityMathFunctions<float>::splineInterpolation(chirp,spectra[i],
+                UtilityMathFunctions<float>::SplineInterpolation spline = UtilityMathFunctions<float>::SplineInterpolation(chirp,spectra[i],
                         settings->sizeZSpectrum);
                 for(j = 0; j < settings->sizeZSpectrum; j++) {
-                    spectra[i][j] = spline->evaluate(  static_cast<float>( j) );
+                    spectra[i][j] = spline.evaluate(  static_cast<float>( j) );
                 }
-                delete spline;
+                //delete spline;
             }
         }
         for(i = 0; i < settings->sizeXSpectrum -0 ; i++) {
@@ -672,7 +669,6 @@ public:
             }
         }
     }
-
 };
 
 
@@ -680,6 +676,7 @@ public:
 
 
 int main(int argc, char *argv[]) {
+
     QApplication app(argc, argv);
     //TODO: header is utf-8 in the Ganymede software, here ASCI. If somebody puts an emoticon into the filename, the code might fail.
     settings = make_shared<Settings>();
@@ -694,15 +691,52 @@ int main(int argc, char *argv[]) {
     Window window;
     window.show();
     //the scan object contains all data and some non static processing functions.
+
+
+    string filePath = "D:\\data\\ThorlabsCppTestData\\wedgeBscan\\sk.txt";
+    /*
+
+
+    tuple<float**, int, int> ctuple = IO<float>::load2DArrayFromFile("D:\\data\\ThorlabsCppTestData\\cLevinson.txt");
+    int N = get<2>(ctuple);
+    complex<float>* carray = new complex<float>[N];
+
+
+    cout << N <<" " <<get<1>(ctuple ) << " " << get<2>(ctuple) << endl;
+
+    for(int i = 0; i < N;i++){
+        carray[i] = complex<float>(get<0>(ctuple)[0][i] , get<0>(ctuple)[1][i]);
+    }
+
+
+    complex<float>* Aarray = new complex<float>[N];
+
+    vector<complex<float>> cvector = vector<complex<float>>(N);
+    vector<complex<float>> Avector = vector<complex<float>>(N);
+    for(int i = 0; i< N; i++){
+        cvector[i] = carray[i];
+    }
+
+
+    UtilityMathFunctions<float>::levinson(carray,N,Aarray);
+    UtilityMathFunctions<float>::levinson(cvector,Avector);
+
+    for(int i = 0; i < N;i++){
+        cout << i << " " << Aarray[i] << " " << Avector[i] << endl;
+    }
+
+    */
+
+
+
     scan = make_shared<BScan>();
 
     //set the image. When not debugging, settings->sizeXSpectrum and settings->sizeZSpectrum will be zero.
     window.setImage(scan->fftBScan(),settings->sizeXSpectrum,settings->sizeZSpectrum);
     cout << "end" << endl;
 
+    //return 0;
     return app.exec();
-
-
 }
 
 

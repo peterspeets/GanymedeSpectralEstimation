@@ -163,7 +163,27 @@ void Window::confirmExit() {
     }
 }
 
-void Window::setImage(float** floatImage,const size_t floatImageWidth, const size_t floatImageHeight_) {
+void Window::setImage(const vector<vector<float>>& floatImage,const size_t floatImageWidth, const size_t floatImageHeight_) {
+    /*
+    floatImage: image to display
+    floatImagewith: width of the image to display
+    floatImageHeight_: height of the image to display
+
+    Wrapper function for Window::setImage(const float* const* floatImage,const size_t floatImageWidth, const size_t floatImageHeight_)
+    Since the other overload accepts only a float**, this function temporarily copies the vector of vectors (not the data itself) to
+    a new vector (vector<float*>). It is the data() of this array, that are the pointers that are stored in the array of pointers (float**).
+    */
+    vector<const float*> tempVector;
+    tempVector.reserve(floatImage.size());
+    for(const vector<float> & row : floatImage ){
+        tempVector.push_back(row.data());
+    }
+    const float** tempPointer = tempVector.data();
+
+    setImage(tempPointer,floatImageWidth,floatImageHeight_);
+}
+
+void Window::setImage(const float* const* floatImage,const size_t floatImageWidth, const size_t floatImageHeight_) {
     /*
     floatImage: image to display
     floatImagewith: width of the image to display
@@ -358,13 +378,16 @@ void Window::loadFile(string filePath) {
     This function loads a new file after it was loaded through the loadFile screen.
     After it is loaded, it performs an FFT and RIAA and displays the new image to the screen.
     */
+
+
+
     if (filePath == "") {
         return;
     } else {
-        cout << "Loaded " << filePath << endl;
+        cout << "loading file " << filePath << endl;
 
         scan =  std::make_shared<BScan>(filePath);
-        cout << scan->imageFFT << endl;
+        cout << "Loaded " << filePath << endl;
         cout << scan->imageFFT[0][0] << endl;
         cout << scan->BScanSettings.sizeXSpectrum << "x" << scan->BScanSettings.sizeZSpectrum << endl << endl;
 
@@ -388,7 +411,7 @@ void Window::saveFileWithDialog() {
     */
     QString filePath = QFileDialog::getSaveFileName(nullptr,"Save PNG","C:\\","PNG (*.png);;Text file (*.txt)");
     int width, height;
-    float** image;
+    vector<vector<float>> image;
     width = settings->sizeXSpectrum;
     if(settings->useRIAA) {
         height = settings->sizeZSpectrum * settings->upscalingFactor;
@@ -407,7 +430,7 @@ void Window::saveFileWithDialog() {
     if(filePath.right(4).toLower() == ".png") {
         IO<float>::savePng(filePath.toStdString(),imageWidth,imageHeight,bitMapImage);
     } else {
-        IO<float>::save2DArrayToFile(image, width,height, filePath.toStdString(),',');
+        IO<float>::save2DVectorToFile(image, filePath.toStdString(),',');
 
     }
     cout << "Saved" << endl;
