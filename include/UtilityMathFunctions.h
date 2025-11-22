@@ -5,15 +5,20 @@
 #include <algorithm>
 #include <complex>
 #include <iomanip>
+#include <iostream>
 #include <ctime>
 #include <chrono>
 #include <thread>
+#include <fstream>
+#include <string>
 #include <sstream>
 #include <vector>
 #include <optional>
 
 #include <kiss_fft.h>
 #include <kiss_fftr.h>
+
+using namespace std;
 
 
 template <typename floatingPointType>
@@ -33,7 +38,8 @@ private:
     template <typename T>
     struct Spline {
         T a, b, c, d, x0;
-        Spline(T a_, T b_, T c_, T d_, T x0_) : a(a_), b(b_), c(c_), d(d_), x0(x0_) {}//This dummy constructor makes the Spline stuct compatible with vector<>.emplace_back()
+        Spline(T a_, T b_, T c_, T d_, T x0_) : a(a_), b(b_), c(c_), d(d_),
+            x0(x0_) {}//This dummy constructor makes the Spline stuct compatible with vector<>.emplace_back()
         T evaluate(T x) const {
             return a + b*(x - x0) + c*(x - x0)*(x - x0) + d*(x - x0)*(x - x0)*(x - x0);
         }
@@ -50,11 +56,11 @@ public:
             complex<floatingPointType>* y = nullptr);
 
     static vector<complex<floatingPointType>> gohberg(const vector<floatingPointType>& a,const vector<floatingPointType>& x,
-            vector<complex<floatingPointType>>& y = nullopt);
+                                           vector<complex<floatingPointType>>& y = nullopt);
     static vector<complex<floatingPointType>> gohberg(const vector<complex<floatingPointType>>& a,const vector<floatingPointType>& x,
-            vector<complex<floatingPointType>>& y = nullopt);
+                                           vector<complex<floatingPointType>>& y = nullopt);
     static vector<complex<floatingPointType>> gohberg(const vector<complex<floatingPointType>>& a,const vector<complex<floatingPointType>>& x,
-            vector<complex<floatingPointType>>& y = nullopt);
+                                           vector<complex<floatingPointType>>& y = nullopt);
 
 
     static tuple<complex<floatingPointType>*, floatingPointType> levinson(const complex<floatingPointType>*, size_t N,
@@ -64,7 +70,7 @@ public:
     static complex<floatingPointType>* polynomialEstimation(const complex<floatingPointType>*, size_t N,
             complex<floatingPointType>* phi = nullptr);
     static vector<complex<floatingPointType>> polynomialEstimation(const vector<complex<floatingPointType>>& inputVector,
-            vector<complex<floatingPointType>>& phi = nullopt);
+                                           vector<complex<floatingPointType>>& phi = nullopt);
 
     static floatingPointType** processBScan(floatingPointType** spectra, size_t M,const size_t N, int K,int q_init, int q_i, double vt,
                                             int NThreads =1);

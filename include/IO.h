@@ -61,7 +61,8 @@ public:
                         const int imageHeight, const floatingPointType* const* image, bool decibelColorScale = false,double decibelFloor = -120 );
 
 
-    static void savePng(const string filename, const vector<vector<floatingPointType>> image, bool decibelColorScale = false,double decibelFloor = -120 );
+    static void savePng(const string filename, const vector<vector<floatingPointType>> image, bool decibelColorScale = false,
+                        double decibelFloor = -120 );
     static void savePng(const string filename, const vector<vector<floatingPointType>> image, const int imageWidth,
                         const int imageHeight, bool decibelColorScale = false,double decibelFloor = -120 );
 

@@ -35,14 +35,17 @@ public:
 
     void stretchSpectraInPlace(float minimumReferencePower);
     static void FIAALoop(vector<vector<float>>& spectra,BScan* scan,int fromIndex, int toIndex,
-                              size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt, vector<float>& startingColumn,vector<vector<float>>& processedImage );
+                         size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt, vector<float>& startingColumn,
+                         vector<vector<float>>& processedImage );
 
-    vector<vector<float>> processBScan(size_t M,const size_t N, int K,int numberOfIterationsFirstColumn,int numberOfIterations, double vt,int NThreads) ;
+    vector<vector<float>> processBScan(size_t M,const size_t N, int K,int numberOfIterationsFirstColumn,int numberOfIterations, double vt,
+                                       int NThreads) ;
     vector<vector<float>> processBScan();
     void FIAAPartitioned(const vector<float>& x, vector<float>& powerSpectrum,int numberOfIterations = settings->numberOfIterations );
     void FIAAPartitioned(const vector<float>& x,
-                              size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt, vector<float>& powerSpectrum ) ;
-    pair<vector<float>,vector<float>> FIAA(const vector<float>& x, int K, int numberOfIterations, double vt, vector<float>& powerSpectrum, int powerSpectrumIndex);
+                         size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt, vector<float>& powerSpectrum ) ;
+    pair<vector<float>,vector<float>> FIAA(const vector<float>& x, int K, int numberOfIterations, double vt, vector<float>& powerSpectrum,
+                                           int powerSpectrumIndex);
     pair<vector<float>,vector<float>> FIAA(const vector<float>& x, int K, int numberOfIterations, double vt);
     tuple<vector<vector<float>>,int,int> getProcessedBScan();
     void calculateLowResBitmap();

@@ -198,7 +198,7 @@ floatingPointType** UtilityMathFunctions<floatingPointType>::processBScan(floati
 template <typename floatingPointType>
 void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatingPointType* x,
         size_t N, int K, int numberOfPartitions,int q_i, double vt, floatingPointType* powerSpectrum ) {
-        /*Bscan function temporarily left here for debugging.*/
+    /*Bscan function temporarily left here for debugging.*/
     //TODO: limit scope of stack intensive arrays, before calling FIAA function.
     kiss_fft_cfg cfg = kiss_fft_alloc(N, 0, NULL, NULL);
     kiss_fft_cpx FT[N];
@@ -232,7 +232,8 @@ void UtilityMathFunctions<floatingPointType>::fiaa_oct_partitioned(const floatin
         }
         kiss_fft( cfg, temp, localPowerSpectrum);
         for(int i = 0; i<K; i++) {
-            localPowerSpectrum[i].r = powerSpectrum[i] = (localPowerSpectrum[i].r *localPowerSpectrum[i].r  + localPowerSpectrum[i].i *localPowerSpectrum[i].i)/(N*N);
+            localPowerSpectrum[i].r = powerSpectrum[i] = (localPowerSpectrum[i].r *localPowerSpectrum[i].r  + localPowerSpectrum[i].i
+                                      *localPowerSpectrum[i].i)/(N*N);
             localPowerSpectrum[i].i=0;
         }
         kiss_fft_free(cfg);
@@ -549,7 +550,7 @@ tuple<complex<floatingPointType>*, floatingPointType> UtilityMathFunctions<float
 
 template <typename floatingPointType>
 tuple<vector<complex<floatingPointType>>, floatingPointType> UtilityMathFunctions<floatingPointType>::levinson(
-    const vector<complex<floatingPointType>>& inputVector, vector<complex<floatingPointType>>& A) {
+const vector<complex<floatingPointType>>& inputVector, vector<complex<floatingPointType>>& A) {
     /*
     inputVector: input vector and Toeplitz matrix elements
     N: length of the vector
@@ -643,8 +644,9 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(con
 
 
 template <typename floatingPointType>
-vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::gohberg(const vector<floatingPointType>& a,const vector<floatingPointType>& x,
-       vector<complex<floatingPointType>>& y) {
+vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::gohberg(const vector<floatingPointType>& a,
+                                const vector<floatingPointType>& x,
+vector<complex<floatingPointType>>& y) {
     vector<complex<floatingPointType>> aComplex(a.size());
     vector<complex<floatingPointType>> xComplex(a.size());
     for(int i = 0; i < a.size(); i++) {
@@ -668,7 +670,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(con
 
 template <typename floatingPointType>
 vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::gohberg(const vector<complex<floatingPointType>>& a,
-        const vector<floatingPointType>& x,vector<complex<floatingPointType>>& y) {
+const vector<floatingPointType>& x,vector<complex<floatingPointType>>& y) {
     vector<complex<floatingPointType>> xComplex(a.size());
     for(int i = 0; i < a.size(); i++) {
         xComplex[i] = x[i];
@@ -854,7 +856,7 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::gohberg(con
 
 template <typename floatingPointType>
 vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::gohberg(const vector<complex<floatingPointType>>& A,
-        const vector<complex<floatingPointType>>& x, vector<complex<floatingPointType>>& y) {
+const vector<complex<floatingPointType>>& x, vector<complex<floatingPointType>>& y) {
 
     /*
     A: first column of the Toeplitz matrix
@@ -1163,8 +1165,9 @@ complex<floatingPointType>* UtilityMathFunctions<floatingPointType>::polynomialE
 
 
 template <typename floatingPointType>
-vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::polynomialEstimation(const vector<complex<floatingPointType>>& inputVector,
-        vector<complex<floatingPointType>>& phi) {
+vector<complex<floatingPointType>> UtilityMathFunctions<floatingPointType>::polynomialEstimation(const vector<complex<floatingPointType>>&
+                                inputVector,
+vector<complex<floatingPointType>>& phi) {
     //Algorithm from: Fast and accurate spectral-estimation axial super-resolution optical coherence tomography, J. de Wit et al. (2021)
     //Matlab code at https://zenodo.org/records/5482794 (J. de Wit)
 
@@ -1350,7 +1353,8 @@ floatingPointType UtilityMathFunctions<floatingPointType>::SplineInterpolation::
 
 
 template <typename floatingPointType>
-UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(const vector<floatingPointType>& x,const vector<floatingPointType>& y) : N(x.size()){
+UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(const vector<floatingPointType>& x,
+        const vector<floatingPointType>& y) : N(x.size()) {
 
     /*
     x: array of x positions of the spline interpolation
@@ -1409,7 +1413,8 @@ UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolatio
 
 
 template <typename floatingPointType>
-UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(floatingPointType* x,floatingPointType* y,int arrayLength): N(arrayLength){
+UtilityMathFunctions<floatingPointType>::SplineInterpolation::SplineInterpolation(floatingPointType* x,floatingPointType* y,
+        int arrayLength): N(arrayLength) {
 
     /*
     x: array of x positions of the spline interpolation

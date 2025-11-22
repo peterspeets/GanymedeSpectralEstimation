@@ -175,7 +175,7 @@ void Window::setImage(const vector<vector<float>>& floatImage,const size_t float
     */
     vector<const float*> tempVector;
     tempVector.reserve(floatImage.size());
-    for(const vector<float> & row : floatImage ){
+    for(const vector<float> & row : floatImage ) {
         tempVector.push_back(row.data());
     }
     const float** tempPointer = tempVector.data();

@@ -393,7 +393,7 @@ void IO<T>::savePng(const string filename, const int width, const int height, co
         delete[] xProfile;
 
     }
-                    }
+}
 
 template<typename T>
 void IO<T>::savePng(const string filename,const vector<vector<T>> image, const int imageWidth, const int imageHeight,
@@ -503,14 +503,15 @@ void IO<T>::savePng(const string filename,const vector<vector<T>> image, const i
                 xProfile[j] = image[j][i];
             }
 
-            UtilityMathFunctions<float>::SplineInterpolation* spline = new UtilityMathFunctions<float>::SplineInterpolation(xLinspace.data(), xProfile.data(), width);
+            UtilityMathFunctions<float>::SplineInterpolation* spline = new UtilityMathFunctions<float>::SplineInterpolation(xLinspace.data(),
+                    xProfile.data(), width);
             for (int j = 0; j < imageWidth; j++) {
                 resizedImage[j][i] = spline->evaluate(1.0*j / imageWidth);
             }
             delete spline;
         }
         savePng(filename, resizedImage, decibelColorScale, decibelFloor);
-    }else if(width != imageWidth && height != imageHeight) {
+    } else if(width != imageWidth && height != imageHeight) {
         vector<vector<float>> resizedImage;
         resizedImage.reserve(imageHeight);
         vector<float> zLinspace;
@@ -702,7 +703,7 @@ tuple<T**, int, int> IO<T>::load2DArrayFromFile(const string& filename) {
 
 
 template<typename T>
-vector<vector<T>> IO<T>::load2DVectorFromFile(const string& filePath){
+vector<vector<T>> IO<T>::load2DVectorFromFile(const string& filePath) {
     /*
     filePath: path to the text file that contains a 2D array.
 
@@ -771,7 +772,7 @@ vector<vector<T>> IO<T>::load2DVectorFromFile(const string& filePath){
 
 
 template<typename T>
-vector<T> IO<T>::loadVectorFromFile(const string& filePath){
+vector<T> IO<T>::loadVectorFromFile(const string& filePath) {
     /*
     filePath: path to the text file
 
@@ -1402,13 +1403,14 @@ vector<vector<T>> IO<T>::GanymedeFileLoader::loadSpectrum(int spectrumIndex, opt
             }
         }
     }
-    if(referenceSpectrum.has_value()){
+    if(referenceSpectrum.has_value()) {
         referenceSpectrum.value().assign(settings->sizeZSpectrum, 0.0);
         for(i = 0; i < settings->scanStartIndices[spectrumIndex]; i++) {
             for(j = 0; j < settings->sizeZSpectrum; j++) {
                 for(k = 0; k < settings->bytesPerPixelSpectrum; k++) {
-                    referenceSpectrum.value()[j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*(i*settings->sizeXSpectrum+j)+k]<<
-                                            (8*k));
+                    referenceSpectrum.value()[j] += settings->electronCountScaling*(file_contents[settings->bytesPerPixelSpectrum*
+                                                    (i*settings->sizeXSpectrum+j)+k]<<
+                                                    (8*k));
                 }
             }
         }
@@ -1446,7 +1448,7 @@ IO<T>::GanymedeFileLoader::loadCalibrationSpectrum(string spectrumFileName,int a
     unsigned char* file_contents = static_cast<unsigned char*>(p);
     vector<T> spectrum(arrayLength, 0);
 
-    if(bytesPerPixel <= 0){
+    if(bytesPerPixel <= 0) {
         bytesPerPixel = uncomp_size/arrayLength;
         cout << "Set bytes per pixel to " << bytesPerPixel << endl;
     }
@@ -1457,9 +1459,6 @@ IO<T>::GanymedeFileLoader::loadCalibrationSpectrum(string spectrumFileName,int a
         spectrum[i] = value;
     }
 
-    //string fileName = "D:\\data\\ThorlabsCppTestData\\";
-    //fileName = fileName + spectrumFileName.substr(5,spectrumFileName.size()-5);
-    //IO<float>::saveVectorToFile(spectrum, fileName);
     free(file_contents);
 
     return spectrum;
@@ -1510,28 +1509,11 @@ IO<T>::GanymedeFileLoader::GanymedeFileLoader(const string filePath) {
     cout << "Loading spectrum: " ;
     cout << settings->pathsSpectra[0] << endl;
 
-
-
-
-
-    //preprocessSpectrumInPlace(spectra, offset, chirp, referenceSpectrum);
-
-
-
-
-
-    // Call this here instead of the destructor, since it is no longer needed.
-    /*
-    miniz uses malloc to allocate memory, not new.
-    */
-    //delete[] file_contents;
-
 };
-
 
 template <typename T>
 IO<T>::GanymedeFileLoader::~GanymedeFileLoader() {
-
+    mz_zip_reader_end(&OCTArchive);
 }
 
 

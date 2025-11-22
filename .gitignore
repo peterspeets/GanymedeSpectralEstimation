@@ -36,3 +36,6 @@
 
 #Debug folder
 bin/Debug/
+
+#zip files
+*.zip

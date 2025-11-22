@@ -314,7 +314,8 @@ tuple<vector<vector<float>>,int,int> BScan::getProcessedBScan() {
     This function gets the image as calculated with the RIAA algorithm, together with
     its dimensions and returns it as a tuple.
     */
-    tuple<vector<vector<float>>,int,int> output = make_tuple(imageRIAA,settings->sizeXSpectrum,settings->upscalingFactor*settings->sizeZSpectrum);
+    tuple<vector<vector<float>>,int,int> output = make_tuple(imageRIAA,settings->sizeXSpectrum,
+                             settings->upscalingFactor*settings->sizeZSpectrum);
     return output;
 }
 
@@ -420,7 +421,8 @@ void BScan::preprocessSpectrumInPlace() {
             }
 
             if(settings->objectiveDispersionData[settings->objectiveLabel].size() > 1) {
-                dispersionPhase += settings->objectiveDispersionData[settings->objectiveLabel][settings->objectiveDispersionData[settings->objectiveLabel].size()-1];
+                dispersionPhase +=
+                    settings->objectiveDispersionData[settings->objectiveLabel][settings->objectiveDispersionData[settings->objectiveLabel].size()-1];
             }
 
 
@@ -468,7 +470,6 @@ void BScan::preprocessSpectrumInPlace() {
             for(j = 0; j < settings->sizeZSpectrum; j++) {
                 spectra[i][j] = spline.evaluate(  static_cast<float>( j) );
             }
-            //delete spline;
         }
     }
 
@@ -586,8 +587,8 @@ void BScan::stretchSpectraInPlace(float** spectra, float* referenceSpectrum, flo
 }
 
 void BScan::FIAALoop(vector<vector<float>>& spectra,BScan* scan,int fromIndex, int toIndex,
-                          size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt,
-                           vector<float>& startingColumn, vector<vector<float>>& processedImage ) {
+                     size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt,
+                     vector<float>& startingColumn, vector<vector<float>>& processedImage ) {
     /*
     spectra: the spectra that are to be processed
     scan: the stance that contains all data
@@ -638,12 +639,12 @@ void BScan::FIAAPartitioned(const vector<float>& x, vector<float>& powerSpectrum
     Wrapper function that loads some relevant data from the global settings.
     */
     BScan::FIAAPartitioned(x,
-                                settings->sizeZSpectrum, settings->sizeZSpectrum*settings->upscalingFactor,settings->NChunksRIAA,
-                                numberOfIterations, settings->RIAA_NoiseParameter, powerSpectrum );
+                           settings->sizeZSpectrum, settings->sizeZSpectrum*settings->upscalingFactor,settings->NChunksRIAA,
+                           numberOfIterations, settings->RIAA_NoiseParameter, powerSpectrum );
 }
 
 void BScan::FIAAPartitioned(const vector<float>& x,
-                                 size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt, vector<float>& powerSpectrum ) {
+                            size_t N, int K, int numberOfPartitions,int numberOfIterations, double vt, vector<float>& powerSpectrum ) {
     /*
     x: Initial value
     N: Number of A-scans
@@ -717,7 +718,7 @@ void BScan::FIAAPartitioned(const vector<float>& x,
         pair<vector<float>, vector<float>> fiaa_output;
         if(chunkIndex != -1) {
             fiaa_output = FIAA(partialSignalReal,  K/numberOfPartitions,numberOfIterations,
-                                   vt,powerSpectrum, chunkIndex*K/(2*numberOfPartitions) );
+                               vt,powerSpectrum, chunkIndex*K/(2*numberOfPartitions) );
         } else {
             for(int i = chunkIndex*K/(numberOfPartitions*2); i < K; i++) {
                 powerSpectrum[i] = 0.0;
@@ -759,7 +760,7 @@ pair<vector<float>,vector<float>> BScan::FIAA(const vector<float>& x, int K, int
 }
 
 pair<vector<float>,vector<float>> BScan::FIAA(const vector<float>& x, int K, int numberOfIterations, double vt,
-                                              vector<float>& powerSpectrum ,int powerSpectrumIndex) {
+vector<float>& powerSpectrum,int powerSpectrumIndex) {
     /*
     x: initial value
     K: length of the A-scan
@@ -925,9 +926,8 @@ vector<vector<float>> BScan::processBScan() {
 
 
 
-
-
-vector<vector<float>> BScan::processBScan(size_t M,const size_t N, int K,int numberOfIterationsFirstColumn,int numberOfIterations, double vt,int NThreads) {
+vector<vector<float>> BScan::processBScan(size_t M,const size_t N, int K,int numberOfIterationsFirstColumn,int numberOfIterations,
+double vt,int NThreads) {
 
     /*
     M: number of A-scans
@@ -981,7 +981,8 @@ vector<vector<float>> BScan::processBScan(size_t M,const size_t N, int K,int num
 
             stopIndex = threadIndex * (M/NThreads);
             cout << "backwards " << startIndex << "  " << stopIndex << endl;
-            threads.emplace_back(FIAALoop,ref(spectra),this,startIndex-1,stopIndex-1,N,K,4,numberOfIterations,vt,ref(imageRIAA[startIndex]),ref(imageRIAA));
+            threads.emplace_back(FIAALoop,ref(spectra),this,startIndex-1,stopIndex-1,N,K,4,numberOfIterations,vt,ref(imageRIAA[startIndex]),
+                                 ref(imageRIAA));
         } else {
             startIndex = (threadIndex) * (M/NThreads);
 
@@ -991,7 +992,8 @@ vector<vector<float>> BScan::processBScan(size_t M,const size_t N, int K,int num
                 stopIndex = (threadIndex+1) * (M/NThreads)-1;
             }
             cout << "forwards " << startIndex << "  " << stopIndex << endl;
-            threads.emplace_back(FIAALoop, ref(spectra),this,startIndex+1,stopIndex+1,N,K,4,numberOfIterations,vt,ref(imageRIAA[startIndex]),ref(imageRIAA));
+            threads.emplace_back(FIAALoop, ref(spectra),this,startIndex+1,stopIndex+1,N,K,4,numberOfIterations,vt,ref(imageRIAA[startIndex]),
+                                 ref(imageRIAA));
         }
     }
 
@@ -1014,5 +1016,5 @@ vector<vector<float>> BScan::processBScan(size_t M,const size_t N, int K,int num
 
 
 BScan::~BScan() {
-    /*Todo, change class logic such that spectra are deleted here, or better use vectors.*/
+
 }
